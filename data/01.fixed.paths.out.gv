@@ -1,0 +1,50 @@
+strict digraph G
+{
+	graph [label = "Starting node: Act_1\nPath length: 3\nAllow cycles: 0\nSolutions: 9" rankdir = LR]
+
+	"1" [label = "Act_1"]
+	"2" [label = "Act_23"]
+	"3" [label = "Act_25"]
+	"4" [label = "Act_3"]
+	"5" [label = "Act_1"]
+	"6" [label = "Act_23"]
+	"7" [label = "Act_25"]
+	"8" [label = "Act_24"]
+	"9" [label = "Act_1"]
+	"10" [label = "Act_23"]
+	"11" [label = "Act_24"]
+	"12" [label = "Ext_3"]
+	"13" [label = "Act_1"]
+	"14" [label = "Act_23"]
+	"15" [label = "Act_24"]
+	"16" [label = "Act_25"]
+	"17" [label = "Act_1"]
+	"18" [label = "Act_23"]
+	"19" [label = "Act_24"]
+	"20" [label = "Act_22"]
+	"21" [label = "Act_1"]
+	"22" [label = "Act_23"]
+	"23" [label = "Act_22"]
+	"24" [label = "Act_24"]
+	"25" [label = "Act_1"]
+	"26" [label = "Act_23"]
+	"27" [label = "Act_22"]
+	"28" [label = "Act_21"]
+	"29" [label = "Act_1"]
+	"30" [label = "Act_21"]
+	"31" [label = "Act_22"]
+	"32" [label = "Act_24"]
+	"33" [label = "Act_1"]
+	"34" [label = "Act_21"]
+	"35" [label = "Act_22"]
+	"36" [label = "Act_23"]
+	"1" -> "2" -> "3" -> "4";
+	"5" -> "6" -> "7" -> "8";
+	"9" -> "10" -> "11" -> "12";
+	"13" -> "14" -> "15" -> "16";
+	"17" -> "18" -> "19" -> "20";
+	"21" -> "22" -> "23" -> "24";
+	"25" -> "26" -> "27" -> "28";
+	"29" -> "30" -> "31" -> "32";
+	"33" -> "34" -> "35" -> "36";
+}

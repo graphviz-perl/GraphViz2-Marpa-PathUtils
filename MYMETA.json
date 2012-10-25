@@ -1,0 +1,72 @@
+{
+   "abstract" : "Provide various analyses of Graphviz dot files",
+   "author" : [
+      "Ron Savage <ron@savage.net.au>"
+   ],
+   "dynamic_config" : 0,
+   "generated_by" : "Module::Build version 0.4003, CPAN::Meta::Converter version 2.120630",
+   "license" : [
+      "artistic_1"
+   ],
+   "meta-spec" : {
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+      "version" : "2"
+   },
+   "name" : "GraphViz2-Marpa-PathUtils",
+   "prereqs" : {
+      "build" : {
+         "requires" : {
+            "Test::More" : "0.98",
+            "Test::Pod" : "1.44"
+         }
+      },
+      "configure" : {
+         "requires" : {
+            "Module::Build" : "0.38"
+         }
+      },
+      "runtime" : {
+         "requires" : {
+            "Capture::Tiny" : "0.1",
+            "Config::Tiny" : "2.14",
+            "Date::Format" : "2.24",
+            "File::Copy" : "2.21",
+            "File::HomeDir" : "0.99",
+            "File::Slurp" : "9999.19",
+            "File::Which" : "1.09",
+            "Getopt::Long" : "2.38",
+            "GraphViz2" : "2.05",
+            "GraphViz2::Marpa" : "1.06",
+            "Hash::FieldHash" : "0.1",
+            "IPC::Run3" : "0.045",
+            "Path::Class" : "0.23",
+            "Pod::Usage" : "1.36",
+            "Set::Tiny" : "0.01",
+            "Text::Xslate" : "1.4001",
+            "Tree" : "1.01",
+            "feature" : "1.2",
+            "open" : "1.08",
+            "parent" : "0.225",
+            "strict" : "1.03",
+            "warnings" : "1.03"
+         }
+      }
+   },
+   "provides" : {
+      "GraphViz2::Marpa::PathUtils" : {
+         "file" : "lib/GraphViz2/Marpa/PathUtils.pm",
+         "version" : "1.01"
+      },
+      "GraphViz2::Marpa::PathUtils::Config" : {
+         "file" : "lib/GraphViz2/Marpa/PathUtils/Config.pm",
+         "version" : "1.01"
+      }
+   },
+   "release_status" : "stable",
+   "resources" : {
+      "license" : [
+         "http://www.perlfoundation.org/artistic_license_1_0"
+      ]
+   },
+   "version" : "1.01"
+}

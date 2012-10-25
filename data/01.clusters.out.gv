@@ -1,0 +1,68 @@
+digraph Perl
+{
+graph [ label="Cluster set" rankdir="LR" ]
+node [ shape="oval" style="filled" ]
+edge [ color="grey" ]
+
+subgraph "cluster J" {
+graph [ label="Cluster J" rankdir="LR" ]
+node [ shape="oval" style="filled" ]
+edge [ color="grey" ]
+
+"J" [ color="bisque" ]
+}
+
+subgraph "cluster I" {
+graph [ label="Cluster I" rankdir="LR" ]
+node [ shape="oval" style="filled" ]
+edge [ color="grey" ]
+
+"I" [ color="aquamarine" ]
+"M"
+"I" -> "M" [ label="" ]
+}
+
+subgraph "cluster F" {
+graph [ label="Cluster F" rankdir="LR" ]
+node [ shape="oval" style="filled" ]
+edge [ color="grey" ]
+
+"F" [ color="lawngreen" ]
+"L"
+"F" -> "L" [ label="" ]
+"G" [ color="coral" ]
+"L"
+"G" -> "L" [ label="" ]
+"L"
+"H" [ color="crimson" ]
+"L" -> "H" [ label="" ]
+}
+
+subgraph "cluster A" {
+graph [ label="Cluster A" rankdir="LR" ]
+node [ shape="oval" style="filled" ]
+edge [ color="grey" ]
+
+"A" [ color="aquamarine" ]
+"K"
+"A" -> "K" [ label="" ]
+"B" [ color="yellow" ]
+"C" [ color="pink" ]
+"B" -> "C" [ label="" ]
+"C" [ color="pink" ]
+"X"
+"C" -> "X" [ label="" ]
+"D" [ color="bisque" ]
+"K"
+"D" -> "K" [ label="" ]
+"K"
+"B" [ color="yellow" ]
+"K" -> "B" [ label="" ]
+"K"
+"E" [ color="blueviolet" ]
+"K" -> "E" [ label="" ]
+"X"
+"Y"
+"X" -> "Y" [ label="" ]
+}
+}

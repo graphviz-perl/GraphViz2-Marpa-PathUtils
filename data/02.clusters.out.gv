@@ -1,0 +1,72 @@
+digraph syntax
+{
+graph [ label="Cluster set" rankdir="TB" ]
+node [ color="orange" ]
+edge [ color="blue" ]
+
+subgraph "cluster A"
+{
+graph [ label="Cluster A" rankdir="TB" ]
+node [ color="orange" ]
+edge [ color="blue" ]
+
+"A"
+"B"
+"A" -> "B" [ label="" ]
+}
+
+subgraph "cluster C"
+{
+graph [ label="Cluster C" rankdir="TB" ]
+node [ color="orange" ]
+edge [ color="blue" ]
+
+"C"
+"D"
+"C" -> "D" [ label="" ]
+}
+
+subgraph "cluster E"
+{
+graph [ label="Cluster E" rankdir="TB" ]
+node [ color="orange" ]
+edge [ color="blue" ]
+
+"E"
+"F"
+"E" -> "F" [ label="" ]
+}
+
+subgraph "cluster G"
+{
+graph [ label="Cluster G" rankdir="TB" ]
+node [ color="orange" ]
+edge [ color="blue" ]
+
+"G"
+"H"
+"G" -> "H" [ label="" ]
+}
+
+subgraph "cluster I"
+{
+graph [ label="Cluster I" rankdir="TB" ]
+node [ color="orange" ]
+edge [ color="blue" ]
+
+"I"
+"J"
+"I" -> "J" [ label="" ]
+}
+
+subgraph "cluster K"
+{
+graph [ label="Cluster K" rankdir="TB" ]
+node [ color="orange" ]
+edge [ color="blue" ]
+
+"K"
+"L"
+"K" -> "L" [ label="" ]
+}
+}
