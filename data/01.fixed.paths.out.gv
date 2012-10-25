@@ -1,15 +1,15 @@
-strict digraph G
+digraph G
 {
 	graph [label = "Starting node: Act_1\nPath length: 3\nAllow cycles: 0\nSolutions: 9" rankdir = LR]
 
 	"1" [label = "Act_1"]
 	"2" [label = "Act_23"]
 	"3" [label = "Act_25"]
-	"4" [label = "Act_3"]
+	"4" [label = "Act_24"]
 	"5" [label = "Act_1"]
 	"6" [label = "Act_23"]
 	"7" [label = "Act_25"]
-	"8" [label = "Act_24"]
+	"8" [label = "Act_3"]
 	"9" [label = "Act_1"]
 	"10" [label = "Act_23"]
 	"11" [label = "Act_24"]

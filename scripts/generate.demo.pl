@@ -46,13 +46,13 @@ my($templater) = Text::Xslate -> new
   path        => $$config{template_path},
 );
 my($count)        = 0;
-my(@demo_file)    = sort grep{! /(?:index|unique)/} read_dir('html');
+my(@demo_file)    = sort grep{! /index/} read_dir('html');
 my(@cluster_in)   = grep{/\.clusters.*\.in\./}    @demo_file;
 my(@cluster_out)  = grep{/\.clusters.*\.out\./}   @demo_file;
 my(@fixed_in)     = grep{/\.fixed\.paths\.in\./}  @demo_file;
 my(@fixed_out)    = grep{/\.fixed\.paths\.out\./} @demo_file;
 
-say map{"$_\n"} @demo_file;
+say map{"Demo file: $_\n"} @demo_file;
 
 my(@cluster);
 

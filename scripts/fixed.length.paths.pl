@@ -29,6 +29,7 @@ if ($option_parser -> getoptions
 	'output_file=s',
 	'parsed_file=s',
 	'path_length=i',
+	'report_forest=i',
 	'report_items=i',
 	'report_paths=i',
 	'start_node=s',
@@ -69,6 +70,7 @@ fixed.length.paths.pl [options]
 	-output_file aDOTInputFileName
 	-parsed_file aParsedOutputFileName
 	-path_length $integer
+	-report_forest $Boolean
 	-report_items $Boolean
 	-report_paths $Boolean
 	-start_node aNodeName
@@ -176,6 +178,12 @@ The default means the file is not written.
 The path length which all detected trees must have.
 
 Defailt: 0.
+
+=item o -report_forest $Boolean
+
+Log the forest parsed from the input file.
+
+Default: 0.
 
 =item o -report_items $Boolean
 

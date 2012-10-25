@@ -70,6 +70,8 @@ sub _find_cluster_members
 
 	for my $node ($tree -> traverse)
 	{
+		next if ($node -> is_root);
+
 		$value            = $node -> value;
 		$$cluster{$value} = 1;
 
@@ -114,29 +116,27 @@ sub _find_cluster_paths
 		}
 		else
 		{
-			$self -> traverse_forest
-			(
-				sub
+			for my $node ($self -> parser -> forest -> traverse)
+			{
+				next if ($node -> is_root);
+
+				$value_1 = $node -> value;
+
+				if (defined $member{$value_1})
 				{
-					my($node) = @_;
-					$value_1  = $node -> value;
+					$edge = ${$node -> meta}{edge};
 
-					if (defined $member{$value_1})
+					for my $kid ($node -> children)
 					{
-						$edge = ${$node -> meta}{edge};
+						$value_2 = $kid -> value;
 
-						for my $kid ($node -> children)
+						if (defined $member{$value_2} && ($value_1 ne $value_2) )
 						{
-							$value_2 = $kid -> value;
-
-							if (defined $member{$value_2} && ($value_1 ne $value_2) )
-							{
-								push @edge_set, [$value_1, $value_2];
-							}
+							push @edge_set, [$value_1, $value_2];
 						}
 					}
 				}
-			);
+			}
 		}
 
 		@edge_set = sort{$$a[0] cmp $$b[0]} @edge_set;
@@ -159,7 +159,7 @@ sub find_clusters
 
 	# Run code common to all algorithms.
 
-	$self -> _set_up_tree;
+	$self -> _set_up_forest;
 
 	# Process the tree.
 
@@ -187,31 +187,24 @@ sub _find_fixed_length_candidates
 
 	my(@neighbours);
 
-	$self -> traverse_forest
-	(
-		sub
+	for my $node ($self -> parser -> forest -> traverse)
+	{
+		next if ($node -> is_root);
+
+		# We only want neighbours of the current node.
+		# So, skip this node if:
+		# o It is the root node.
+		# o It is not the current node.
+
+		next if ($node -> value ne $current_node -> value);
+
+		# Now find its neighbours.
+
+		for my $n ($node -> parent, $node -> children)
 		{
-			my($node) = @_;
-
-			# We only want neighbours of the current node.
-			# So, skip this node if:
-			# o It is the root node.
-			# o It is not the current node.
-
-			return if ($node -> value ne $current_node -> value);
-
-			# Now find its neighbours.
-
-			my(@check) = $node -> children;
-
-			push @check, $node -> parent if (! $node -> is_root);
-
-			for my $n (@check)
-			{
-				push @neighbours, $n;
-			}
+			push @neighbours, $n if (! $n -> is_root);
 		}
-	);
+	}
 
 	# Elements:
 	# 0 .. N - 1: The neighbours.
@@ -292,31 +285,26 @@ sub _find_fixed_length_path_set
 
 sub _find_fixed_length_paths
 {
-	my($self)   = @_;
-	my($forest) = $self -> forest;
+	my($self) = @_;
 
 	# Phase 1: Find all copies of the start node.
 
-	my(@stack);
+	my(@start);
 
-	$self -> traverse_forest
-	(
-		sub
-		{
-			my($node) = @_;
+	for my $node ($self -> parser -> forest -> traverse)
+	{
+		next if ($node -> is_root);
 
-			push @stack, $node if ($node -> value eq $self -> start_node);
-		}
-	);
+		push @start, $node if ($node -> value eq $self -> start_node);
+	}
 
 	# Give up if the given node was not found.
-	# Return 0 for success and 1 for failure.
 
-	die 'Error: Start node (', $self -> start_node, ") not found\n" if ($#stack < 0);
+	die 'Error: Start node (', $self -> start_node, ") not found\n" if ($#start < 0);
 
 	# Phase 2: Process each copy of the start node.
 
-	$self -> _find_fixed_length_path_set(\@stack);
+	$self -> _find_fixed_length_path_set(\@start);
 	$self -> _winnow_fixed_length_paths;
 
 } # End of _find_fixed_length_paths.
@@ -333,7 +321,7 @@ sub find_fixed_length_paths
 
 	# Run code common to all algorithms.
 
-	$self -> _set_up_tree;
+	$self -> _set_up_forest;
 
 	# Process the tree.
 
@@ -380,6 +368,18 @@ sub _init
 	return $self;
 
 } # End of _init.
+
+# --------------------------------------------------
+
+sub new
+{
+	my($class, %arg) = @_;
+	my($self)        = bless {}, $class;
+	$self            = $self -> _init(\%arg);
+
+	return $self;
+
+}	# End of new.
 
 # -----------------------------------------------
 
@@ -543,14 +543,14 @@ sub _prepare_fixed_length_output
 
 	# Now output the paths, using the nodes' original names as labels.
 
-	my(%attributes)  = %{$self -> attributes};
-	my($orientation) = $attributes{class}{graph}{rankdir} ? $attributes{class}{graph}{rankdir} : 'LR';
-
-	my($graph) = qq|\tgraph [label = \"$title\" rankdir = $orientation]|;
+	my(%style)       = %{$self -> parser -> style};
+	my($orientation) = $style{rankdir} ? $style{rankdir} : 'LR';
+	my(%type)        = %{$self -> parser -> type};
+	my($graph)       = qq|\tgraph [label = \"$title\" rankdir = $orientation]|;
 
 	my(@dot_text);
 
-	push @dot_text, 'strict ' . ($attributes{digraph} ? 'digraph ' : 'graph ') . $attributes{graph_id}[0], '{', $graph, '';
+	push @dot_text, ($type{strict} ? 'strict ' : '') . ($type{digraph} ? 'digraph ' : 'graph ') . $type{graph_id}, '{', $graph, '';
 
 	for my $set (@set)
 	{
@@ -560,9 +560,11 @@ sub _prepare_fixed_length_output
 		}
 	}
 
+	my($edge) = $type{digraph} ? ' -> ' : ' -- ';
+
 	for my $set (@set)
 	{
-		push @dot_text, "\t" . join(' -> ', map{qq|"$$_{name}"|} @$set) .";";
+		push @dot_text, "\t" . join($edge, map{qq|"$$_{name}"|} @$set) .";";
 	}
 
 	push @dot_text, '}', '';
@@ -609,7 +611,7 @@ sub report_fixed_length_paths
 # Parse the input dot file and build a forest of all paths.
 # Also, find the ancestor of each node in each path.
 
-sub _set_up_tree
+sub _set_up_forest
 {
 	my($self) = @_;
 
@@ -619,26 +621,7 @@ sub _set_up_tree
 
 	$self -> log(info => "Result of calling lexer and parser: $result (0 is success)");
 
-	my($items) = [@{$self -> parser -> items}];
-
-} # End of _set_up_tree.
-
-# -----------------------------------------------
-
-sub traverse_forest
-{
-	my($self, $sub) = @_;
-	my($forest) = $self -> forest;
-
-	for my $key (sort{$$forest{$a} -> value cmp $$forest{$b} -> value} keys %$forest)
-	{
-		for my $node ($$forest{$key} -> traverse($$forest{$key} -> PRE_ORDER) )
-		{
-			$sub -> ($node);
-		}
-	}
-
-} # End of traverse_forest.
+} # End of _set_up_forest.
 
 # -----------------------------------------------
 # Eliminate clusters with the same members.
@@ -1192,15 +1175,6 @@ Here the [] indicate an optional parameter.
 Get or set the name of the node from where all paths must start.
 
 'start_node' is a parameter to L</new()>. See L</Constructor and Initialization> for details.
-
-=head2 traverse_forest($sub)
-
-Scans all trees returned by L</forest()> and calls $sub on each node, passing the node in as the only
-parameter to $sub.
-
-Note: This node is an object of type L<Tree>.
-
-See, e.g., the source code of sub _find_fixed_length_paths() for sample usage.
 
 =head2 tree_dot_file([$name])
 
