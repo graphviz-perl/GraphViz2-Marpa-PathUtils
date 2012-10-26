@@ -37,8 +37,10 @@ $class -> new
 	requires =>
 	{
 		Capture::Tiny    => 0.10,
+		Config           => undef,
 		Config::Tiny     => 2.14,
 		Date::Format     => 2.24,
+		Date::Simple     => 3.03,
 		feature          => 1.20,
 		File::Copy       => 2.21,
 		File::HomeDir    => 0.99,

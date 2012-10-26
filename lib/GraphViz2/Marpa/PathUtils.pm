@@ -977,6 +977,10 @@ to generate html/index.html.
 
 Runs generate.demo.pl and then copies html/*.html and html/*.svg to my web server's dir, $DR/Perl-modules/html/graphviz2.pathutils/.
 
+=item o pod2html.sh
+
+Converts all *.pm files to *.html, and copies them in my web server's dir structure.
+
 =item o test.set.tiny.pl
 
 Check that L<Set::Tiny>'s is_subset() and is_proper_subset() behave as expected.
