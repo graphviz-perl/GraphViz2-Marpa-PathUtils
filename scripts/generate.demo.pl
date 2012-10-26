@@ -6,99 +6,58 @@ use strict;
 use warnings;
 use warnings qw(FATAL utf8);
 
-use Date::Format; # For time2str().
-
-use File::Slurp; # For read_dir().
+use Getopt::Long;
 
 use GraphViz2::Marpa::PathUtils;
-use GraphViz2::Marpa::PathUtils::Config;
 
-use Text::Xslate 'mark_raw';
-
-# -----------------------------------------------
-
-sub build_table
-{
-	my($templater, $file_name) = @_;
-
-	my($table) = $templater -> render
-	(
-		'basic.table.tx',
-		{
-			border => 0,
-			row    => [ [map{ {td => mark_raw $_} } @$file_name] ],
-		}
-	);
-
-	say $table;
-	say '-' x 50;
-
-	return $table;
-
-} # End of build_table.
+use Pod::Usage;
 
 # -----------------------------------------------
 
-my($config)    = GraphViz2::Marpa::PathUtils::Config -> new -> config;
-my($templater) = Text::Xslate -> new
+my($option_parser) = Getopt::Long::Parser -> new();
+
+my(%option);
+
+if ($option_parser -> getoptions
 (
-  input_layer => '',
-  path        => $$config{template_path},
-);
-my($count)        = 0;
-my(@demo_file)    = sort grep{! /index/} read_dir('html');
-my(@cluster_in)   = grep{/\.clusters.*\.in\./}    @demo_file;
-my(@cluster_out)  = grep{/\.clusters.*\.out\./}   @demo_file;
-my(@fixed_in)     = grep{/\.fixed\.paths\.in\./}  @demo_file;
-my(@fixed_out)    = grep{/\.fixed\.paths\.out\./} @demo_file;
-
-say map{"Demo file: $_\n"} @demo_file;
-
-my(@cluster);
-
-for my $i (0 .. $#cluster_in)
+	\%option,
+	'help',
+) )
 {
-	push @cluster,
-	[
-		{td => mark_raw qq|<object data="$cluster_in[$i]">|},
-		{td => $cluster_in[$i]},
-	],
-	[
-		{td => mark_raw qq|<object data="$cluster_out[$i]">|},
-		{td => $cluster_out[$i]},
-	];
+	pod2usage(1) if ($option{'help'});
+
+	exit GraphViz2::Marpa::PathUtils -> new(%option) -> generate_demo;
+}
+else
+{
+	pod2usage(2);
 }
 
-my(@fixed_path);
+__END__
 
-for my $i (0 .. $#fixed_in)
-{
-	push @fixed_path,
-	[
-		{td => mark_raw qq|<object data="$fixed_in[$i]">|},
-		{td => $fixed_in[$i]},
-	],
-	[
-		{td => mark_raw qq|<object data="$fixed_out[$i]">|},
-		{td => $fixed_out[$i]},
-	];
-}
+=pod
 
-my($index) = $templater -> render
-(
-	'pathutils.report.tx',
-	{
-		border       => 1,
-		cluster_data => [@cluster],
-		date_stamp   => time2str('%Y-%m-%d %T', time),
-		fixed_data   => [@fixed_path],
-		version      => $GraphViz2::Marpa::PathUtils::VERSION,
-	}
-);
-my($file_name) = File::Spec -> catfile('html', 'index.html');
+=head1 NAME
 
-open(OUT, '>', $file_name);
-print OUT $index;
-close OUT;
+generate.demo.pl - Generate GraphViz2::Marpa::PathUtils' html/index.html.
 
-print "Wrote: $file_name. \n";
+=head1 SYNOPSIS
+
+generate.demo.pl [options]
+
+	Options:
+	-help
+
+Exit value: 0 for success, 1 for failure. Die upon error.
+
+=head1 OPTIONS
+
+=over 4
+
+=item o -help
+
+Print help and exit.
+
+=back
+
+=cut

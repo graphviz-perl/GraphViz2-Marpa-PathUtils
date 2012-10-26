@@ -1,5 +1,13 @@
-digraph G {
-	style=bold;
+digraph G
+{
+	rankdir = LR
+	style   = bold;
+
+	A [color = red]
+	B [color = green]
+	C [color = blue]
+	D [color = magenta]
+
 	A -> B -> C -> D;
 	A -> B -> C -> D;
 }

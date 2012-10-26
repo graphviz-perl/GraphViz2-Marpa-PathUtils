@@ -1,12 +1,22 @@
 package GraphViz2::Marpa::PathUtils;
 
+use feature qw/say unicode_strings/;
+use open qw(:std :utf8);
 use parent 'GraphViz2::Marpa';
 use strict;
 use warnings;
+use warnings qw(FATAL utf8);
 
+use Config;
+
+use Date::Format; # For time2str().
+use Date::Simple;
+
+use File::Slurp; # For read_dir().
 use File::Which; # For which().
 
 use GraphViz2;
+use GraphViz2::Marpa::PathUtils::Config;
 
 use Hash::FieldHash ':all';
 
@@ -14,12 +24,15 @@ use IPC::Run3; # For run3().
 
 use Set::Tiny;
 
+use Text::Xslate 'mark_raw';
+
 use Tree;
 
 fieldhash my %allow_cycles     => 'allow_cycles';
 fieldhash my %attributes       => 'attributes';
 fieldhash my %cluster_edge_set => 'cluster_edge_set';
 fieldhash my %cluster_set      => 'cluster_set';
+fieldhash my %config           => 'config';
 fieldhash my %dot_input        => 'dot_input';
 fieldhash my %dot_output       => 'dot_output';
 fieldhash my %driver           => 'driver';
@@ -345,6 +358,97 @@ sub find_fixed_length_paths
 
 # -----------------------------------------------
 
+sub generate_demo
+{
+	my($self)        = @_;
+	my(@demo_file)   = sort grep{! /index/} read_dir('html');
+	my(@cluster_in)  = grep{/\.clusters.*\.in\./}    @demo_file;
+	my(@cluster_out) = grep{/\.clusters.*\.out\./}   @demo_file;
+	my(@fixed_in)    = grep{/\.fixed\.paths\.in\./}  @demo_file;
+	my(@fixed_out)   = grep{/\.fixed\.paths\.out\./} @demo_file;
+
+	my(@cluster);
+
+	for my $i (0 .. $#cluster_in)
+	{
+		push @cluster,
+		[
+			{td => mark_raw qq|<object data="$cluster_in[$i]">|},
+			{td => $cluster_in[$i]},
+		],
+		[
+			{td => mark_raw qq|<object data="$cluster_out[$i]">|},
+			{td => $cluster_out[$i]},
+		];
+	}
+
+	my(@fixed_path);
+
+	for my $i (0 .. $#fixed_in)
+	{
+		push @fixed_path,
+		[
+			{td => mark_raw qq|<object data="$fixed_in[$i]">|},
+			{td => $fixed_in[$i]},
+		],
+		[
+			{td => mark_raw qq|<object data="$fixed_out[$i]">|},
+			{td => $fixed_out[$i]},
+		];
+	}
+
+	my($config)    = $self -> config;
+	my($templater) = Text::Xslate -> new
+	(
+	  input_layer => '',
+	  path        => $$config{template_path},
+	);
+	my($index) = $templater -> render
+	(
+		'pathutils.report.tx',
+		{
+			border          => 1,
+			cluster_data    => [@cluster],
+			date_stamp      => time2str('%Y-%m-%d %T', time),
+			default_css     => "$$config{css_url}/default.css",
+			environment     => $self -> generate_demo_environment,
+			fancy_table_css => "$$config{css_url}/fancy.table.css",
+			fixed_data      => [@fixed_path],
+			version         => $GraphViz2::Marpa::PathUtils::VERSION,
+		}
+	);
+	my($file_name) = File::Spec -> catfile('html', 'index.html');
+
+	open(OUT, '>', $file_name);
+	print OUT $index;
+	close OUT;
+
+	$self -> log(notice => "Wrote: $file_name");
+
+} # End of generate_demo.
+
+# ------------------------------------------------
+
+sub generate_demo_environment
+{
+	my($self) = @_;
+
+	my(@environment);
+
+	# mark_raw() is needed because of the HTML tag <a>.
+
+	push @environment,
+	{left => 'Author', right => mark_raw(qq|<a href="http://savage.net.au/">Ron Savage</a>|)},
+	{left => 'Date',   right => Date::Simple -> today},
+	{left => 'OS',     right => 'Debian V 6'},
+	{left => 'Perl',   right => $Config{version} };
+
+	return \@environment;
+}
+ # End of generate_demo_environment.
+
+# -----------------------------------------------
+
 sub _init
 {
 	my($self, $arg)         = @_;
@@ -352,6 +456,7 @@ sub _init
 	$$arg{attributes}       = {};
 	$$arg{cluster_edge_set} = {};
 	$$arg{cluster_set}      = {};
+	$$arg{config}           = GraphViz2::Marpa::PathUtils::Config -> new -> config;
 	$$arg{dot_input}        = '';
 	$$arg{dot_output}       = '';
 	$$arg{driver}           ||= which('dot'); # Caller can set.
@@ -514,31 +619,33 @@ sub _prepare_fixed_length_output
 	my($self, $title) = @_;
 
 	# We have to rename all the nodes so they can all be included
-	# in a DOT file without dot linking them based on their names.
+	# in a single DOT file without dot linking them based on their names.
 
-	my($new_name) = 0;
+	my($nodes)  = $self -> parser -> nodes;
+	my($new_id) = 0;
 
 	my($name);
 	my(@set);
 
 	for my $set (@{$self -> fixed_path_set})
 	{
-		my(@name);
-		my(%seen);
+		my(%node_set);
 
 		for my $node (@$set)
 		{
 			$name = $node -> value;
 
-			if (! defined($seen{$name}) )
-			{
-				$seen{$name} = ++$new_name;
-			}
+			# Allow for paths with loops, so we don't declare the same node twice.
+			# Actually, I doubt Graphviz would care, since each declaration would be identical.
+			# Also, later, we sort by name (i.e. $new_id) to get the order of nodes in the path.
 
-			push @name, {label => $name, name => $seen{$name} };
+			if (! defined($node_set{$name}) )
+			{
+				$node_set{$name} = {label => $name, name => ++$new_id, %{$$nodes{$name}{attributes} } };
+			}
 		}
 
-		push @set, [@name];
+		push @set, [{%node_set}];
 	}
 
 	# Now output the paths, using the nodes' original names as labels.
@@ -552,19 +659,30 @@ sub _prepare_fixed_length_output
 
 	push @dot_text, ($type{strict} ? 'strict ' : '') . ($type{digraph} ? 'digraph ' : 'graph ') . $type{graph_id}, '{', $graph, '';
 
+	# Firstly, declare all nodes.
+
+	my($attributes);
+
 	for my $set (@set)
 	{
 		for my $node (@$set)
 		{
-			push @dot_text, qq|\t\"$$node{name}\" [label = \"$$node{label}\"]|;
+			for $name (sort keys %$node)
+			{
+				$attributes = join(' ', map{"$_ = $$node{$name}{$_}"} sort keys %{$$node{$name} });
+
+				push @dot_text, qq|\t\"$$node{$name}{name}\" [$attributes]|;
+			}
 		}
 	}
+
+	# Secondly, declare all edges.
 
 	my($edge) = $type{digraph} ? ' -> ' : ' -- ';
 
 	for my $set (@set)
 	{
-		push @dot_text, "\t" . join($edge, map{qq|"$$_{name}"|} @$set) .";";
+#		push @dot_text, "\t" . join($edge, map{'"' . $$set{$_}{name} . '"'} keys %$set) . ";";
 	}
 
 	push @dot_text, '}', '';
