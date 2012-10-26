@@ -52,11 +52,11 @@ __END__
 
 =head1 NAME
 
-fixed.length.paths.pl - Run GraphViz2::Marpa::PathUtils.
+find.fixed.length.paths.pl - Run GraphViz2::Marpa::PathUtils.
 
 =head1 SYNOPSIS
 
-fixed.length.paths.pl [options]
+find.fixed.length.paths.pl [options]
 
 	Options:
 	-allow_cycles $integer

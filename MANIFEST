@@ -11,8 +11,12 @@ data/01.fixed.paths.out.gv
 data/02.clusters.in.csv
 data/02.clusters.in.gv
 data/02.clusters.out.gv
+data/02.fixed.paths.in.csv
 data/02.fixed.paths.in.gv
+data/02.fixed.paths.out.gv
+data/03.fixed.paths.in.csv
 data/03.fixed.paths.in.gv
+data/03.fixed.paths.out.gv
 data/11.clusters.in.csv
 data/11.clusters.in.gv
 data/11.clusters.out.gv
@@ -26,22 +30,16 @@ htdocs/assets/templates/graphviz2/marpa/pathutils/basic.column.tx
 htdocs/assets/templates/graphviz2/marpa/pathutils/basic.table.tx
 htdocs/assets/templates/graphviz2/marpa/pathutils/fancy.table.tx
 htdocs/assets/templates/graphviz2/marpa/pathutils/pathutils.report.tx
-html/01.clusters.complex.in.svg
-html/01.clusters.complex.out.svg
-html/01.clusters.in.svg
-html/01.clusters.out.svg
 html/01.fixed.paths.in.svg
 html/01.fixed.paths.out.svg
-html/01.non.unique.svg
-html/02.clusters.in.svg
-html/02.clusters.out.svg
 html/02.fixed.paths.in.svg
 html/02.fixed.paths.out.svg
-html/03.clusters.in.svg
-html/03.clusters.out.svg
+html/03.fixed.paths.in.svg
+html/03.fixed.paths.out.svg
 html/index.html
 lib/GraphViz2/Marpa/PathUtils.pm
 lib/GraphViz2/Marpa/PathUtils/Config.pm
+lib/GraphViz2/Marpa/PathUtils/Demo.pm
 Makefile.PL
 MANIFEST			This list of files
 META.json
@@ -53,6 +51,8 @@ scripts/find.clusters.sh
 scripts/fixed.length.paths.pl
 scripts/fixed.length.paths.sh
 scripts/generate.demo.pl
+scripts/generate.demo.sh
+scripts/pod2html.sh
 scripts/test.set.tiny.pl
 t/pod.t
 t/test.all.t

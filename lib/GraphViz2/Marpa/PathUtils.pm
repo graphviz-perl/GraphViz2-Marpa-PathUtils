@@ -915,7 +915,7 @@ And then:
 
 Command line usage:
 
-	shell> perl scripts/fixed.length.paths.pl -h
+	shell> perl scripts/find.fixed.length.paths.pl -h
 
 Or see scripts/fixed.length.paths.sh, which hard-codes my test data values.
 
@@ -952,26 +952,30 @@ This runs find.clusters.pl with hard-coded parameters, and is what I use for tes
 
 Then it runs generate.demo.pl.
 
-Lastly it copies the output to my web server's doc root, called $DR.
+Lastly it copies the output to my web server's dir, $DR/Perl-modules/html/graphviz2.pathutils/.
 
-=item o fixed.length.paths.pl
+=item o find.fixed.length.paths.pl
 
 This runs the L</find_fixed_length_paths()> method in GraphViz2::Marpa::PathUtils.
 
-Try shell> perl fixed.length.paths.pl -h
+Try shell> perl find.fixed.length.paths.pl -h
 
-=item o fixed.length.paths.sh
+=item o find.fixed.length.paths.sh
 
-This runs fixed.length.paths.pl with hard-coded parameters, and is what I use for testing new code.
+This runs find.fixed.length.paths.pl with hard-coded parameters, and is what I use for testing new code.
 
 Then it runs generate.demo.pl.
 
-Lastly it copies the output to my web server's doc root, called $DR.
+Lastly it copies the output to my web server's doc dir, $DR/Perl-modules/html/graphviz2.pathutils/.
 
 =item o generate.demo.pl
 
 This uses the L<Text::Xslate> template file htdocs/assets/templates/graphviz2/marpa/pathutils/pathutils.tx
 to generate html/index.html.
+
+=item o generate.demo.sh
+
+Runs generate.demo.pl and then copies html/*.html and html/*.svg to my web server's dir, $DR/Perl-modules/html/graphviz2.pathutils/.
 
 =item o test.set.tiny.pl
 
@@ -1215,7 +1219,7 @@ Returns 0 for success and 1 for failure.
 This is one of the methods which does all the work, and hence must be called.
 The other is L</find_clusters()>.
 
-See the L</Synopsis> and scripts/fixed.length.paths.pl.
+See the L</Synopsis> and scripts/find.fixed.length.paths.pl.
 
 Returns 0 for success and 1 for failure.
 

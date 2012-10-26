@@ -21,6 +21,9 @@ provides:
   GraphViz2::Marpa::PathUtils::Config:
     file: lib/GraphViz2/Marpa/PathUtils/Config.pm
     version: 1.01
+  GraphViz2::Marpa::PathUtils::Demo:
+    file: lib/GraphViz2/Marpa/PathUtils/Demo.pm
+    version: 1.01
 requires:
   Capture::Tiny: 0.1
   Config::Tiny: 2.14
@@ -41,6 +44,7 @@ requires:
   Tree: 1.01
   feature: 1.2
   open: 1.08
+  parent: 0.225
   strict: 1.03
   warnings: 1.03
 resources:

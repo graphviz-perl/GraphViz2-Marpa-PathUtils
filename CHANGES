@@ -4,6 +4,7 @@ Revision history for Perl extension GraphViz2::Marpa::PathUtils.
 	- Implement find_clusters() which finds mutually-exclusive clusters.
 	- Rename data/* and html/* demo files.
 	- Re-write scripts/generate.demo.pl to handle new code and file names.
+	- Put the demo generating code into GraphViz2::Marpa::PathUtils::Demo.
 
 1.00  Mon Sep 24 17:35:00 2012
 	- Original version
