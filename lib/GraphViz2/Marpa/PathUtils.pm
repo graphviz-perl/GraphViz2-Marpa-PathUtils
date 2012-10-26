@@ -629,7 +629,7 @@ sub _prepare_fixed_length_output
 
 	for my $set (@{$self -> fixed_path_set})
 	{
-		my(%node_set);
+		my(%node_set, @node_set);
 
 		for my $node (@$set)
 		{
@@ -643,9 +643,11 @@ sub _prepare_fixed_length_output
 			{
 				$node_set{$name} = {label => $name, name => ++$new_id, %{$$nodes{$name}{attributes} } };
 			}
+
+			push @node_set, $node_set{$name};
 		}
 
-		push @set, [{%node_set}];
+		push @set, [@node_set];
 	}
 
 	# Now output the paths, using the nodes' original names as labels.
@@ -661,18 +663,13 @@ sub _prepare_fixed_length_output
 
 	# Firstly, declare all nodes.
 
-	my($attributes);
+	my($s);
 
 	for my $set (@set)
 	{
 		for my $node (@$set)
 		{
-			for $name (sort keys %$node)
-			{
-				$attributes = join(' ', map{"$_ = $$node{$name}{$_}"} sort keys %{$$node{$name} });
-
-				push @dot_text, qq|\t\"$$node{$name}{name}\" [$attributes]|;
-			}
+			push @dot_text, qq|\t\"$$node{name}\" [| . join(' ', map{qq|$_ = \"$$node{$_}\"|} sort keys %$node) . ']';
 		}
 	}
 
@@ -682,7 +679,7 @@ sub _prepare_fixed_length_output
 
 	for my $set (@set)
 	{
-#		push @dot_text, "\t" . join($edge, map{'"' . $$set{$_}{name} . '"'} keys %$set) . ";";
+			push @dot_text, "\t" . join($edge, map{'"' . $$_{name} . '"'} @$set) . ";";
 	}
 
 	push @dot_text, '}', '';
