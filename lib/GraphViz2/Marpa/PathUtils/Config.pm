@@ -121,7 +121,7 @@ If the file can't be read, die is called.
 
 The path to the config file is determined by:
 
-	Path::Class::file(File::HomeDir -> my_dist_config('GraphViz2-Marpa-PathUtils'), '.htgraphviz2.marpa.pathutils..conf');
+	Path::Class::file(File::HomeDir -> my_dist_config('GraphViz2-Marpa-PathUtils'), '.htgraphviz2.marpa.pathutils.conf');
 
 During installation, you should have run scripts/copy.config.pl, which uses the same code, to move the config file
 from the config/ directory in the disto into an OS-dependent directory.

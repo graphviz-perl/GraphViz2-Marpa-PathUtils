@@ -1,35 +1,4 @@
-digraph Perl
+digraph graph_01
 {
-graph [ rankdir="LR" ]
-node  [ shape="oval" ]
-edge  [ color="grey" ]
-node  [ style="filled" ]
-
-A [ color="aquamarine" ]
-B [ color="yellow" ]
-C [ color="pink" ]
-D [ color="bisque" ]
-E [ color="blueviolet" ]
-K
-
-D -> K [ arrowhead="none" label="" samehead="1" ]
-A -> K [ arrowhead="none" label="" samehead="1" ]
-K -> B [ label="" sametail="1" ]
-K -> E [ label="" sametail="1" ]
-B -> C -> X -> Y [arrowhead="odot"]
-
-F [ color="lawngreen" ]
-G [ color="coral" ]
-H [ color="crimson" ]
-L
-
-F -> L [ arrowhead="none" label="" samehead="1" ]
-G -> L [ arrowhead="none" label="" samehead="1" ]
-L -> H [ label="" sametail="1" ]
-
-I [ color="aquamarine" ]
-J [ color="bisque" ]
-M
-
-I -> M [ arrowhead="none" label="" samehead="1" ]
+	node_01
 }

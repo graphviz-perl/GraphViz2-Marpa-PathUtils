@@ -1,4 +1,4 @@
-package GraphViz2::Marpa::PathUtils::Demo;
+package GraphViz2::Marpa::PathUtils::Utils;
 
 use feature qw/say unicode_strings/;
 use open qw(:std :utf8);
@@ -11,8 +11,10 @@ use Config;
 use Date::Format; # For time2str().
 use Date::Simple;
 
+use File::Spec;
 use File::Slurp; # For read_dir().
 
+use GraphViz2::Marpa::PathUtils;
 use GraphViz2::Marpa::PathUtils::Config;
 
 use Hash::FieldHash ':all';
@@ -25,12 +27,58 @@ our $VERSION = '1.01';
 
 # -----------------------------------------------
 
+sub find_clusters
+{
+	my($self, $data_dir, $html_dir, $file_name) = @_;
+	my($graph) = GraphViz2::Marpa::PathUtils -> new;
+
+	my($parsed_file_name);
+	my($tree_dot_name, $tree_image_name);
+
+#	perl -Ilib scripts/find.clusters.pl -input data/$FILE.in.gv \
+#	-parsed_file data/$FILE.in.csv -tree_dot_file data/$FILE.out.gv \
+#	-report_clusters 1 -tree_image html/$FILE.out.svg
+
+	my($result);
+
+	for my $input_file_name (@$file_name)
+	{
+		$parsed_file_name = $input_file_name =~ s/gv$/csv/r;
+		$tree_dot_name    = $input_file_name =~ s/\.in\./\.out\./r;
+		$tree_image_name  = $input_file_name =~ s/in.gv/out.svg/r;
+
+		$graph -> input_file(File::Spec -> catfile($data_dir, $input_file_name) );
+		$graph -> maxlevel('debug');
+		$graph -> parsed_file(File::Spec -> catfile($data_dir, $parsed_file_name) );
+		$graph -> report_clusters(1);
+		$graph -> report_forest(1);
+		$graph -> tree_dot_file(File::Spec -> catfile($data_dir, $tree_dot_name) );
+		$graph -> tree_image_file(File::Spec -> catfile($html_dir, $tree_image_name) );
+
+		$result = $graph -> find_clusters;
+
+		if ($result == 1)
+		{
+			die "$input_file_name, $parsed_file_name, $tree_dot_name, $tree_image_name\n";
+		}
+	}
+
+} # End of find_clusters.
+# -----------------------------------------------
+
 sub generate_demo
 {
-	my($self)        = @_;
-	my(@demo_file)   = sort grep{! /index/} read_dir('html');
-	my(@cluster_in)  = grep{/\.clusters.*\.in\./}    @demo_file;
-	my(@cluster_out) = grep{/\.clusters.*\.out\./}   @demo_file;
+	my($self)       = @_;
+	my($data_dir)   = 'data';
+	my($html_dir)   = 'html';
+	my(@demo_file)  = sort grep{! /index/} read_dir($data_dir);
+	my(@cluster_in) = grep{/\.clusters.*\.in\.gv/} @demo_file;
+
+	$self -> find_clusters($data_dir, $html_dir, \@cluster_in);
+
+	return 1;
+
+	my(@cluster_out) = grep{/\.clusters.*\.out\.gv/}   @demo_file;
 	my(@fixed_in)    = grep{/\.fixed\.paths\.in\./}  @demo_file;
 	my(@fixed_out)   = grep{/\.fixed\.paths\.out\./} @demo_file;
 

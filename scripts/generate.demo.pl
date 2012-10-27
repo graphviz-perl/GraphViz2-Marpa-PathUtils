@@ -8,7 +8,7 @@ use warnings qw(FATAL utf8);
 
 use Getopt::Long;
 
-use GraphViz2::Marpa::PathUtils::Demo;
+use GraphViz2::Marpa::PathUtils::Utils;
 
 use Pod::Usage;
 
@@ -26,7 +26,7 @@ if ($option_parser -> getoptions
 {
 	pod2usage(1) if ($option{'help'});
 
-	exit GraphViz2::Marpa::PathUtils::Demo -> new(%option) -> generate_demo;
+	exit GraphViz2::Marpa::PathUtils::Utils -> new(%option) -> generate_demo;
 }
 else
 {
