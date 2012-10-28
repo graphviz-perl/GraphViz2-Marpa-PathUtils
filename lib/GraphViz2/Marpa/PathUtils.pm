@@ -396,97 +396,6 @@ sub find_fixed_length_paths
 
 # -----------------------------------------------
 
-sub generate_demo
-{
-	my($self)        = @_;
-	my(@demo_file)   = sort grep{! /index/} read_dir('html');
-	my(@cluster_in)  = grep{/\.clusters.*\.in\./}    @demo_file;
-	my(@cluster_out) = grep{/\.clusters.*\.out\./}   @demo_file;
-	my(@fixed_in)    = grep{/\.fixed\.paths\.in\./}  @demo_file;
-	my(@fixed_out)   = grep{/\.fixed\.paths\.out\./} @demo_file;
-
-	my(@cluster);
-
-	for my $i (0 .. $#cluster_in)
-	{
-		push @cluster,
-		[
-			{td => mark_raw qq|<object data="$cluster_in[$i]">|},
-			{td => $cluster_in[$i]},
-		],
-		[
-			{td => mark_raw qq|<object data="$cluster_out[$i]">|},
-			{td => $cluster_out[$i]},
-		];
-	}
-
-	my(@fixed_path);
-
-	for my $i (0 .. $#fixed_in)
-	{
-		push @fixed_path,
-		[
-			{td => mark_raw qq|<object data="$fixed_in[$i]">|},
-			{td => $fixed_in[$i]},
-		],
-		[
-			{td => mark_raw qq|<object data="$fixed_out[$i]">|},
-			{td => $fixed_out[$i]},
-		];
-	}
-
-	my($config)    = $self -> config;
-	my($templater) = Text::Xslate -> new
-	(
-	  input_layer => '',
-	  path        => $$config{template_path},
-	);
-	my($index) = $templater -> render
-	(
-		'pathutils.report.tx',
-		{
-			border          => 1,
-			cluster_data    => [@cluster],
-			date_stamp      => time2str('%Y-%m-%d %T', time),
-			default_css     => "$$config{css_url}/default.css",
-			environment     => $self -> generate_demo_environment,
-			fancy_table_css => "$$config{css_url}/fancy.table.css",
-			fixed_data      => [@fixed_path],
-			version         => $GraphViz2::Marpa::PathUtils::VERSION,
-		}
-	);
-	my($file_name) = File::Spec -> catfile('html', 'index.html');
-
-	open(OUT, '>', $file_name);
-	print OUT $index;
-	close OUT;
-
-	$self -> log(notice => "Wrote: $file_name");
-
-} # End of generate_demo.
-
-# ------------------------------------------------
-
-sub generate_demo_environment
-{
-	my($self) = @_;
-
-	my(@environment);
-
-	# mark_raw() is needed because of the HTML tag <a>.
-
-	push @environment,
-	{left => 'Author', right => mark_raw(qq|<a href="http://savage.net.au/">Ron Savage</a>|)},
-	{left => 'Date',   right => Date::Simple -> today},
-	{left => 'OS',     right => 'Debian V 6'},
-	{left => 'Perl',   right => $Config{version} };
-
-	return \@environment;
-}
- # End of generate_demo_environment.
-
-# -----------------------------------------------
-
 sub _init
 {
 	my($self, $arg)         = @_;
@@ -534,21 +443,21 @@ sub output_cluster_image
 
 	return if (! $self -> tree_dot_file && ! $self -> tree_image_file);
 
-	my(%attributes) = %{$self -> attributes};
-
+	my(%nodes) = %{$self -> parser -> nodes};
+	my(%style) = %{$self -> parser -> style};
+	my(%type)  = %{$self -> parser -> type};
 	my($graph) = GraphViz2 -> new
 		(
-			edge   => $attributes{class}{edge},
-			global => {directed => $attributes{digraph}, name => $attributes{graph_id}[0]},
-			graph  => {rankdir => 'LR'}, # TODO %{$attributes{class}{graph} } },
+			edge   => '', # TODO.
+			global => {directed => $type{digraph}, name => $type{graph_id}, strict => $type{strict} },
+			graph  => {label => 'Cluster set', rankdir => $style{rankdir} || 'LR'},
 			logger => $self -> logger,
-			node   => $attributes{class}{node},
+			node   => '', # TODO.
 		);
 
 	# Note: $graph -> run() must be called even if $self -> tree_image_file is '',
 	# so as to generate $graph -> dot_input, which is used below.
 
-	my(%attr);
 	my($cluster_name);
 	my($from);
 	my($to);
@@ -563,15 +472,12 @@ sub output_cluster_image
 		{
 			$from = $$node[0];
 			$to   = $$node[1];
-			%attr = defined $attributes{node}{$from} ? %{$attributes{node}{$from} } : ();
 
-			$graph -> add_node(name => $from);
+			$graph -> add_node(name => $from, %{$nodes{$from}{attributes} });
 
 			if (defined $to)
 			{
-				%attr = defined $attributes{node}{$to} ? %{$attributes{node}{$to} } : ();
-
-				$graph -> add_node(name => $to);
+				$graph -> add_node(name => $to, %{$nodes{$to}{attributes} });
 				$graph -> add_edge(from => $from, to => $to);
 			}
 		}

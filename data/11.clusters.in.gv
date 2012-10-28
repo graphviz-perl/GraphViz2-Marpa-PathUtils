@@ -10,7 +10,7 @@ node [shape = Msquare]
 
 B
 
-graph [label = "Class Demo"]
+graph [label = "Class Demo" rankdir = LR]
 
 A -> B
 }

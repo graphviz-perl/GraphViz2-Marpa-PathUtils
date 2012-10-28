@@ -1,22 +1,22 @@
-graph Perl
+digraph graph_03
 {
-graph [ label="Cluster set" rankdir="LR" ]
+graph [ label="Cluster set" rankdir="TB" ]
 
 subgraph "cluster A"
 {
-graph [ label="Cluster A" rankdir="LR" ]
+graph [ label="Cluster A" rankdir="TB" ]
 
-"A"
-"B"
-"A" -- "B" [ label="" ]
+"A" [ color="blue" ]
+"B" [ color="blue" ]
+"A" -> "B" [ label="" ]
 }
 
 subgraph "cluster C"
 {
-graph [ label="Cluster C" rankdir="LR" ]
+graph [ label="Cluster C" rankdir="TB" ]
 
-"C"
-"D"
-"C" -- "D" [ label="" ]
+"C" [ color="blue" ]
+"D" [ color="blue" ]
+"C" -> "D" [ label="" ]
 }
 }

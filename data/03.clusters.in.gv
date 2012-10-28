@@ -1,5 +1,9 @@
 digraph graph_03
 {
+	rankdir = TB
+
+	node [color = blue]
+
 	A -> B
 	C -> D
 }

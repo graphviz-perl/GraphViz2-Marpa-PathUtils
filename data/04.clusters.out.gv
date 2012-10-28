@@ -1,4 +1,4 @@
-graph Perl
+digraph graph_04
 {
 graph [ label="Cluster set" rankdir="LR" ]
 
@@ -6,23 +6,23 @@ subgraph "cluster A"
 {
 graph [ label="Cluster A" rankdir="LR" ]
 
-"A"
-"B"
-"A" -- "B" [ label="" ]
-"A"
-"C"
-"A" -- "C" [ label="" ]
-"B"
-"C"
-"B" -- "C" [ label="" ]
-"B"
-"D"
-"B" -- "D" [ label="" ]
-"C"
-"D"
-"C" -- "D" [ label="" ]
-"D"
-"A"
-"D" -- "A" [ label="" ]
+"A" [ color="magenta" ]
+"B" [ color="magenta" ]
+"A" -> "B" [ label="" ]
+"A" [ color="magenta" ]
+"C" [ color="magenta" ]
+"A" -> "C" [ label="" ]
+"B" [ color="magenta" ]
+"C" [ color="magenta" ]
+"B" -> "C" [ label="" ]
+"B" [ color="magenta" ]
+"D" [ color="magenta" ]
+"B" -> "D" [ label="" ]
+"C" [ color="magenta" ]
+"D" [ color="magenta" ]
+"C" -> "D" [ label="" ]
+"D" [ color="magenta" ]
+"A" [ color="magenta" ]
+"D" -> "A" [ label="" ]
 }
 }

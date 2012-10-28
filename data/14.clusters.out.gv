@@ -1,4 +1,4 @@
-graph Perl
+digraph Perl
 {
 graph [ label="Cluster set" rankdir="LR" ]
 
@@ -6,69 +6,69 @@ subgraph "cluster A"
 {
 graph [ label="Cluster A" rankdir="LR" ]
 
-"A"
-"K"
-"A" -- "K" [ label="" ]
-"D"
-"K"
-"D" -- "K" [ label="" ]
-"K"
-"E"
-"K" -- "E" [ label="" ]
+"A" [ color="aquamarine" shape="oval" style="filled" ]
+"K" [ shape="oval" style="filled" ]
+"A" -> "K" [ label="" ]
+"D" [ color="bisque" shape="oval" style="filled" ]
+"K" [ shape="oval" style="filled" ]
+"D" -> "K" [ label="" ]
+"K" [ shape="oval" style="filled" ]
+"E" [ color="blueviolet" shape="oval" style="filled" ]
+"K" -> "E" [ label="" ]
 }
 
 subgraph "cluster A"
 {
 graph [ label="Cluster A" rankdir="LR" ]
 
-"A"
-"K"
-"A" -- "K" [ label="" ]
-"B"
-"C"
-"B" -- "C" [ label="" ]
-"C"
-"X"
-"C" -- "X" [ label="" ]
-"D"
-"K"
-"D" -- "K" [ label="" ]
-"K"
-"B"
-"K" -- "B" [ label="" ]
-"X"
-"Y"
-"X" -- "Y" [ label="" ]
+"A" [ color="aquamarine" shape="oval" style="filled" ]
+"K" [ shape="oval" style="filled" ]
+"A" -> "K" [ label="" ]
+"B" [ color="yellow" shape="oval" style="filled" ]
+"C" [ color="pink" shape="oval" style="filled" ]
+"B" -> "C" [ label="" ]
+"C" [ color="pink" shape="oval" style="filled" ]
+"X" [ shape="oval" style="filled" ]
+"C" -> "X" [ label="" ]
+"D" [ color="bisque" shape="oval" style="filled" ]
+"K" [ shape="oval" style="filled" ]
+"D" -> "K" [ label="" ]
+"K" [ shape="oval" style="filled" ]
+"B" [ color="yellow" shape="oval" style="filled" ]
+"K" -> "B" [ label="" ]
+"X" [ shape="oval" style="filled" ]
+"Y" [ shape="oval" style="filled" ]
+"X" -> "Y" [ label="" ]
 }
 
 subgraph "cluster F"
 {
 graph [ label="Cluster F" rankdir="LR" ]
 
-"F"
-"L"
-"F" -- "L" [ label="" ]
-"G"
-"L"
-"G" -- "L" [ label="" ]
-"L"
-"H"
-"L" -- "H" [ label="" ]
+"F" [ color="lawngreen" shape="oval" style="filled" ]
+"L" [ shape="oval" style="filled" ]
+"F" -> "L" [ label="" ]
+"G" [ color="coral" shape="oval" style="filled" ]
+"L" [ shape="oval" style="filled" ]
+"G" -> "L" [ label="" ]
+"L" [ shape="oval" style="filled" ]
+"H" [ color="crimson" shape="oval" style="filled" ]
+"L" -> "H" [ label="" ]
 }
 
 subgraph "cluster I"
 {
 graph [ label="Cluster I" rankdir="LR" ]
 
-"I"
-"M"
-"I" -- "M" [ label="" ]
+"I" [ color="aquamarine" shape="oval" style="filled" ]
+"M" [ shape="oval" style="filled" ]
+"I" -> "M" [ label="" ]
 }
 
 subgraph "cluster J"
 {
 graph [ label="Cluster J" rankdir="LR" ]
 
-"J"
+"J" [ color="bisque" shape="oval" style="filled" ]
 }
 }

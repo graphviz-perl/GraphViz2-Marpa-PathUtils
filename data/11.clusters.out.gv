@@ -1,4 +1,4 @@
-graph Perl
+digraph graph_51
 {
 graph [ label="Cluster set" rankdir="LR" ]
 
@@ -6,8 +6,8 @@ subgraph "cluster A"
 {
 graph [ label="Cluster A" rankdir="LR" ]
 
-"A"
-"B"
-"A" -- "B" [ label="" ]
+"A" [ shape="Mdiamond" ]
+"B" [ shape="Msquare" ]
+"A" -> "B" [ label="" ]
 }
 }
