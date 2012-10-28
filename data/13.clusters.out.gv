@@ -8,16 +8,16 @@ graph [ label="Cluster A" rankdir="TB" ]
 
 "A" [ color="blue" ]
 "B" [ color="mediumseagreen" fillcolor="goldenrod" shape="square" style="filled" ]
-"A" -> "B" [ label="" ]
+"A" -> "B" [ color="purple" label="" ]
 "B" [ color="mediumseagreen" fillcolor="goldenrod" shape="square" style="filled" ]
 "C" [ color="firebrick1" shape="house" ]
-"B" -> "C" [ label="" ]
+"B" -> "C" [ color="orange" label="" penwidth="5" ]
 "C" [ color="firebrick1" shape="house" ]
 "D" [ fillcolor="turquoise4" shape="circle" style="filled" ]
-"C" -> "D" [ label="" ]
+"C" -> "D" [ arrowhead="crow" arrowtail="obox" color="purple" dir="both" label="" minlen="2" ]
 "D" [ fillcolor="turquoise4" shape="circle" style="filled" ]
 "E" [ fillcolor="turquoise4" shape="circle" style="filled" ]
-"D" -> "E" [ label="" ]
+"D" -> "E" [ arrowhead="dot" arrowtail="odot" color="purple" dir="both" label="" minlen="2" penwidth="5" ]
 }
 
 subgraph "cluster F"
@@ -26,7 +26,7 @@ graph [ label="Cluster F" rankdir="TB" ]
 
 "F" [ color="darkorchid" fillcolor="yellow" penwidth="5" shape="hexagon" style="filled" ]
 "G" [ color="crimson" fillcolor="darkorchid" penwidth="7" shape="pentagon" style="filled" ]
-"F" -> "G" [ label="" ]
+"F" -> "G" [ color="purple" label="" ]
 }
 
 subgraph "cluster H"
@@ -35,7 +35,7 @@ graph [ label="Cluster H" rankdir="TB" ]
 
 "H" [ fillcolor="lightblue" fontsize="20" shape="house" style="filled" ]
 "I" [ fillcolor="lightblue" fontsize="20" shape="house" style="filled" ]
-"H" -> "I" [ label="" ]
+"H" -> "I" [ color="purple" label="" ]
 }
 
 subgraph "cluster J"
@@ -44,6 +44,6 @@ graph [ label="Cluster J" rankdir="TB" ]
 
 "J" [ color="yellow" fillcolor="magenta" fontsize="26" shape="square" style="filled" ]
 "K" [ fillcolor="magenta" fontsize="26" shape="triangle" style="filled" ]
-"J" -> "K" [ label="" ]
+"J" -> "K" [ color="blue" label="" ]
 }
 }

@@ -230,6 +230,38 @@ sub find_clusters
 } # End of find_clusters.
 
 # -----------------------------------------------
+
+sub _find_edge_attributes
+{
+	my($self, $from, $to) = @_;
+	my($found) = 0;
+
+	my($from_value);
+	my($to_value);
+
+	for my $node ($self -> parser -> edges -> traverse)
+	{
+		next if ($node -> is_root);
+
+		$from_value = $node -> value;
+
+		next if ($from ne $from_value);
+
+		for my $child ($node -> children)
+		{
+			$to_value = $child -> value;
+
+			next if ($to ne $to_value);
+
+			return $node -> meta;
+		}
+	}
+
+	return {};
+
+} # End of _find_edge_attributes.
+
+# -----------------------------------------------
 # Find N candidates for the next node along the path.
 
 sub _find_fixed_length_candidates
@@ -460,6 +492,7 @@ sub output_cluster_image
 
 	my($cluster_name);
 	my($from);
+	my(%seen);
 	my($to);
 
 	for my $cluster (@{$self -> cluster_edge_set})
@@ -475,10 +508,15 @@ sub output_cluster_image
 
 			$graph -> add_node(name => $from, %{$nodes{$from}{attributes} });
 
+			# Allow for the case of 1-node (isolated node) clusters.
+
 			if (defined $to)
 			{
+				$seen{$from}      = {} if (! $seen{$from});
+				$seen{$from}{$to} = $self -> _find_edge_attributes($from, $to) if (! $seen{$from}{$to});
+
 				$graph -> add_node(name => $to, %{$nodes{$to}{attributes} });
-				$graph -> add_edge(from => $from, to => $to);
+				$graph -> add_edge(from => $from, to => $to, %{$seen{$from}{$to} });
 			}
 		}
 

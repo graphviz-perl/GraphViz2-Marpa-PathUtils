@@ -8,6 +8,6 @@ graph [ label="Cluster A" rankdir="LR" ]
 
 "A" [ shape="Mdiamond" ]
 "B" [ shape="Msquare" ]
-"A" -> "B" [ label="" ]
+"A" -> "B" [ color="blue" label="" ]
 }
 }

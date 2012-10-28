@@ -8,13 +8,13 @@ graph [ label="Cluster A" rankdir="LR" ]
 
 "A" [ color="aquamarine" shape="oval" style="filled" ]
 "K" [ shape="oval" style="filled" ]
-"A" -> "K" [ label="" ]
+"A" -> "K" [ arrowhead="none" color="grey" label="" samehead="1" ]
 "D" [ color="bisque" shape="oval" style="filled" ]
 "K" [ shape="oval" style="filled" ]
-"D" -> "K" [ label="" ]
+"D" -> "K" [ arrowhead="none" color="grey" label="" samehead="1" ]
 "K" [ shape="oval" style="filled" ]
 "E" [ color="blueviolet" shape="oval" style="filled" ]
-"K" -> "E" [ label="" ]
+"K" -> "E" [ color="grey" label="" sametail="1" ]
 }
 
 subgraph "cluster A"
@@ -23,22 +23,22 @@ graph [ label="Cluster A" rankdir="LR" ]
 
 "A" [ color="aquamarine" shape="oval" style="filled" ]
 "K" [ shape="oval" style="filled" ]
-"A" -> "K" [ label="" ]
+"A" -> "K" [ arrowhead="none" color="grey" label="" samehead="1" ]
 "B" [ color="yellow" shape="oval" style="filled" ]
 "C" [ color="pink" shape="oval" style="filled" ]
-"B" -> "C" [ label="" ]
+"B" -> "C" [ color="grey" label="" ]
 "C" [ color="pink" shape="oval" style="filled" ]
 "X" [ shape="oval" style="filled" ]
-"C" -> "X" [ label="" ]
+"C" -> "X" [ color="grey" label="" ]
 "D" [ color="bisque" shape="oval" style="filled" ]
 "K" [ shape="oval" style="filled" ]
-"D" -> "K" [ label="" ]
+"D" -> "K" [ arrowhead="none" color="grey" label="" samehead="1" ]
 "K" [ shape="oval" style="filled" ]
 "B" [ color="yellow" shape="oval" style="filled" ]
-"K" -> "B" [ label="" ]
+"K" -> "B" [ color="grey" label="" sametail="1" ]
 "X" [ shape="oval" style="filled" ]
 "Y" [ shape="oval" style="filled" ]
-"X" -> "Y" [ label="" ]
+"X" -> "Y" [ arrowhead="odot" color="grey" label="" ]
 }
 
 subgraph "cluster F"
@@ -47,13 +47,13 @@ graph [ label="Cluster F" rankdir="LR" ]
 
 "F" [ color="lawngreen" shape="oval" style="filled" ]
 "L" [ shape="oval" style="filled" ]
-"F" -> "L" [ label="" ]
+"F" -> "L" [ arrowhead="none" color="grey" label="" samehead="1" ]
 "G" [ color="coral" shape="oval" style="filled" ]
 "L" [ shape="oval" style="filled" ]
-"G" -> "L" [ label="" ]
+"G" -> "L" [ arrowhead="none" color="grey" label="" samehead="1" ]
 "L" [ shape="oval" style="filled" ]
 "H" [ color="crimson" shape="oval" style="filled" ]
-"L" -> "H" [ label="" ]
+"L" -> "H" [ color="grey" label="" sametail="1" ]
 }
 
 subgraph "cluster I"
@@ -62,7 +62,7 @@ graph [ label="Cluster I" rankdir="LR" ]
 
 "I" [ color="aquamarine" shape="oval" style="filled" ]
 "M" [ shape="oval" style="filled" ]
-"I" -> "M" [ label="" ]
+"I" -> "M" [ arrowhead="none" color="grey" label="" samehead="1" ]
 }
 
 subgraph "cluster J"
