@@ -450,7 +450,7 @@ sub output_cluster_image
 		(
 			edge   => '', # TODO.
 			global => {directed => $type{digraph}, name => $type{graph_id}, strict => $type{strict} },
-			graph  => {label => 'Cluster set', rankdir => $style{rankdir} || 'LR'},
+			graph  => {label => $style{label} || 'Cluster set', rankdir => $style{rankdir} || 'LR'},
 			logger => $self -> logger,
 			node   => '', # TODO.
 		);

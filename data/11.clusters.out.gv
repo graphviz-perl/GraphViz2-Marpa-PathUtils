@@ -1,6 +1,6 @@
 digraph graph_51
 {
-graph [ label="Cluster set" rankdir="LR" ]
+graph [ label="Class Demo" rankdir="LR" ]
 
 subgraph "cluster A"
 {

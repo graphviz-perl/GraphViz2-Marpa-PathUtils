@@ -9,7 +9,7 @@
 <g id="graph1" class="graph" transform="scale(1 1) rotate(0) translate(4 144)">
 <title>graph_51</title>
 <polygon fill="white" stroke="white" points="-4,5 -4,-144 163,-144 163,5 -4,5"/>
-<text text-anchor="middle" x="79" y="-10.4" font-family="Times Roman,serif" font-size="14.00">Cluster set</text>
+<text text-anchor="middle" x="79" y="-10.4" font-family="Times Roman,serif" font-size="14.00">Class Demo</text>
 <g id="graph2" class="cluster"><title>cluster A</title>
 <polygon fill="none" stroke="black" points="8,-35 8,-132 150,-132 150,-35 8,-35"/>
 <text text-anchor="middle" x="79" y="-115.4" font-family="Times Roman,serif" font-size="14.00">Cluster A</text>

@@ -1,58 +1,49 @@
-strict digraph syntax
+strict digraph graph_55
 {
-graph [ label="Cluster set" rankdir="TB" ]
+graph [ label="Complex Syntax Test" rankdir="TB" ]
 
 subgraph "cluster A"
 {
 graph [ label="Cluster A" rankdir="TB" ]
 
-"A" [ shape="oval" ]
-"B" [ shape="house" ]
+"A" [ color="blue" ]
+"B" [ color="mediumseagreen" fillcolor="goldenrod" shape="square" style="filled" ]
 "A" -> "B" [ label="" ]
-}
-
-subgraph "cluster C"
-{
-graph [ label="Cluster C" rankdir="TB" ]
-
-"C" [ shape="house" ]
-"D" [ shape="oval" ]
+"B" [ color="mediumseagreen" fillcolor="goldenrod" shape="square" style="filled" ]
+"C" [ color="firebrick1" shape="house" ]
+"B" -> "C" [ label="" ]
+"C" [ color="firebrick1" shape="house" ]
+"D" [ fillcolor="turquoise4" shape="circle" style="filled" ]
 "C" -> "D" [ label="" ]
+"D" [ fillcolor="turquoise4" shape="circle" style="filled" ]
+"E" [ fillcolor="turquoise4" shape="circle" style="filled" ]
+"D" -> "E" [ label="" ]
 }
 
-subgraph "cluster E"
+subgraph "cluster F"
 {
-graph [ label="Cluster E" rankdir="TB" ]
+graph [ label="Cluster F" rankdir="TB" ]
 
-"E" [ color="green" shape="house" style="filled" ]
-"F" [ color="green" shape="house" style="filled" ]
-"E" -> "F" [ label="" ]
+"F" [ color="darkorchid" fillcolor="yellow" penwidth="5" shape="hexagon" style="filled" ]
+"G" [ color="crimson" fillcolor="darkorchid" penwidth="7" shape="pentagon" style="filled" ]
+"F" -> "G" [ label="" ]
 }
 
-subgraph "cluster G"
+subgraph "cluster H"
 {
-graph [ label="Cluster G" rankdir="TB" ]
+graph [ label="Cluster H" rankdir="TB" ]
 
-"G" [ color="green" shape="house" style="filled" ]
-"H" [ color="green" shape="house" style="filled" ]
-"G" -> "H" [ label="" ]
+"H" [ fillcolor="lightblue" fontsize="20" shape="house" style="filled" ]
+"I" [ fillcolor="lightblue" fontsize="20" shape="house" style="filled" ]
+"H" -> "I" [ label="" ]
 }
 
-subgraph "cluster I"
+subgraph "cluster J"
 {
-graph [ label="Cluster I" rankdir="TB" ]
+graph [ label="Cluster J" rankdir="TB" ]
 
-"I" [ color="pink" shape="square" style="filled" ]
-"J" [ color="red" shape="triangle" style="filled" ]
-"I" -> "J" [ label="" ]
-}
-
-subgraph "cluster K"
-{
-graph [ label="Cluster K" rankdir="TB" ]
-
-"K" [ color="orange" shape="house" style="filled" ]
-"L" [ color="orange" shape="house" style="filled" ]
-"K" -> "L" [ label="" ]
+"J" [ color="yellow" fillcolor="magenta" fontsize="26" shape="square" style="filled" ]
+"K" [ fillcolor="magenta" fontsize="26" shape="triangle" style="filled" ]
+"J" -> "K" [ label="" ]
 }
 }

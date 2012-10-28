@@ -1,47 +1,48 @@
-strict digraph syntax
+strict digraph graph_55
 {
-	label   = "Complex Syntax"
-	rankdir = TB
+	label = "Complex Syntax Test"
 
-	A [shape = oval]
+	A [color = blue]
 
 	node [shape = house]
 	edge [color = purple]
 
 	{
 		rank = same
-		B
 		C
-		node [shape = oval]
-		D
-		ordering = out
+		node [fillcolor = goldenrod shape = circle style = filled]
 		A -> B
-		C -> D
+		B [color = mediumseagreen]
+		C [color = firebrick1]
+		B -> C [color = orange penwidth = 5]
+		node [fillcolor = turquoise4]
+		C -> D [arrowtail = obox arrowhead = crow dir = both minlen = 2]
+		D -> E [arrowtail = odot arrowhead = dot dir = both minlen = 2 penwidth = 5]
+		{
+			node [fillcolor = darkorchid shape = pentagon]
+			F [color = darkorchid fillcolor = yellow penwidth = 5 shape = hexagon]
+			G [color = crimson penwidth = 7]
+			F -> G
+		}
 	}
 
-	node [color = green style = filled]
-	E
-	F
-	E -> F [label = "e->f", dir = both, arrowhead = dot, arrowtail = odot]
+	B [shape = square]
+
+	node [fillcolor = lightblue fontsize = 20 style = filled]
 
 	subgraph cluster_outer
 	{
-		G -> H
-		node [shape = hexagon]
-		node [color = red]
 		label = Outer
+		H -> I
+
 		subgraph cluster_inner
 		{
-			node [shape = triangle]
-			edge [color = blue]
-			I [color = pink shape = square]
-			I -> J
 			label = Inner
+			node [fillcolor = magenta fontsize = 26 shape = triangle]
+			edge [color = blue]
+			J [color = yellow shape = square]
+			J -> K
 		}
 	}
 	graph [rankdir = TB]
-	node  [color   = orange]
-	K
-	L
-	K -> L [label = "k->l"]
 }
