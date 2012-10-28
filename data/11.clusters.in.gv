@@ -4,13 +4,13 @@ edge [color = blue]
 
 node [shape = Mdiamond]
 
-node_51_01
+A
 
 node [shape = Msquare]
 
-node_51_02
+B
 
 graph [label = "Class Demo"]
 
-node_51_01 -> node_51_02
+A -> B
 }

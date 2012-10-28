@@ -1,6 +1,6 @@
 digraph graph_04
 {
-	node_04_1 -> node_04_2 -> node_04_3 -> node_04_4 -> node_04_1
-	node_04_1 -> node_04_3
-	node_04_2 -> node_04_4
+	A -> B -> C -> D -> A
+	A -> C
+	B -> D
 }

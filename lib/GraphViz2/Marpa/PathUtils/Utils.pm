@@ -32,32 +32,76 @@ sub find_clusters
 	my($self, $data_dir, $html_dir, $file_name) = @_;
 	my($graph) = GraphViz2::Marpa::PathUtils -> new;
 
+	my($in_file_name);
+	my($out_file_name);
 	my($parsed_file_name);
 	my($result);
 	my($tree_dot_name, $tree_image_name);
 
-	for my $input_file_name (@$file_name)
+	for my $name (@$file_name)
 	{
-		print "Processing $input_file_name\n";
+		$out_file_name    = $name =~ s/\.in\.gv/\.in\.svg/r;
+		$parsed_file_name = $name =~ s/gv$/csv/r;
+		$tree_dot_name    = $name =~ s/\.in\./\.out\./r;
+		$tree_image_name  = $name =~ s/in.gv/out.svg/r;
+		$in_file_name     = File::Spec -> catfile($data_dir, $name);
 
-		$parsed_file_name = $input_file_name =~ s/gv$/csv/r;
-		$tree_dot_name    = $input_file_name =~ s/\.in\./\.out\./r;
-		$tree_image_name  = $input_file_name =~ s/in.gv/out.svg/r;
-
-		$graph -> input_file(File::Spec -> catfile($data_dir, $input_file_name) );
+		$graph -> input_file($in_file_name);
 		$graph -> parsed_file(File::Spec -> catfile($data_dir, $parsed_file_name) );
 		$graph -> tree_dot_file(File::Spec -> catfile($data_dir, $tree_dot_name) );
 		$graph -> tree_image_file(File::Spec -> catfile($html_dir, $tree_image_name) );
 
-		$result = $graph -> find_clusters;
+		$result        = $graph -> find_clusters;
+		$out_file_name = File::Spec -> catfile($html_dir, $out_file_name);
 
-		if ($result == 1)
-		{
-			die "$input_file_name, $parsed_file_name, $tree_dot_name, $tree_image_name\n";
-		}
+		`dot -Tsvg $in_file_name > $out_file_name`;
 	}
 
 } # End of find_clusters.
+
+# -----------------------------------------------
+
+sub find_fixed_length_paths
+{
+	my($self, $data_dir, $html_dir, $file_name) = @_;
+	my($graph)      = GraphViz2::Marpa::PathUtils -> new;
+	my(%start_node) =
+	(
+		'01.fixed.paths.in.gv' => 'Act_1',
+		'02.fixed.paths.in.gv' => '5',
+		'03.fixed.paths.in.gv' => 'A',
+	);
+
+	my($in_file_name);
+	my($out_file_name);
+	my($parsed_file_name);
+	my($result);
+	my($tree_dot_name, $tree_image_name);
+
+	for my $name (@$file_name)
+	{
+		$out_file_name    = $name =~ s/\.in\.gv/\.in\.svg/r;
+		$parsed_file_name = $name =~ s/gv$/csv/r;
+		$tree_dot_name    = $name =~ s/\.in\./\.out\./r;
+		$tree_image_name  = $name =~ s/in.gv/out.svg/r;
+		$in_file_name     = File::Spec -> catfile($data_dir, $name);
+
+		$graph -> allow_cycles(0);
+		$graph -> input_file($in_file_name);
+		$graph -> parsed_file(File::Spec -> catfile($data_dir, $parsed_file_name) );
+		$graph -> tree_dot_file(File::Spec -> catfile($data_dir, $tree_dot_name) );
+		$graph -> path_length(3);
+		$graph -> start_node($start_node{$name});
+		$graph -> tree_image_file(File::Spec -> catfile($html_dir, $tree_image_name) );
+
+		$result        = $graph -> find_fixed_length_paths;
+		$out_file_name = File::Spec -> catfile($html_dir, $out_file_name);
+
+		`dot -Tsvg $in_file_name > $out_file_name`;
+	}
+
+} # End of find_fixed_length_paths.
+
 # -----------------------------------------------
 
 sub generate_demo
@@ -65,14 +109,20 @@ sub generate_demo
 	my($self)       = @_;
 	my($data_dir)   = 'data';
 	my($html_dir)   = 'html';
-	my(@demo_file)  = sort grep{! /index/} read_dir($data_dir);
-	my(@cluster_in) = grep{/\.clusters.*\.in\.gv/} @demo_file;
+	my(@demo_file)  = read_dir($data_dir);
+	my(@cluster_in) = grep{/clusters.in.gv/} @demo_file;
 
 	$self -> find_clusters($data_dir, $html_dir, \@cluster_in);
 
-	my(@cluster_out) = grep{/\.clusters.*\.out\.gv/}   @demo_file;
-	my(@fixed_in)    = grep{/\.fixed\.paths\.in\./}  @demo_file;
-	my(@fixed_out)   = grep{/\.fixed\.paths\.out\./} @demo_file;
+	my(@fixed_in) = grep{/fixed.paths.in.gv/}  @demo_file;
+
+	$self -> find_fixed_length_paths($data_dir, $html_dir, \@fixed_in);
+
+	@demo_file       = read_dir($html_dir);
+	@cluster_in      = sort grep{/clusters.in.svg/}     @demo_file;
+	my(@cluster_out) = sort grep{/clusters.out.svg/}    @demo_file;
+	@fixed_in        = sort grep{/fixed.paths.in.svg/}  @demo_file;
+	my(@fixed_out)   = sort grep{/fixed.paths.out.svg/} @demo_file;
 
 	my(@cluster);
 

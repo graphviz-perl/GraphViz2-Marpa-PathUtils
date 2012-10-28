@@ -2,12 +2,12 @@ graph Perl
 {
 graph [ label="Cluster set" rankdir="LR" ]
 
-subgraph "cluster node_51_01"
+subgraph "cluster A"
 {
-graph [ label="Cluster node_51_01" rankdir="LR" ]
+graph [ label="Cluster A" rankdir="LR" ]
 
-"node_51_01"
-"node_51_02"
-"node_51_01" -- "node_51_02" [ label="" ]
+"A"
+"B"
+"A" -- "B" [ label="" ]
 }
 }

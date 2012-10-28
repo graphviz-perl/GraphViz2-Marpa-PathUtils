@@ -1,5 +1,5 @@
 digraph graph_03
 {
-	node_03_1 -> node_03_2
-	node_03_3 -> node_03_4
+	A -> B
+	C -> D
 }

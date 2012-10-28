@@ -83,7 +83,10 @@ sub _find_cluster_kin
 	my($self)     = @_;
 	my($ancestor) = $self -> _find_ancestors;
 
+	# Phase 1: Scan nodes with edges.
+
 	my(%cluster);
+	my(%seen);
 	my($value);
 
 	for my $node ($self -> parser -> edges -> children)
@@ -92,6 +95,21 @@ sub _find_cluster_kin
 		$cluster{$value} = {};
 
 		$self -> _find_cluster_members(0, $node, $ancestor, $cluster{$value});
+
+		for my $n ($node -> traverse)
+		{
+			$value        = $node -> value;
+			$seen{$value} = 1;
+		}
+	}
+
+	# Phase 1: Scan nodes without edges.
+
+	for my $value (keys %{$self -> parser -> nodes})
+	{
+		next if ($seen{$value});
+
+		$cluster{$value} = {$value => 1};
 	}
 
 	$self -> _winnow_cluster_members(\%cluster);

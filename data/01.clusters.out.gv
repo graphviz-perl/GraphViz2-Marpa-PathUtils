@@ -1,4 +1,11 @@
 graph Perl
 {
 graph [ label="Cluster set" rankdir="LR" ]
+
+subgraph "cluster A"
+{
+graph [ label="Cluster A" rankdir="LR" ]
+
+"A"
+}
 }

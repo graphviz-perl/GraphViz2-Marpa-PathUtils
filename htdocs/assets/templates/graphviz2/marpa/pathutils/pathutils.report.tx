@@ -28,6 +28,12 @@
 
 <hr />
 
+<h3 class="global_toc_text">Links</h3>
+
+<h2 align="center">Index page for <a href="http://savage.net.au/Graph-module-demos.html">all graph module demos</a></h2>
+
+<hr />
+
 <h3 class="global_toc_text">Environment</h3>
 
 : include "fancy.table.tx" { data => $environment };

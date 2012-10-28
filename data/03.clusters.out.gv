@@ -2,21 +2,21 @@ graph Perl
 {
 graph [ label="Cluster set" rankdir="LR" ]
 
-subgraph "cluster node_03_1"
+subgraph "cluster A"
 {
-graph [ label="Cluster node_03_1" rankdir="LR" ]
+graph [ label="Cluster A" rankdir="LR" ]
 
-"node_03_1"
-"node_03_2"
-"node_03_1" -- "node_03_2" [ label="" ]
+"A"
+"B"
+"A" -- "B" [ label="" ]
 }
 
-subgraph "cluster node_03_3"
+subgraph "cluster C"
 {
-graph [ label="Cluster node_03_3" rankdir="LR" ]
+graph [ label="Cluster C" rankdir="LR" ]
 
-"node_03_3"
-"node_03_4"
-"node_03_3" -- "node_03_4" [ label="" ]
+"C"
+"D"
+"C" -- "D" [ label="" ]
 }
 }
