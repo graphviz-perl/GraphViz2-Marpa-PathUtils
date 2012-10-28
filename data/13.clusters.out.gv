@@ -1,72 +1,58 @@
-digraph syntax
+graph Perl
 {
-graph [ label="Cluster set" rankdir="TB" ]
-node [ color="orange" ]
-edge [ color="blue" ]
+graph [ label="Cluster set" rankdir="LR" ]
 
 subgraph "cluster A"
 {
-graph [ label="Cluster A" rankdir="TB" ]
-node [ color="orange" ]
-edge [ color="blue" ]
+graph [ label="Cluster A" rankdir="LR" ]
 
 "A"
 "B"
-"A" -> "B" [ label="" ]
+"A" -- "B" [ label="" ]
 }
 
 subgraph "cluster C"
 {
-graph [ label="Cluster C" rankdir="TB" ]
-node [ color="orange" ]
-edge [ color="blue" ]
+graph [ label="Cluster C" rankdir="LR" ]
 
 "C"
 "D"
-"C" -> "D" [ label="" ]
+"C" -- "D" [ label="" ]
 }
 
 subgraph "cluster E"
 {
-graph [ label="Cluster E" rankdir="TB" ]
-node [ color="orange" ]
-edge [ color="blue" ]
+graph [ label="Cluster E" rankdir="LR" ]
 
 "E"
 "F"
-"E" -> "F" [ label="" ]
+"E" -- "F" [ label="" ]
 }
 
 subgraph "cluster G"
 {
-graph [ label="Cluster G" rankdir="TB" ]
-node [ color="orange" ]
-edge [ color="blue" ]
+graph [ label="Cluster G" rankdir="LR" ]
 
 "G"
 "H"
-"G" -> "H" [ label="" ]
+"G" -- "H" [ label="" ]
 }
 
 subgraph "cluster I"
 {
-graph [ label="Cluster I" rankdir="TB" ]
-node [ color="orange" ]
-edge [ color="blue" ]
+graph [ label="Cluster I" rankdir="LR" ]
 
 "I"
 "J"
-"I" -> "J" [ label="" ]
+"I" -- "J" [ label="" ]
 }
 
 subgraph "cluster K"
 {
-graph [ label="Cluster K" rankdir="TB" ]
-node [ color="orange" ]
-edge [ color="blue" ]
+graph [ label="Cluster K" rankdir="LR" ]
 
 "K"
 "L"
-"K" -> "L" [ label="" ]
+"K" -- "L" [ label="" ]
 }
 }

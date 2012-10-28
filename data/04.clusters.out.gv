@@ -1,0 +1,28 @@
+graph Perl
+{
+graph [ label="Cluster set" rankdir="LR" ]
+
+subgraph "cluster node_04_1"
+{
+graph [ label="Cluster node_04_1" rankdir="LR" ]
+
+"node_04_1"
+"node_04_2"
+"node_04_1" -- "node_04_2" [ label="" ]
+"node_04_1"
+"node_04_3"
+"node_04_1" -- "node_04_3" [ label="" ]
+"node_04_2"
+"node_04_3"
+"node_04_2" -- "node_04_3" [ label="" ]
+"node_04_2"
+"node_04_4"
+"node_04_2" -- "node_04_4" [ label="" ]
+"node_04_3"
+"node_04_4"
+"node_04_3" -- "node_04_4" [ label="" ]
+"node_04_4"
+"node_04_1"
+"node_04_4" -- "node_04_1" [ label="" ]
+}
+}

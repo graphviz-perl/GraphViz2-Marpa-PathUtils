@@ -48,6 +48,32 @@ fieldhash my %tree_image_file  => 'tree_image_file';
 our $VERSION = '1.01';
 
 # -----------------------------------------------
+# For each node, find all the children of the root
+# which lead to all copies of the given node.
+
+sub _find_ancestors
+{
+	my($self) = @_;
+
+	my(%ancestor);
+	my($value);
+
+	for my $child ($self -> parser -> edges -> children)
+	{
+		for my $node ($child -> traverse)
+		{
+			$value            = $node -> value;
+			$ancestor{$value} = [] if (! $ancestor{$value});
+
+			push @{$ancestor{$value} }, $child;
+		}
+	}
+
+	return \%ancestor;
+
+} # End of _find_ancestors.
+
+# -----------------------------------------------
 # Build cluster membership.
 # Output is an arrayref: $self -> cluster_set.
 # Each element of the arrayref is a set of type Set::Tiny.
@@ -55,18 +81,17 @@ our $VERSION = '1.01';
 sub _find_cluster_kin
 {
 	my($self)     = @_;
-	my($ancestor) = $self -> ancestors;
-	my($forest)   = $self -> forest;
+	my($ancestor) = $self -> _find_ancestors;
 
 	my(%cluster);
 	my($value);
 
-	for my $key (sort{$$forest{$a} -> value cmp $$forest{$b} -> value} keys %$forest)
+	for my $node ($self -> parser -> edges -> children)
 	{
-		$value           = $$forest{$key} -> value;
+		$value           = $node -> value;
 		$cluster{$value} = {};
 
-		$self -> _find_cluster_members(0, $$forest{$key}, $forest, $ancestor, $cluster{$value});
+		$self -> _find_cluster_members(0, $node, $ancestor, $cluster{$value});
 	}
 
 	$self -> _winnow_cluster_members(\%cluster);
@@ -77,22 +102,23 @@ sub _find_cluster_kin
 
 sub _find_cluster_members
 {
-	my($self, $depth, $tree, $forest, $ancestor, $cluster) = @_;
+	my($self, $depth, $tree, $ancestor, $cluster) = @_;
 
-	my($value);
+	my($node_value);
+	my($pre_value);
 
 	for my $node ($tree -> traverse)
 	{
-		next if ($node -> is_root);
+		$node_value            = $node -> value;
+		$$cluster{$node_value} = 1;
 
-		$value            = $node -> value;
-		$$cluster{$value} = 1;
-
-		for my $predecessor (keys %{$$ancestor{$value} })
+		for my $predecessor (@{$$ancestor{$node_value} })
 		{
-			next if ($$cluster{$predecessor});
+			$pre_value = $predecessor -> value;
 
-			$self -> _find_cluster_members($depth + 1, $$forest{$predecessor}, $forest, $ancestor, $cluster);
+			next if ($$cluster{$pre_value});
+
+			$self -> _find_cluster_members($depth + 1, $predecessor, $ancestor, $cluster);
 		}
 	}
 
@@ -129,10 +155,8 @@ sub _find_cluster_paths
 		}
 		else
 		{
-			for my $node ($self -> parser -> forest -> traverse)
+			for my $node (map{$_ -> traverse} $self -> parser -> edges -> children)
 			{
-				next if ($node -> is_root);
-
 				$value_1 = $node -> value;
 
 				if (defined $member{$value_1})
@@ -200,10 +224,8 @@ sub _find_fixed_length_candidates
 
 	my(@neighbours);
 
-	for my $node ($self -> parser -> forest -> traverse)
+	for my $node (map{$_ -> traverse} $self -> parser -> edges -> children)
 	{
-		next if ($node -> is_root);
-
 		# We only want neighbours of the current node.
 		# So, skip this node if:
 		# o It is the root node.
@@ -304,10 +326,8 @@ sub _find_fixed_length_paths
 
 	my(@start);
 
-	for my $node ($self -> parser -> forest -> traverse)
+	for my $node (map{$_ -> traverse} $self -> parser -> edges -> children)
 	{
-		next if ($node -> is_root);
-
 		push @start, $node if ($node -> value eq $self -> start_node);
 	}
 

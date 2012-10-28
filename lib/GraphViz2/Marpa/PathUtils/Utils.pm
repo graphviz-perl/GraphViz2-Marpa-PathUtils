@@ -33,25 +33,19 @@ sub find_clusters
 	my($graph) = GraphViz2::Marpa::PathUtils -> new;
 
 	my($parsed_file_name);
-	my($tree_dot_name, $tree_image_name);
-
-#	perl -Ilib scripts/find.clusters.pl -input data/$FILE.in.gv \
-#	-parsed_file data/$FILE.in.csv -tree_dot_file data/$FILE.out.gv \
-#	-report_clusters 1 -tree_image html/$FILE.out.svg
-
 	my($result);
+	my($tree_dot_name, $tree_image_name);
 
 	for my $input_file_name (@$file_name)
 	{
+		print "Processing $input_file_name\n";
+
 		$parsed_file_name = $input_file_name =~ s/gv$/csv/r;
 		$tree_dot_name    = $input_file_name =~ s/\.in\./\.out\./r;
 		$tree_image_name  = $input_file_name =~ s/in.gv/out.svg/r;
 
 		$graph -> input_file(File::Spec -> catfile($data_dir, $input_file_name) );
-		$graph -> maxlevel('debug');
 		$graph -> parsed_file(File::Spec -> catfile($data_dir, $parsed_file_name) );
-		$graph -> report_clusters(1);
-		$graph -> report_forest(1);
 		$graph -> tree_dot_file(File::Spec -> catfile($data_dir, $tree_dot_name) );
 		$graph -> tree_image_file(File::Spec -> catfile($html_dir, $tree_image_name) );
 
@@ -75,8 +69,6 @@ sub generate_demo
 	my(@cluster_in) = grep{/\.clusters.*\.in\.gv/} @demo_file;
 
 	$self -> find_clusters($data_dir, $html_dir, \@cluster_in);
-
-	return 1;
 
 	my(@cluster_out) = grep{/\.clusters.*\.out\.gv/}   @demo_file;
 	my(@fixed_in)    = grep{/\.fixed\.paths\.in\./}  @demo_file;
