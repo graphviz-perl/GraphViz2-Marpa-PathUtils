@@ -540,7 +540,7 @@ sub output_cluster_image
 		(
 			edge   => $attributes{class}{edge},
 			global => {directed => $attributes{digraph}, name => $attributes{graph_id}[0]},
-			graph  => {label => 'Cluster set', rankdir => 'LR'}, # TODO %{$attributes{class}{graph} } },
+			graph  => {rankdir => 'LR'}, # TODO %{$attributes{class}{graph} } },
 			logger => $self -> logger,
 			node   => $attributes{class}{node},
 		);
