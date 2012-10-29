@@ -170,8 +170,6 @@ sub _find_cluster_paths
 		}
 		else
 		{
-			$self -> log(notice => 'Members: ' . join(', ', @member) ); # TODO.
-
 			for my $node (map{$_ -> traverse} $self -> parser -> edges -> children)
 			{
 				$value_1 = $node -> value;
@@ -187,8 +185,6 @@ sub _find_cluster_paths
 						if (defined $member{$value_2} && ($value_1 ne $value_2) )
 						{
 							push @edge_set, [$value_1, $value_2];
-
-							$self -> log(notice => "Edge $value_1 => $value_2"); # TODO.
 						}
 					}
 				}

@@ -9,8 +9,8 @@
 # FILE=03.fixed.paths
 # NODE=A
 
-FILE=03.fixed.paths
-NODE=A
+FILE=01.fixed.paths
+NODE=Act_1
 
 perl -Ilib scripts/find.fixed.length.paths.pl -input data/$FILE.in.gv \
 	-report_paths 1 -allow_cycles 0 -path_length 3 -start_node $NODE \
