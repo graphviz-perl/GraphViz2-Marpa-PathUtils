@@ -74,9 +74,6 @@ sub _find_ancestors
 } # End of _find_ancestors.
 
 # -----------------------------------------------
-# Build cluster membership.
-# Output is an arrayref: $self -> cluster_set.
-# Each element of the arrayref is a set of type Set::Tiny.
 
 sub _find_cluster_kin
 {
@@ -173,6 +170,8 @@ sub _find_cluster_paths
 		}
 		else
 		{
+			$self -> log(notice => 'Members: ' . join(', ', @member) ); # TODO.
+
 			for my $node (map{$_ -> traverse} $self -> parser -> edges -> children)
 			{
 				$value_1 = $node -> value;
@@ -188,6 +187,8 @@ sub _find_cluster_paths
 						if (defined $member{$value_2} && ($value_1 ne $value_2) )
 						{
 							push @edge_set, [$value_1, $value_2];
+
+							$self -> log(notice => "Edge $value_1 => $value_2"); # TODO.
 						}
 					}
 				}
@@ -388,7 +389,6 @@ sub _find_fixed_length_paths
 	# Phase 2: Process each copy of the start node.
 
 	$self -> _find_fixed_length_path_set(\@start);
-	$self -> _winnow_fixed_length_paths;
 
 } # End of _find_fixed_length_paths.
 
@@ -409,6 +409,7 @@ sub find_fixed_length_paths
 	# Process the tree.
 
 	$self -> _find_fixed_length_paths;
+	$self -> _winnow_fixed_length_paths;
 
 	my($title) = 'Starting node: ' . $self -> start_node . "\\n" .
 		'Path length: ' . $self -> path_length . "\\n" .
