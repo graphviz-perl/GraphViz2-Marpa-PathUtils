@@ -38,7 +38,7 @@ sub find_clusters
 	my($result);
 	my($tree_dot_name, $tree_image_name);
 
-	for my $name (@$file_name)
+	for my $name (sort @$file_name)
 	{
 		$out_file_name    = $name =~ s/\.in\.gv/\.in\.svg/r;
 		$parsed_file_name = $name =~ s/gv$/csv/r;
@@ -48,7 +48,6 @@ sub find_clusters
 
 		$graph -> input_file($in_file_name);
 		$graph -> parsed_file(File::Spec -> catfile($data_dir, $parsed_file_name) );
-		$graph -> report_forest(1); # TODO.
 		$graph -> tree_dot_file(File::Spec -> catfile($data_dir, $tree_dot_name) );
 		$graph -> tree_image_file(File::Spec -> catfile($html_dir, $tree_image_name) );
 
@@ -79,7 +78,7 @@ sub find_fixed_length_paths
 	my($result);
 	my($tree_dot_name, $tree_image_name);
 
-	for my $name (@$file_name)
+	for my $name (sort @$file_name)
 	{
 		$out_file_name    = $name =~ s/\.in\.gv/\.in\.svg/r;
 		$parsed_file_name = $name =~ s/gv$/csv/r;

@@ -112,7 +112,7 @@ sub _find_cluster_kin
 		$cluster{$value} = {$value => 1};
 	}
 
-	$self -> _winnow_cluster_members(\%cluster);
+	return \%cluster;
 
 } # End of _find_cluster_kin.
 
@@ -218,7 +218,7 @@ sub find_clusters
 
 	# Process the tree.
 
-	$self -> _find_cluster_kin;
+	$self -> _winnow_cluster_members($self -> _find_cluster_kin);
 	$self -> report_cluster_members if ($self -> report_clusters);
 	$self -> _find_cluster_paths;
 	$self -> output_cluster_image;
@@ -738,8 +738,6 @@ sub _winnow_cluster_members
 
 	# Step 2: Compare each set with all others.
 
-	my($count) = 0;
-
 	my(@members);
 	my(@result);
 	my($wanted);
@@ -748,7 +746,7 @@ sub _winnow_cluster_members
 	{
 		$wanted = 1;
 
-		# Step 2: Check against other sets.
+		# Step 3: Check against other sets.
 
 		for my $j ($i + 1 .. $#set)
 		{
@@ -758,7 +756,7 @@ sub _winnow_cluster_members
 
 		if ($wanted == 1)
 		{
-			# Step 3: Check against solutions already found.
+			# Step 4: Check against solutions already found.
 
 			for my $j (0 .. $#result)
 			{
@@ -767,14 +765,9 @@ sub _winnow_cluster_members
 			}
 		}
 
-		# Step 4: Stockpile solutions in %unique.
+		# Step 5: Stockpile solutions.
 
-		if ($wanted == 1)
-		{
-			$count++;
-
-			push @result, $set[$i];
-		}
+		push @result, $set[$i] if ($wanted == 1);
 	}
 
 	$self -> cluster_set(\@result);
