@@ -16,13 +16,13 @@
 
 <hr />
 
-	<h2 align="center"><span class="page_heading">Part 1: Finding clusters</span></h2>
+	<h2 align="center" class="page_heading">Part 1: Finding clusters</h2>
 
 : include "basic.table.tx" { border => $border, row => $cluster_data };
 
 <hr />
 
-	<h2 align="center"><span class="page_heading">Part 2: Finding fixed length paths<span></h2>
+	<h2 align="center" class="page_heading">Part 2: Finding fixed length paths</h2>
 
 : include "basic.table.tx" { border => $border, row => $fixed_data };
 

@@ -48,6 +48,7 @@ sub find_clusters
 
 		$graph -> input_file($in_file_name);
 		$graph -> parsed_file(File::Spec -> catfile($data_dir, $parsed_file_name) );
+		$graph -> report_forest(1); # TODO.
 		$graph -> tree_dot_file(File::Spec -> catfile($data_dir, $tree_dot_name) );
 		$graph -> tree_image_file(File::Spec -> catfile($html_dir, $tree_image_name) );
 

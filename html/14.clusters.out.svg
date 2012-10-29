@@ -84,8 +84,8 @@
 </g>
 <!-- B&#45;&gt;C -->
 <g id="edge11" class="edge"><title>B&#45;&gt;C</title>
-<path fill="none" stroke="grey" d="M250.003,-118C258.028,-118 266.967,-118 275.531,-118"/>
-<polygon fill="grey" stroke="grey" points="275.705,-121.5 285.705,-118 275.705,-114.5 275.705,-121.5"/>
+<path fill="none" stroke="grey" d="M250.003,-118C258.645,-118 268.347,-118 277.5,-118"/>
+<ellipse fill="none" stroke="grey" cx="281.705" cy="-118" rx="4" ry="4"/>
 </g>
 <!-- X -->
 <g id="node13" class="node"><title>X</title>
@@ -94,8 +94,8 @@
 </g>
 <!-- C&#45;&gt;X -->
 <g id="edge13" class="edge"><title>C&#45;&gt;X</title>
-<path fill="none" stroke="grey" d="M340.003,-118C348.028,-118 356.967,-118 365.531,-118"/>
-<polygon fill="grey" stroke="grey" points="365.705,-121.5 375.705,-118 365.705,-114.5 365.705,-121.5"/>
+<path fill="none" stroke="grey" d="M340.003,-118C348.645,-118 358.347,-118 367.5,-118"/>
+<ellipse fill="none" stroke="grey" cx="371.705" cy="-118" rx="4" ry="4"/>
 </g>
 <!-- Y -->
 <g id="node17" class="node"><title>Y</title>
