@@ -5,31 +5,31 @@ node  [ shape="oval" ]
 edge  [ color="grey" ]
 node  [ style="filled" ]
 
-A [ color="aquamarine" ]
-B [ color="yellow" ]
-C [ color="pink" ]
-D [ color="bisque" ]
-E [ color="blueviolet" ]
-K
+H [ color="aquamarine" ]
+L [ color="yellow" ]
+M [ color="pink" ]
+I [ color="bisque" ]
+K [ color="blueviolet" ]
+J
 
-D -> K [ arrowhead="none" label="" samehead="1" ]
-A -> K [ arrowhead="none" label="" samehead="1" ]
-K -> B [ label="" sametail="1" ]
-K -> E [ label="" sametail="1" ]
-B -> C -> X -> Y [arrowhead="odot"]
+I -> J [ arrowhead="none" label="" samehead="1" ]
+H -> J [ arrowhead="none" label="" samehead="1" ]
+J -> L [ label="" sametail="1" ]
+J -> K [ label="" sametail="1" ]
+L -> M -> N -> O [arrowhead="odot"]
 
-F [ color="lawngreen" ]
-G [ color="coral" ]
-H [ color="crimson" ]
-L
+D [ color="lawngreen" ]
+E [ color="coral" ]
+G [ color="crimson" ]
+F
 
-F -> L [ arrowhead="none" label="" samehead="1" ]
-G -> L [ arrowhead="none" label="" samehead="1" ]
-L -> H [ label="" sametail="1" ]
+D -> F [ arrowhead="none" label="" samehead="1" ]
+E -> F [ arrowhead="none" label="" samehead="1" ]
+F -> G [ label="" sametail="1" ]
 
-I [ color="aquamarine" ]
-J [ color="bisque" ]
-M
+B [ color="aquamarine" ]
+A [ color="bisque" ]
+C
 
-I -> M [ arrowhead="none" label="" samehead="1" ]
+B -> C [ arrowhead="none" label="" samehead="1" ]
 }

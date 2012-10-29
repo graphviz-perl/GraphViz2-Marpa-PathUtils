@@ -9,6 +9,8 @@ use warnings qw(FATAL utf8);
 
 use Config;
 
+use Data::Dumper::Concise;
+
 use Date::Format; # For time2str().
 use Date::Simple;
 
@@ -56,17 +58,37 @@ sub _find_ancestors
 	my($self) = @_;
 
 	my(%ancestor);
-	my($value);
+	my($child_value);
+	my($node_value);
+	my(%seen);
 
 	for my $child ($self -> parser -> edges -> children)
 	{
+		$child_value = $child -> value;
+
 		for my $node ($child -> traverse)
 		{
-			$value            = $node -> value;
-			$ancestor{$value} = [] if (! $ancestor{$value});
+			$node_value = $node -> value;
 
-			push @{$ancestor{$value} }, $child;
+			$self -> log(notice => "$child_value => $node_value");
+
+			if (! defined $ancestor{$node_value})
+			{
+				$ancestor{$node_value} = [];
+				$seen{$node_value}     = {};
+			}
+
+			push @{$ancestor{$node_value} }, $child if (! defined $seen{$node_value}{$child_value});
+
+			$seen{$node_value}{$child_value} = 1;
 		}
+	}
+
+	$self -> log(notice => 'Ancestors: ');
+
+	for my $key (sort keys %ancestor)
+	{
+		$self -> log(notice => "$key => " . join(', ', map{$_ -> value} @{$ancestor{$key} }) );
 	}
 
 	return \%ancestor;
@@ -89,14 +111,16 @@ sub _find_cluster_kin
 	for my $node ($self -> parser -> edges -> children)
 	{
 		$value           = $node -> value;
-		$cluster{$value} = {};
+		$cluster{$value} = {} if (! defined $cluster{$value});
+
+		$self -> log(notice => "Cluster $value");
 
 		$self -> _find_cluster_members(0, $node, $ancestor, $cluster{$value});
 
 		for my $n ($node -> traverse)
 		{
 			$value        = $node -> value;
-			$seen{$value} = 1;
+			$seen{$value} = {$value => 1} if (! defined $seen{$value});
 		}
 	}
 
@@ -104,9 +128,7 @@ sub _find_cluster_kin
 
 	for my $value (keys %{$self -> parser -> nodes})
 	{
-		next if ($seen{$value});
-
-		$cluster{$value} = {$value => 1};
+		$cluster{$value} = {$value => 1} if (! defined $seen{$value});
 	}
 
 	return \%cluster;
