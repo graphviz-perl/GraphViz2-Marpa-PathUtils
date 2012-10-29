@@ -21,8 +21,8 @@ provides:
   GraphViz2::Marpa::PathUtils::Config:
     file: lib/GraphViz2/Marpa/PathUtils/Config.pm
     version: 1.01
-  GraphViz2::Marpa::PathUtils::Demo:
-    file: lib/GraphViz2/Marpa/PathUtils/Demo.pm
+  GraphViz2::Marpa::PathUtils::Utils:
+    file: lib/GraphViz2/Marpa/PathUtils/Utils.pm
     version: 1.01
 requires:
   Capture::Tiny: 0.1
@@ -33,6 +33,7 @@ requires:
   File::Copy: 2.21
   File::HomeDir: 0.99
   File::Slurp: 9999.19
+  File::Spec: 3.33
   File::Which: 1.09
   Getopt::Long: 2.38
   GraphViz2: 2.05
