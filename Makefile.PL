@@ -45,6 +45,7 @@ WriteMakefile
 		File::Copy       => 2.21,
 		File::HomeDir    => 0.99,
 		File::Slurp      => 9999.19,
+		File::Spec       => 3.33,
 		File::Which      => 1.09,
 		Getopt::Long     => 2.38,
 		GraphViz2        => 2.05,

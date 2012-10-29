@@ -26,8 +26,10 @@ provides:
     version: 1.01
 requires:
   Capture::Tiny: 0.1
+  Config: 0
   Config::Tiny: 2.14
   Date::Format: 2.24
+  Date::Simple: 3.03
   File::Copy: 2.21
   File::HomeDir: 0.99
   File::Slurp: 9999.19
