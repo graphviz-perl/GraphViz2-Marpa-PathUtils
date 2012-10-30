@@ -28,7 +28,7 @@ use Set::Tiny;
 
 use Text::Xslate 'mark_raw';
 
-use Tree;
+use Tree::DAG_Node;
 
 fieldhash my %allow_cycles     => 'allow_cycles';
 fieldhash my %attributes       => 'attributes';
@@ -62,16 +62,24 @@ sub _find_ancestors
 	my($node_value);
 	my($root_value);
 
-	for my $root ($self -> parser -> edges -> children)
+	for my $root ($self -> parser -> edges -> daughters)
 	{
-		$root_value = $root -> value;
+		$root_value = $root -> name;
 
-		for my $node ($root -> traverse)
-		{
-			$node_value                         = $node -> value;
-			$ancestor{$node_value}              = {} if (! $ancestor{$node_value});
-			$ancestor{$node_value}{$root_value} = 1;
-		}
+		$root -> walk_down
+		({
+			callback =>
+			sub
+			{
+				my($node)                           = @_;
+				$node_value                         = $node -> name;
+				$ancestor{$node_value}              = {} if (! $ancestor{$node_value});
+				$ancestor{$node_value}{$root_value} = 1;
+
+				return 1;
+			},
+			_depth => 0,
+		});
 	}
 
 	$self -> log(info => 'Ancestors:');
@@ -97,19 +105,28 @@ sub _find_cluster_kin
 	my(%cluster);
 	my($value);
 
-	for my $node ($self -> parser -> edges -> traverse)
-	{
-		next if ($node -> is_root);
-
-		$value = $node -> value;
-
-		for my $ancestor_value (keys %{$$ancestors{$value} })
+	$self -> parser -> edges
+	({
+		callback =>
+		sub
 		{
-			$cluster{$ancestor_value} = Set::Tiny -> new if (! defined $cluster{$ancestor_value});
+			my($node) = @_;
 
-			$cluster{$ancestor_value} -> insert($value);
-		}
-	}
+			return 1 if ($node -> is_root);
+
+			$value = $node -> name;
+
+			for my $ancestor_value (keys %{$$ancestors{$value} })
+			{
+				$cluster{$ancestor_value} = Set::Tiny -> new if (! defined $cluster{$ancestor_value});
+
+				$cluster{$ancestor_value} -> insert($value);
+			}
+
+			return 1;
+		},
+		_depth => 0,
+	});
 
 	# Phase 2: Put nodes without edges into sets.
 
@@ -167,17 +184,17 @@ sub _find_cluster_paths
 		}
 		else
 		{
-			for my $node (map{$_ -> traverse} $self -> parser -> edges -> children)
+			for my $node (map{$_ -> traverse} $self -> parser -> edges -> daughters)
 			{
-				$value_1 = $node -> value;
+				$value_1 = $node -> name;
 
 				if (defined $member{$value_1})
 				{
 					$edge = ${$node -> meta}{edge};
 
-					for my $kid ($node -> children)
+					for my $kid ($node -> daughters)
 					{
-						$value_2 = $kid -> value;
+						$value_2 = $kid -> name;
 
 						if (defined $member{$value_2} && ($value_1 ne $value_2) )
 						{
@@ -237,13 +254,13 @@ sub _find_edge_attributes
 	{
 		next if ($node -> is_root);
 
-		$from_value = $node -> value;
+		$from_value = $node -> name;
 
 		next if ($from ne $from_value);
 
-		for my $child ($node -> children)
+		for my $child ($node -> daughters)
 		{
-			$to_value = $child -> value;
+			$to_value = $child -> name;
 
 			next if ($to ne $to_value);
 
@@ -268,18 +285,18 @@ sub _find_fixed_length_candidates
 
 	my(@neighbours);
 
-	for my $node (map{$_ -> traverse} $self -> parser -> edges -> children)
+	for my $node (map{$_ -> traverse} $self -> parser -> edges -> daughters)
 	{
 		# We only want neighbours of the current node.
 		# So, skip this node if:
 		# o It is the root node.
 		# o It is not the current node.
 
-		next if ($node -> value ne $current_node -> value);
+		next if ($node -> name ne $current_node -> name);
 
 		# Now find its neighbours.
 
-		for my $n ($node -> parent, $node -> children)
+		for my $n ($node -> parent, $node -> daughters)
 		{
 			push @neighbours, $n if (! $n -> is_root);
 		}
@@ -370,9 +387,9 @@ sub _find_fixed_length_paths
 
 	my(@start);
 
-	for my $node (map{$_ -> traverse} $self -> parser -> edges -> children)
+	for my $node (map{$_ -> traverse} $self -> parser -> edges -> daughters)
 	{
-		push @start, $node if ($node -> value eq $self -> start_node);
+		push @start, $node if ($node -> name eq $self -> start_node);
 	}
 
 	# Give up if the given node was not found.
@@ -609,7 +626,7 @@ sub _prepare_fixed_length_output
 
 		for my $node (@$set)
 		{
-			$name = $node -> value;
+			$name = $node -> name;
 
 			# Allow for paths with loops, so we don't declare the same node twice.
 			# Actually, I doubt Graphviz would care, since each declaration would be identical.
@@ -693,7 +710,7 @@ sub report_fixed_length_paths
 
 	for my $candidate (@{$self -> fixed_path_set})
 	{
-		$self -> log(notice => join(' -> ', map{$_ -> value} @$candidate) );
+		$self -> log(notice => join(' -> ', map{$_ -> name} @$candidate) );
 	}
 
 } # End of report_fixed_length_paths.
@@ -775,7 +792,7 @@ sub _winnow_fixed_length_paths
 
 		my(%seen);
 
-		$seen{$_}++ for map{$_ -> value} @$candidate;
+		$seen{$_}++ for map{$_ -> name} @$candidate;
 
 		# Exclude nodes depending on the allow_cycles option:
 		# o 0 - Do not allow any cycles.
@@ -783,11 +800,11 @@ sub _winnow_fixed_length_paths
 
 		if ($cycles == 0)
 		{
-			@$candidate = grep{$seen{$_ -> value} == 1} @$candidate;
+			@$candidate = grep{$seen{$_ -> name} == 1} @$candidate;
 		}
 		elsif ($cycles == 1)
 		{
-			@$candidate = grep{$seen{$_ -> value} <= 2} @$candidate;
+			@$candidate = grep{$seen{$_ -> name} <= 2} @$candidate;
 		}
 
 		push @solutions, [@$candidate] if ($#$candidate == $self -> path_length);

@@ -14,8 +14,13 @@ subgraph "cluster B"
 graph [ label="Cluster B" rankdir="LR" ]
 
 "B" [ color="aquamarine" shape="oval" style="filled" ]
+}
+
+subgraph "cluster C"
+{
+graph [ label="Cluster C" rankdir="LR" ]
+
 "C" [ shape="oval" style="filled" ]
-"B" -> "C" [ arrowhead="none" color="grey" label="" samehead="1" ]
 }
 
 subgraph "cluster D"
@@ -23,14 +28,27 @@ subgraph "cluster D"
 graph [ label="Cluster D" rankdir="LR" ]
 
 "D" [ color="lawngreen" shape="oval" style="filled" ]
-"F" [ shape="oval" style="filled" ]
-"D" -> "F" [ arrowhead="none" color="grey" label="" samehead="1" ]
+}
+
+subgraph "cluster E"
+{
+graph [ label="Cluster E" rankdir="LR" ]
+
 "E" [ color="coral" shape="oval" style="filled" ]
+}
+
+subgraph "cluster F"
+{
+graph [ label="Cluster F" rankdir="LR" ]
+
 "F" [ shape="oval" style="filled" ]
-"E" -> "F" [ arrowhead="none" color="grey" label="" samehead="1" ]
-"F" [ shape="oval" style="filled" ]
+}
+
+subgraph "cluster G"
+{
+graph [ label="Cluster G" rankdir="LR" ]
+
 "G" [ color="crimson" shape="oval" style="filled" ]
-"F" -> "G" [ color="grey" label="" sametail="1" ]
 }
 
 subgraph "cluster H"
@@ -38,25 +56,54 @@ subgraph "cluster H"
 graph [ label="Cluster H" rankdir="LR" ]
 
 "H" [ color="aquamarine" shape="oval" style="filled" ]
-"J" [ shape="oval" style="filled" ]
-"H" -> "J" [ arrowhead="none" color="grey" label="" samehead="1" ]
+}
+
+subgraph "cluster I"
+{
+graph [ label="Cluster I" rankdir="LR" ]
+
 "I" [ color="bisque" shape="oval" style="filled" ]
+}
+
+subgraph "cluster J"
+{
+graph [ label="Cluster J" rankdir="LR" ]
+
 "J" [ shape="oval" style="filled" ]
-"I" -> "J" [ arrowhead="none" color="grey" label="" samehead="1" ]
-"J" [ shape="oval" style="filled" ]
-"L" [ color="yellow" shape="oval" style="filled" ]
-"J" -> "L" [ color="grey" label="" sametail="1" ]
-"J" [ shape="oval" style="filled" ]
+}
+
+subgraph "cluster K"
+{
+graph [ label="Cluster K" rankdir="LR" ]
+
 "K" [ color="blueviolet" shape="oval" style="filled" ]
-"J" -> "K" [ color="grey" label="" sametail="1" ]
+}
+
+subgraph "cluster L"
+{
+graph [ label="Cluster L" rankdir="LR" ]
+
 "L" [ color="yellow" shape="oval" style="filled" ]
+}
+
+subgraph "cluster M"
+{
+graph [ label="Cluster M" rankdir="LR" ]
+
 "M" [ color="pink" shape="oval" style="filled" ]
-"L" -> "M" [ arrowhead="odot" color="grey" label="" ]
-"M" [ color="pink" shape="oval" style="filled" ]
+}
+
+subgraph "cluster N"
+{
+graph [ label="Cluster N" rankdir="LR" ]
+
 "N" [ shape="oval" style="filled" ]
-"M" -> "N" [ arrowhead="odot" color="grey" label="" ]
-"N" [ shape="oval" style="filled" ]
+}
+
+subgraph "cluster O"
+{
+graph [ label="Cluster O" rankdir="LR" ]
+
 "O" [ shape="oval" style="filled" ]
-"N" -> "O" [ arrowhead="odot" color="grey" label="" ]
 }
 }
