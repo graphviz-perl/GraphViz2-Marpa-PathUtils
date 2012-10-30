@@ -1,4 +1,11 @@
 digraph graph_01
 {
 graph [ label="Cluster set" rankdir="LR" ]
+
+subgraph "cluster A"
+{
+graph [ label="Cluster A" rankdir="LR" ]
+
+"A" [ color="red" ]
+}
 }

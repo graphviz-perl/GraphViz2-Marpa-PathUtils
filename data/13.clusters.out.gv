@@ -12,24 +12,6 @@ graph [ label="Cluster A" rankdir="TB" ]
 "B" [ color="mediumseagreen" fillcolor="goldenrod" shape="square" style="filled" ]
 "C" [ color="firebrick1" shape="house" ]
 "B" -> "C" [ color="orange" label="" penwidth="5" ]
-}
-
-subgraph "cluster B"
-{
-graph [ label="Cluster B" rankdir="TB" ]
-
-"B" [ color="mediumseagreen" fillcolor="goldenrod" shape="square" style="filled" ]
-"C" [ color="firebrick1" shape="house" ]
-"B" -> "C" [ color="orange" label="" penwidth="5" ]
-"C" [ color="firebrick1" shape="house" ]
-"D" [ fillcolor="turquoise4" shape="circle" style="filled" ]
-"C" -> "D" [ arrowhead="crow" arrowtail="obox" color="purple" dir="both" label="" minlen="2" ]
-}
-
-subgraph "cluster C"
-{
-graph [ label="Cluster C" rankdir="TB" ]
-
 "C" [ color="firebrick1" shape="house" ]
 "D" [ fillcolor="turquoise4" shape="circle" style="filled" ]
 "C" -> "D" [ arrowhead="crow" arrowtail="obox" color="purple" dir="both" label="" minlen="2" ]

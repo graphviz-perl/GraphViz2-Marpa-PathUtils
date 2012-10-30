@@ -52,6 +52,7 @@ our $VERSION = '1.01';
 # -----------------------------------------------
 # For each node, find all the children of the root
 # which lead to all copies of that node.
+# Warning: A node with no edges has no ancestors.
 
 sub _find_ancestors
 {
@@ -69,20 +70,16 @@ sub _find_ancestors
 		{
 			$node_value                         = $node -> value;
 			$ancestor{$node_value}              = {} if (! $ancestor{$node_value});
-			$ancestor{$node_value}{$root_value} = 1  if (! $ancestor{$node_value}{$root_value});
+			$ancestor{$node_value}{$root_value} = 1;
 		}
 	}
 
-=pod
+	$self -> log(info => 'Ancestors:');
 
-	$self -> log(notice => 'Ancestors:');
-
-	for my $key (sort keys %ancestor)
+	for $node_value (sort keys %ancestor)
 	{
-		$self -> log(notice => "$key => " . join(', ', sort keys %{$ancestor{$key} }) );
+		$self -> log(info => "Node $node_value. Ancestors: " . join(', ', sort keys %{$ancestor{$node_value} }) );
 	}
-
-=cut
 
 	return \%ancestor;
 
@@ -95,7 +92,7 @@ sub _find_cluster_kin
 	my($self)      = @_;
 	my($ancestors) = $self -> _find_ancestors;
 
-	# Phase 1: Put nodes into sets.
+	# Phase 1: Put nodes with edges into sets.
 
 	my(%cluster);
 	my($value);
@@ -114,41 +111,28 @@ sub _find_cluster_kin
 		}
 	}
 
-	# Phase 2: Coelesce sets.
+	# Phase 2: Put nodes without edges into sets.
 
-	my(%preserve);
+	my($found);
 
-	for my $set_1 (keys %cluster)
+	for $value (keys %{$self -> parser -> nodes})
 	{
-		for my $set_2 (keys %cluster)
+		$found = 0;
+
+		for my $key (keys %cluster)
 		{
-			next if ($preserve{$set_2} || ($set_1 eq $set_2) );
-
-			# If the sets have any members in common, (size > 0), so coelesce.
-
-			if ($cluster{$set_1} -> intersection($cluster{$set_2}) -> size)
+			if ($cluster{$key} -> member($value) )
 			{
-				$preserve{$set_1} = 1;
+				$found = 1;
 
-				$cluster{$set_1} -> insert($cluster{$set_2} -> members);
+				last;
 			}
 		}
+
+		$cluster{$value} = Set::Tiny -> new($value) if (! $found);
 	}
 
-	$self -> log(notice => 'Preserve: ' . join(', ', sort keys %preserve) );
-
-=pod
-
-	$self -> log(notice => 'After:');
-
-	for $value (sort keys %cluster)
-	{
-		$self -> log(notice => "Set: $value. Members: " . join(', ', sort $cluster{$value} -> members) );
-	}
-
-=cut
-
-	$self -> cluster_set([map{$cluster{$_} } grep{$preserve{$_} } keys %cluster]);
+	return \%cluster;
 
 } # End of _find_cluster_kin.
 
@@ -228,7 +212,7 @@ sub find_clusters
 
 	# Process the tree.
 
-	$self -> _find_cluster_kin;
+	$self -> _winnow_cluster_sets($self -> _find_cluster_kin);
 	$self -> report_cluster_members if ($self -> report_clusters);
 	$self -> _find_cluster_paths;
 	$self -> output_cluster_image;
@@ -729,6 +713,51 @@ sub _set_up_forest
 	$self -> log(info => "Result of calling lexer and parser: $result (0 is success)");
 
 } # End of _set_up_forest.
+
+# -----------------------------------------------
+# Eliminate solutions which share members.
+
+sub _winnow_cluster_sets
+{
+	my($self, $cluster) = @_;
+
+	my($overlap);
+	my(%merge);
+	my(%seen);
+
+	for my $set_1 (keys %$cluster)
+	{
+		next if ($merge{$set_1});
+
+		$overlap      = 1;
+		$seen{$set_1} = 1;
+
+		while ($overlap)
+		{
+			$overlap = 0;
+
+			for my $set_2 (keys %$cluster)
+			{
+				next if ($merge{$set_2} || $seen{$set_2});
+
+				# If the sets have any members in common, (size > 0), so coelesce.
+
+				if ($$cluster{$set_1} -> intersection($$cluster{$set_2}) -> size)
+				{
+					$overlap       = 1;
+					$merge{$set_2} = 1;
+
+					$$cluster{$set_1} -> insert($$cluster{$set_2} -> members);
+				}
+			}
+		}
+	}
+
+	delete $$cluster{$_} for keys %merge;
+
+	$self -> cluster_set([values %$cluster]);
+
+} # End of _winnow_cluster_sets.
 
 # -----------------------------------------------
 # Eliminate solutions which have (unwanted) cycles.

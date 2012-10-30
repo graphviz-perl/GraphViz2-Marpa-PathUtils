@@ -37,43 +37,4 @@ graph [ label="Cluster a0" rankdir="LR" ]
 "b0"
 "x" -> "b0" [ label="" ]
 }
-
-subgraph "cluster a0"
-{
-graph [ label="Cluster a0" rankdir="LR" ]
-
-"a0"
-"a1"
-"a0" -> "a1" [ label="" ]
-"a1"
-"a3"
-"a1" -> "a3" [ label="" ]
-"a3"
-"a0"
-"a3" -> "a0" [ label="" ]
-}
-
-subgraph "cluster a3"
-{
-graph [ label="Cluster a3" rankdir="LR" ]
-
-"a3"
-"a0"
-"a3" -> "a0" [ label="" ]
-"b0"
-"b1"
-"b0" -> "b1" [ label="" ]
-"b1"
-"b2"
-"b1" -> "b2" [ label="" ]
-"b2"
-"b3"
-"b2" -> "b3" [ label="" ]
-"x"
-"a0"
-"x" -> "a0" [ label="" ]
-"x"
-"b0"
-"x" -> "b0" [ label="" ]
-}
 }
