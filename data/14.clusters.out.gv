@@ -44,20 +44,23 @@ graph [ label="Cluster H" rankdir="LR" ]
 "J" [ shape="oval" style="filled" ]
 "I" -> "J" [ arrowhead="none" color="grey" label="" samehead="1" ]
 "J" [ shape="oval" style="filled" ]
+"L" [ color="yellow" shape="oval" style="filled" ]
+"J" -> "L" [ color="grey" label="" sametail="1" ]
+}
+
+subgraph "cluster J"
+{
+graph [ label="Cluster J" rankdir="LR" ]
+
+"J" [ shape="oval" style="filled" ]
 "K" [ color="blueviolet" shape="oval" style="filled" ]
 "J" -> "K" [ color="grey" label="" sametail="1" ]
 }
 
-subgraph "cluster H"
+subgraph "cluster J"
 {
-graph [ label="Cluster H" rankdir="LR" ]
+graph [ label="Cluster J" rankdir="LR" ]
 
-"H" [ color="aquamarine" shape="oval" style="filled" ]
-"J" [ shape="oval" style="filled" ]
-"H" -> "J" [ arrowhead="none" color="grey" label="" samehead="1" ]
-"I" [ color="bisque" shape="oval" style="filled" ]
-"J" [ shape="oval" style="filled" ]
-"I" -> "J" [ arrowhead="none" color="grey" label="" samehead="1" ]
 "J" [ shape="oval" style="filled" ]
 "L" [ color="yellow" shape="oval" style="filled" ]
 "J" -> "L" [ color="grey" label="" sametail="1" ]

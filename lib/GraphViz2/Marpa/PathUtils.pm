@@ -51,45 +51,38 @@ our $VERSION = '1.01';
 
 # -----------------------------------------------
 # For each node, find all the children of the root
-# which lead to all copies of the given node.
+# which lead to all copies of that node.
 
 sub _find_ancestors
 {
 	my($self) = @_;
 
 	my(%ancestor);
-	my($child_value);
 	my($node_value);
-	my(%seen);
+	my($root_value);
 
-	for my $child ($self -> parser -> edges -> children)
+	for my $root ($self -> parser -> edges -> children)
 	{
-		$child_value = $child -> value;
+		$root_value = $root -> value;
 
-		for my $node ($child -> traverse)
+		for my $node ($root -> traverse)
 		{
-			$node_value = $node -> value;
-
-			$self -> log(notice => "$child_value => $node_value");
-
-			if (! defined $ancestor{$node_value})
-			{
-				$ancestor{$node_value} = [];
-				$seen{$node_value}     = {};
-			}
-
-			push @{$ancestor{$node_value} }, $child if (! defined $seen{$node_value}{$child_value});
-
-			$seen{$node_value}{$child_value} = 1;
+			$node_value                         = $node -> value;
+			$ancestor{$node_value}              = {} if (! $ancestor{$node_value});
+			$ancestor{$node_value}{$root_value} = 1  if (! $ancestor{$node_value}{$root_value});
 		}
 	}
 
-	$self -> log(notice => 'Ancestors: ');
+=pod
+
+	$self -> log(notice => 'Ancestors:');
 
 	for my $key (sort keys %ancestor)
 	{
-		$self -> log(notice => "$key => " . join(', ', map{$_ -> value} @{$ancestor{$key} }) );
+		$self -> log(notice => "$key => " . join(', ', sort keys %{$ancestor{$key} }) );
 	}
+
+=cut
 
 	return \%ancestor;
 
@@ -99,67 +92,65 @@ sub _find_ancestors
 
 sub _find_cluster_kin
 {
-	my($self)     = @_;
-	my($ancestor) = $self -> _find_ancestors;
+	my($self)      = @_;
+	my($ancestors) = $self -> _find_ancestors;
 
-	# Phase 1: Scan nodes with edges.
+	# Phase 1: Put nodes into sets.
 
 	my(%cluster);
-	my(%seen);
 	my($value);
 
-	for my $node ($self -> parser -> edges -> children)
+	for my $node ($self -> parser -> edges -> traverse)
 	{
-		$value           = $node -> value;
-		$cluster{$value} = {} if (! defined $cluster{$value});
+		next if ($node -> is_root);
 
-		$self -> log(notice => "Cluster $value");
+		$value = $node -> value;
 
-		$self -> _find_cluster_members(0, $node, $ancestor, $cluster{$value});
-
-		for my $n ($node -> traverse)
+		for my $ancestor_value (keys %{$$ancestors{$value} })
 		{
-			$value        = $node -> value;
-			$seen{$value} = {$value => 1} if (! defined $seen{$value});
+			$cluster{$ancestor_value} = Set::Tiny -> new if (! defined $cluster{$ancestor_value});
+
+			$cluster{$ancestor_value} -> insert($value);
 		}
 	}
 
-	# Phase 1: Scan nodes without edges.
+	# Phase 2: Coelesce sets.
 
-	for my $value (keys %{$self -> parser -> nodes})
+	my(%preserve);
+
+	for my $set_1 (keys %cluster)
 	{
-		$cluster{$value} = {$value => 1} if (! defined $seen{$value});
+		for my $set_2 (keys %cluster)
+		{
+			next if ($preserve{$set_2} || ($set_1 eq $set_2) );
+
+			# If the sets have any members in common, (size > 0), so coelesce.
+
+			if ($cluster{$set_1} -> intersection($cluster{$set_2}) -> size)
+			{
+				$preserve{$set_1} = 1;
+
+				$cluster{$set_1} -> insert($cluster{$set_2} -> members);
+			}
+		}
 	}
 
-	return \%cluster;
+	$self -> log(notice => 'Preserve: ' . join(', ', sort keys %preserve) );
+
+=pod
+
+	$self -> log(notice => 'After:');
+
+	for $value (sort keys %cluster)
+	{
+		$self -> log(notice => "Set: $value. Members: " . join(', ', sort $cluster{$value} -> members) );
+	}
+
+=cut
+
+	$self -> cluster_set([map{$cluster{$_} } grep{$preserve{$_} } keys %cluster]);
 
 } # End of _find_cluster_kin.
-
-# -----------------------------------------------
-
-sub _find_cluster_members
-{
-	my($self, $depth, $tree, $ancestor, $cluster) = @_;
-
-	my($node_value);
-	my($pre_value);
-
-	for my $node ($tree -> traverse)
-	{
-		$node_value            = $node -> value;
-		$$cluster{$node_value} = 1;
-
-		for my $predecessor (@{$$ancestor{$node_value} })
-		{
-			$pre_value = $predecessor -> value;
-
-			next if ($$cluster{$pre_value});
-
-			$self -> _find_cluster_members($depth + 1, $predecessor, $ancestor, $cluster);
-		}
-	}
-
-} # End of _find_cluster_members.
 
 # -----------------------------------------------
 # For each cluster, we have to re-scan the original *.gv file
@@ -237,7 +228,7 @@ sub find_clusters
 
 	# Process the tree.
 
-	$self -> _winnow_cluster_members($self -> _find_cluster_kin);
+	$self -> _find_cluster_kin;
 	$self -> report_cluster_members if ($self -> report_clusters);
 	$self -> _find_cluster_paths;
 	$self -> output_cluster_image;
@@ -738,60 +729,6 @@ sub _set_up_forest
 	$self -> log(info => "Result of calling lexer and parser: $result (0 is success)");
 
 } # End of _set_up_forest.
-
-# -----------------------------------------------
-# Eliminate clusters with the same members.
-
-sub _winnow_cluster_members
-{
-	my($self, $cluster) = @_;
-
-	# Step 1: Turn each cluster into a set, so we can compare them.
-
-	my(@set);
-
-	for my $name (keys %$cluster)
-	{
-		push @set, Set::Tiny -> new(keys %{$$cluster{$name} });
-	}
-
-	# Step 2: Compare each set with all others.
-
-	my(@members);
-	my(@result);
-	my($wanted);
-
-	for my $i (0 .. $#set)
-	{
-		$wanted = 1;
-
-		# Step 3: Check against other sets.
-
-		for my $j ($i + 1 .. $#set)
-		{
-			$wanted = 0 if ($set[$i] -> is_equal($set[$j]) );
-			$wanted = 0 if ($set[$i] -> is_proper_subset($set[$j]) );
-		}
-
-		if ($wanted == 1)
-		{
-			# Step 4: Check against solutions already found.
-
-			for my $j (0 .. $#result)
-			{
-				$wanted = 0 if ($set[$i] -> is_equal($result[$j]) );
-				$wanted = 0 if ($set[$i] -> is_proper_subset($result[$j]) );
-			}
-		}
-
-		# Step 5: Stockpile solutions.
-
-		push @result, $set[$i] if ($wanted == 1);
-	}
-
-	$self -> cluster_set(\@result);
-
-} # End of _winnow_cluster_members.
 
 # -----------------------------------------------
 # Eliminate solutions which have (unwanted) cycles.

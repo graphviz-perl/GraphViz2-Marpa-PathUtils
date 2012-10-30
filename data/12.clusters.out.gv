@@ -10,11 +10,26 @@ graph [ label="Cluster a0" rankdir="LR" ]
 "a1"
 "a0" -> "a1" [ label="" ]
 "a1"
+"a2"
+"a1" -> "a2" [ label="" ]
+"a1"
 "a3"
 "a1" -> "a3" [ label="" ]
+"a2"
+"a3"
+"a2" -> "a3" [ label="" ]
 "a3"
 "a0"
 "a3" -> "a0" [ label="" ]
+"b0"
+"b1"
+"b0" -> "b1" [ label="" ]
+"b1"
+"b2"
+"b1" -> "b2" [ label="" ]
+"b2"
+"b3"
+"b2" -> "b3" [ label="" ]
 "x"
 "a0"
 "x" -> "a0" [ label="" ]
@@ -31,26 +46,20 @@ graph [ label="Cluster a0" rankdir="LR" ]
 "a1"
 "a0" -> "a1" [ label="" ]
 "a1"
-"a2"
-"a1" -> "a2" [ label="" ]
-"a1"
 "a3"
 "a1" -> "a3" [ label="" ]
-"a2"
-"a3"
-"a2" -> "a3" [ label="" ]
 "a3"
 "a0"
 "a3" -> "a0" [ label="" ]
-"x"
-"a0"
-"x" -> "a0" [ label="" ]
 }
 
-subgraph "cluster b0"
+subgraph "cluster a3"
 {
-graph [ label="Cluster b0" rankdir="LR" ]
+graph [ label="Cluster a3" rankdir="LR" ]
 
+"a3"
+"a0"
+"a3" -> "a0" [ label="" ]
 "b0"
 "b1"
 "b0" -> "b1" [ label="" ]
@@ -60,6 +69,9 @@ graph [ label="Cluster b0" rankdir="LR" ]
 "b2"
 "b3"
 "b2" -> "b3" [ label="" ]
+"x"
+"a0"
+"x" -> "a0" [ label="" ]
 "x"
 "b0"
 "x" -> "b0" [ label="" ]
