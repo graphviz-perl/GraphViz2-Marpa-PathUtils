@@ -62,7 +62,7 @@ sub _find_ancestors
 	my($node_value);
 	my($root_value);
 
-	for my $root ($self -> parser -> edges -> daughters)
+	for my $root ($self -> parser -> paths -> daughters)
 	{
 		$root_value = $root -> name;
 
