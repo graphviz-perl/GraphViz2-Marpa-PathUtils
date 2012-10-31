@@ -4,6 +4,6 @@ digraph graph_03
 
 	node [color = blue]
 
-	A -> B
-	C -> D
+	A -> B [color = green]
+	C -> D [color = red]
 }
