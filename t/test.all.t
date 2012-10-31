@@ -55,11 +55,10 @@ ok($stdout eq $expected);
 ($stdout, $stderr) = capture \&check_clusters;
 $expected          = <<'EOS';
 Clusters:
-1: J
-2: A, D, E, K
-3: A, B, C, D, K, X, Y
-4: I, M
-5: F, G, H, L
+1: A
+2: D, E, F, G
+3: H, I, J, K, L, M, N, O
+4: B, C
 EOS
 
 ok($stdout eq $expected);
