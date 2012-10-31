@@ -1,0 +1,49 @@
+strict digraph graph_55
+{
+graph [ label="Complex Syntax Test" rankdir="TB" ]
+
+subgraph "cluster A"
+{
+graph [ label="Cluster A" rankdir="TB" ]
+
+"A" [ color="blue" ]
+"B" [ color="mediumseagreen" fillcolor="goldenrod" shape="square" style="filled" ]
+"A" -> "B" [ label="" ]
+"B" [ color="mediumseagreen" fillcolor="goldenrod" shape="square" style="filled" ]
+"C" [ color="firebrick1" shape="house" ]
+"B" -> "C" [ label="" ]
+"C" [ color="firebrick1" shape="house" ]
+"D" [ fillcolor="turquoise4" shape="circle" style="filled" ]
+"C" -> "D" [ label="" ]
+"D" [ fillcolor="turquoise4" shape="circle" style="filled" ]
+"E" [ fillcolor="turquoise4" shape="circle" style="filled" ]
+"D" -> "E" [ label="" ]
+}
+
+subgraph "cluster F"
+{
+graph [ label="Cluster F" rankdir="TB" ]
+
+"F" [ color="darkorchid" fillcolor="yellow" penwidth="5" shape="hexagon" style="filled" ]
+"G" [ color="crimson" fillcolor="darkorchid" penwidth="7" shape="pentagon" style="filled" ]
+"F" -> "G" [ label="" ]
+}
+
+subgraph "cluster H"
+{
+graph [ label="Cluster H" rankdir="TB" ]
+
+"H" [ fillcolor="lightblue" fontsize="20" shape="house" style="filled" ]
+"I" [ fillcolor="lightblue" fontsize="20" shape="house" style="filled" ]
+"H" -> "I" [ label="" ]
+}
+
+subgraph "cluster J"
+{
+graph [ label="Cluster J" rankdir="TB" ]
+
+"J" [ color="yellow" fillcolor="magenta" fontsize="26" shape="square" style="filled" ]
+"K" [ fillcolor="magenta" fontsize="26" shape="triangle" style="filled" ]
+"J" -> "K" [ label="" ]
+}
+}
