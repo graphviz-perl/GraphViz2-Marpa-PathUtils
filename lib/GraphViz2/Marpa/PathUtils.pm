@@ -59,22 +59,22 @@ sub _find_ancestors
 	my($self) = @_;
 
 	my(%ancestor);
-	my($node_value);
-	my($root_value);
+	my($node_name);
+	my($root_name);
 
 	for my $root ($self -> parser -> edges -> daughters)
 	{
-		$root_value = $root -> name;
+		$root_name = $root -> name;
 
 		$root -> walk_down
 		({
 			callback =>
 			sub
 			{
-				my($node)                           = @_;
-				$node_value                         = $node -> name;
-				$ancestor{$node_value}              = {} if (! $ancestor{$node_value});
-				$ancestor{$node_value}{$root_value} = 1;
+				my($node)                         = @_;
+				$node_name                        = $node -> name;
+				$ancestor{$node_name}             = {} if (! $ancestor{$node_name});
+				$ancestor{$node_name}{$root_name} = 1;
 
 				return 1;
 			},
@@ -84,9 +84,9 @@ sub _find_ancestors
 
 	$self -> log(info => 'Ancestors:');
 
-	for $node_value (sort keys %ancestor)
+	for $node_name (sort keys %ancestor)
 	{
-		$self -> log(info => "Node $node_value. Ancestors: " . join(', ', sort keys %{$ancestor{$node_value} }) );
+		$self -> log(info => "Node $node_name. Ancestors: " . join(', ', sort keys %{$ancestor{$node_name} }) );
 	}
 
 	return \%ancestor;
@@ -103,7 +103,7 @@ sub _find_cluster_kin
 	# Phase 1: Put nodes with edges into sets.
 
 	my(%cluster);
-	my($value);
+	my($name);
 
 	$self -> parser -> edges -> walk_down
 	({
@@ -116,13 +116,13 @@ sub _find_cluster_kin
 
 			return 1 if (! defined $node -> mother);
 
-			$value = $node -> name;
+			$name = $node -> name;
 
-			for my $ancestor_value (keys %{$$ancestors{$value} })
+			for my $ancestor_name (keys %{$$ancestors{$name} })
 			{
-				$cluster{$ancestor_value} = Set::Tiny -> new if (! defined $cluster{$ancestor_value});
+				$cluster{$ancestor_name} = Set::Tiny -> new if (! defined $cluster{$ancestor_name});
 
-				$cluster{$ancestor_value} -> insert($value);
+				$cluster{$ancestor_name} -> insert($name);
 			}
 
 			return 1;
@@ -134,13 +134,13 @@ sub _find_cluster_kin
 
 	my($found);
 
-	for $value (keys %{$self -> parser -> nodes})
+	for $name (keys %{$self -> parser -> nodes})
 	{
 		$found = 0;
 
 		for my $key (keys %cluster)
 		{
-			if ($cluster{$key} -> member($value) )
+			if ($cluster{$key} -> member($name) )
 			{
 				$found = 1;
 
@@ -148,7 +148,7 @@ sub _find_cluster_kin
 			}
 		}
 
-		$cluster{$value} = Set::Tiny -> new($value) if (! $found);
+		$cluster{$name} = Set::Tiny -> new($name) if (! $found);
 	}
 
 	return \%cluster;
@@ -261,8 +261,8 @@ sub _find_edge_attributes
 	my($found) = 0;
 
 	my(%attributes);
-	my($from_value);
-	my($to_value);
+	my($from_name);
+	my($to_name);
 
 	$self -> parser -> edges -> walk_down
 	({
@@ -276,15 +276,15 @@ sub _find_edge_attributes
 
 			return 1 if (! defined $node -> mother);
 
-			$from_value = $node -> name;
+			$from_name = $node -> name;
 
-			return 1 if ($from ne $from_value);
+			return 1 if ($from ne $from_name);
 
 			for my $child ($node -> daughters)
 			{
-				$to_value = $child -> name;
+				$to_name = $child -> name;
 
-				last if ($to ne $to_value);
+				last if ($to ne $to_name);
 
 				$$options{attributes} = $node -> attributes;
 
@@ -1093,6 +1093,9 @@ C<new()> is called as C<< my($obj) = GraphViz2::Marpa::PathUtils -> new(k1 => v1
 It returns a new object of type C<GraphViz2::Marpa::PathUtils>.
 
 This class is a descendent of L<GraphViz2::Marpa>, and hence inherits all its keys to new(), and all its methods.
+
+Specifically, see L<GraphViz2::Marpa/Constructor and Initialization> for more options to new(), including
+I<maxlevel>.
 
 Further, these key-value pairs are accepted in the parameter list (see corresponding methods for details
 [e.g. L</path_length($integer)>]):
