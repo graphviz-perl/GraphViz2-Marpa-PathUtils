@@ -1448,6 +1448,11 @@ Even better, use a more meaningful name for your graph...
 
 So far, the code has not been tested on graphs which use ports.
 
+=head2 This module uses Hash::FieldHash, which has an XS component!
+
+Correct. My policy is that stand-alone modules should use a light-weight object manager (my choice is
+L<Hash::FieldHash>), whereas apps can - and probably should - use L<Moose>.
+
 =head1 Reference
 
 Combinatorial Algorithms for Computers and Calculators, A Nijenhuis and H Wilf, p 240.
