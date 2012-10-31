@@ -1,0 +1,13 @@
+digraph graph_51
+{
+graph [ label="Class Demo" rankdir="LR" ]
+
+subgraph "cluster A"
+{
+graph [ label="Cluster A" rankdir="LR" ]
+
+"A" [ shape="Mdiamond" ]
+"B" [ shape="Msquare" ]
+"A" -> "B" [ label="" ]
+}
+}
