@@ -44,7 +44,6 @@ requires:
   Pod::Usage: 1.36
   Set::Tiny: 0.01
   Text::Xslate: 1.4001
-  Tree: 1.01
   feature: 1.2
   open: 1.08
   parent: 0.225
