@@ -61,7 +61,6 @@ WriteMakefile
 		Test::More       => 0.98,
 		Test::Pod        => 1.44,
 		Text::Xslate     => 1.4001,
-		Tree             => 1.01,
 		warnings         => 1.03,
 	},
 	VERSION_FROM => 'lib/GraphViz2/Marpa/PathUtils.pm',

@@ -58,7 +58,6 @@ $class -> new
 		Pod::Usage       => 1.36,
 		Set::Tiny        => 0.01,
 		strict           => 1.03,
-		Tree             => 1.01,
 		Text::Xslate     => 1.4001,
 		warnings         => 1.03,
 	},

@@ -9,8 +9,6 @@ use warnings qw(FATAL utf8);
 
 use Config;
 
-use Data::Dumper::Concise;
-
 use Date::Format; # For time2str().
 use Date::Simple;
 
@@ -27,8 +25,6 @@ use IPC::Run3; # For run3().
 use Set::Tiny;
 
 use Text::Xslate 'mark_raw';
-
-use Tree::DAG_Node;
 
 fieldhash my %allow_cycles     => 'allow_cycles';
 fieldhash my %attributes       => 'attributes';
