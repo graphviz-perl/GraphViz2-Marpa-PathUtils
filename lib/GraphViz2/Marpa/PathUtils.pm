@@ -105,14 +105,16 @@ sub _find_cluster_kin
 	my(%cluster);
 	my($value);
 
-	$self -> parser -> edges
+	$self -> parser -> paths -> walk_down
 	({
 		callback =>
 		sub
 		{
 			my($node) = @_;
 
-			return 1 if ($node -> is_root);
+			# Skip the root.
+
+			return 1 if (! defined $node -> mother);
 
 			$value = $node -> name;
 
@@ -167,7 +169,7 @@ sub _find_cluster_paths
 	my(@cluster_set);
 	my($edge, @edge_set);
 	my(@member, %member);
-	my($value_1, $value_2);
+	my($name_1, $name_2);
 
 	for my $cluster (@$set)
 	{
@@ -180,37 +182,48 @@ sub _find_cluster_paths
 
 		if ($#member == 0)
 		{
+			# Use undef since node names can be ''.
+
 			push @edge_set, [$member[0], undef];
 		}
 		else
 		{
-			for my $node (map{$_ -> traverse} $self -> parser -> edges -> daughters)
-			{
-				$value_1 = $node -> name;
-
-				if (defined $member{$value_1})
+			$self -> parser -> edges -> walk_down
+			({
+				callback => sub
 				{
-					$edge = ${$node -> meta}{edge};
+					my($node) = @_;
+					$name_1   = $node -> name;
 
-					for my $kid ($node -> daughters)
+					if (defined $member{$name_1})
 					{
-						$value_2 = $kid -> name;
+						$edge = ${$node -> attributes}{edge};
 
-						if (defined $member{$value_2} && ($value_1 ne $value_2) )
+						for my $kid ($node -> daughters)
 						{
-							push @edge_set, [$value_1, $value_2];
+							$name_2 = $kid -> name;
+
+							if (defined $member{$name_2} && ($name_1 ne $name_2) )
+							{
+								push @edge_set, [$name_1, $name_2];
+							}
 						}
 					}
-				}
-			}
+
+					return 1;
+				},
+				_depth => 0,
+			});
 		}
 
-		@edge_set = sort{$$a[0] cmp $$b[0]} @edge_set;
+		@edge_set = sort{(defined($a) ? $$a[0] : '') cmp (defined($b) ? $$b[0] : '')} @edge_set;
 
 		push @cluster_set, [@edge_set];
 	}
 
-	@cluster_set = sort{$$a[0][0] cmp $$b[0][0]} @cluster_set;
+	# The extra () stop warning msgs of the form: Argument "X" isn't numeric
+
+	@cluster_set = sort{(defined($a) ? $$a[0][0] : '') cmp (defined($b) ? $$b[0][0] : '')} @cluster_set;
 
 	$self -> cluster_edge_set(\@cluster_set);
 
@@ -234,6 +247,8 @@ sub find_clusters
 	$self -> _find_cluster_paths;
 	$self -> output_cluster_image;
 
+	print join("\n", @{$self -> parser -> paths -> draw_ascii_tree}), "\n"; # TODO.
+
 	# Return 0 for success and 1 for failure.
 
 	return 0;
@@ -247,28 +262,43 @@ sub _find_edge_attributes
 	my($self, $from, $to) = @_;
 	my($found) = 0;
 
+	my(%attributes);
 	my($from_value);
 	my($to_value);
 
-	for my $node ($self -> parser -> edges -> traverse)
-	{
-		next if ($node -> is_root);
-
-		$from_value = $node -> name;
-
-		next if ($from ne $from_value);
-
-		for my $child ($node -> daughters)
+	$self -> parser -> edges -> walk_down
+	({
+		attributes => \%attributes,
+		callback   =>
+		sub
 		{
-			$to_value = $child -> name;
+			my($node, $options) = @_;
 
-			next if ($to ne $to_value);
+			# Skip the root.
 
-			return $node -> meta;
-		}
-	}
+			return 1 if (! defined $node -> mother);
 
-	return {};
+			$from_value = $node -> name;
+
+			return 1 if ($from ne $from_value);
+
+			for my $child ($node -> daughters)
+			{
+				$to_value = $child -> name;
+
+				last if ($to ne $to_value);
+
+				$$options{attributes} = $node -> attributes;
+
+				return 0;
+			}
+
+			return 1;
+		},
+		_depth => 0,
+	});
+
+	return {%attributes};
 
 } # End of _find_edge_attributes.
 
@@ -285,22 +315,31 @@ sub _find_fixed_length_candidates
 
 	my(@neighbours);
 
-	for my $node (map{$_ -> traverse} $self -> parser -> edges -> daughters)
-	{
-		# We only want neighbours of the current node.
-		# So, skip this node if:
-		# o It is the root node.
-		# o It is not the current node.
-
-		next if ($node -> name ne $current_node -> name);
-
-		# Now find its neighbours.
-
-		for my $n ($node -> parent, $node -> daughters)
+	$self -> parser -> edges -> walk_down
+	({
+		callback =>
+		sub
 		{
-			push @neighbours, $n if (! $n -> is_root);
-		}
-	}
+			my($node) = @_;
+
+			# We only want neighbours of the current node.
+			# So, skip this node if:
+			# o It is the root node.
+			# o It is not the current node.
+
+			return 1 if ($node -> name ne $current_node -> name);
+
+			# Now find its neighbours.
+
+			for my $n ($node -> mother, $node -> daughters)
+			{
+				push @neighbours, $n if (defined $n -> mother);
+			}
+
+			return 1;
+		},
+		_depth => 0,
+	});
 
 	# Elements:
 	# 0 .. N - 1: The neighbours.
@@ -387,10 +426,23 @@ sub _find_fixed_length_paths
 
 	my(@start);
 
-	for my $node (map{$_ -> traverse} $self -> parser -> edges -> daughters)
-	{
-		push @start, $node if ($node -> name eq $self -> start_node);
-	}
+	$self -> parser -> edges -> walk_down
+	({
+		callback =>
+		sub
+		{
+			my($node) = @_;
+
+			# Skip the root.
+
+			return 1 if (! defined $node -> mother);
+
+			push @start, $node if ($node -> name eq $self -> start_node);
+
+			return 1;
+		},
+		_depth => 0,
+	});
 
 	# Give up if the given node was not found.
 

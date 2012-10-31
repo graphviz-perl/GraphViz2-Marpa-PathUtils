@@ -34,8 +34,8 @@
 </g>
 <!-- A&#45;&gt;B -->
 <g id="edge3" class="edge"><title>A&#45;&gt;B</title>
-<path fill="none" stroke="blue" d="M70.4229,-70C78.4647,-70 87.2772,-70 95.3909,-70"/>
-<polygon fill="blue" stroke="blue" points="95.5312,-73.5001 105.531,-70 95.5311,-66.5001 95.5312,-73.5001"/>
+<path fill="none" stroke="black" d="M70.4229,-70C78.4647,-70 87.2772,-70 95.3909,-70"/>
+<polygon fill="black" stroke="black" points="95.5312,-73.5001 105.531,-70 95.5311,-66.5001 95.5312,-73.5001"/>
 </g>
 </g>
 </svg>
