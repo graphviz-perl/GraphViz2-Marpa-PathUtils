@@ -62,7 +62,7 @@ sub _find_ancestors
 	my($node_value);
 	my($root_value);
 
-	for my $root ($self -> parser -> paths -> daughters)
+	for my $root ($self -> parser -> edges -> daughters)
 	{
 		$root_value = $root -> name;
 
@@ -105,7 +105,7 @@ sub _find_cluster_kin
 	my(%cluster);
 	my($value);
 
-	$self -> parser -> paths -> walk_down
+	$self -> parser -> edges -> walk_down
 	({
 		callback =>
 		sub
@@ -246,8 +246,6 @@ sub find_clusters
 	$self -> report_cluster_members if ($self -> report_clusters);
 	$self -> _find_cluster_paths;
 	$self -> output_cluster_image;
-
-	print join("\n", @{$self -> parser -> paths -> draw_ascii_tree}), "\n"; # TODO.
 
 	# Return 0 for success and 1 for failure.
 

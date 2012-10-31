@@ -116,7 +116,7 @@ sub generate_demo
 
 	my(@fixed_in) = grep{/fixed.paths.in.gv/}  @demo_file;
 
-	# $self -> find_fixed_length_paths($data_dir, $html_dir, \@fixed_in);
+	$self -> find_fixed_length_paths($data_dir, $html_dir, \@fixed_in);
 
 	@demo_file       = read_dir($html_dir);
 	@cluster_in      = sort grep{/clusters.in.svg/}     @demo_file;
