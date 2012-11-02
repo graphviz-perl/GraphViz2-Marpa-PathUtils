@@ -108,9 +108,7 @@ sub _find_cluster_kin
 		{
 			my($node) = @_;
 
-			# Skip the root.
-
-			return 1 if (! defined $node -> mother);
+			return 1 if ($node -> is_root);
 
 			$name = $node -> name;
 
@@ -256,25 +254,19 @@ sub _find_edge_attributes
 	my($self, $from, $to) = @_;
 	my($found) = 0;
 
-	my(%attributes);
+	my($attributes);
 	my($from_name);
 	my($to_name);
 
 	$self -> parser -> edges -> walk_down
 	({
-		attributes => \%attributes,
-		callback   =>
+		callback =>
 		sub
 		{
 			my($node, $options) = @_;
-
-			# Skip the root.
-
-			return 1 if (! defined $node -> mother);
-
 			$from_name = $node -> name;
 
-			return 1 if ($from ne $from_name);
+			return 1 if ( ($node -> is_root) || ($from ne $from_name) );
 
 			for my $child ($node -> daughters)
 			{
@@ -282,7 +274,7 @@ sub _find_edge_attributes
 
 				last if ($to ne $to_name);
 
-				$$options{attributes} = $node -> attributes;
+				$attributes = $node -> attributes;
 
 				return 0;
 			}
@@ -292,7 +284,7 @@ sub _find_edge_attributes
 		_depth => 0,
 	});
 
-	return {%attributes};
+	return $attributes ? $attributes : {};
 
 } # End of _find_edge_attributes.
 
@@ -321,14 +313,14 @@ sub _find_fixed_length_candidates
 			# o It is the root node.
 			# o It is not the current node.
 
-			return 1 if ($node -> name ne $current_node -> name);
+			return 1 if ( ($node -> is_root) || ($node -> name ne $current_node -> name) );
 
 			# Now find its neighbours.
 
-			for my $n ($node -> mother, $node -> daughters)
-			{
-				push @neighbours, $n if (defined $n -> mother);
-			}
+			my(@node) = $node -> daughters;
+
+			push @node, $node -> mother if (! $node -> mother -> is_root);
+			push @neighbours, @node;
 
 			return 1;
 		},
@@ -427,9 +419,7 @@ sub _find_fixed_length_paths
 		{
 			my($node) = @_;
 
-			# Skip the root.
-
-			return 1 if (! defined $node -> mother);
+			return 1 if ($node -> is_root);
 
 			push @start, $node if ($node -> name eq $self -> start_node);
 
@@ -563,16 +553,31 @@ sub output_cluster_image
 			$from = $$node[0];
 			$to   = $$node[1];
 
-			$graph -> add_node(name => $from, %{$nodes{$from}{attributes} });
+			if (! $seen{$from})
+			{
+				$seen{$from} = {};
+
+				$graph -> add_node(name => $from, %{$nodes{$from}{attributes} });
+			}
 
 			# Allow for the case of 1-node (isolated node) clusters.
 
 			if (defined $to)
 			{
-				$seen{$from}      = {} if (! $seen{$from});
-				$seen{$from}{$to} = $self -> _find_edge_attributes($from, $to) if (! $seen{$from}{$to});
+				if (! $seen{$to})
+				{
+					$seen{$to} = {};
 
-				$graph -> add_node(name => $to, %{$nodes{$to}{attributes} });
+					$graph -> add_node(name => $to, %{$nodes{$to}{attributes} });
+				}
+
+				$seen{$from}{$to} = $seen{$to}{$from} if ($seen{$to}{$from});
+
+				if (! $seen{$from}{$to})
+				{
+					$seen{$from}{$to} = $self -> _find_edge_attributes($from, $to);
+				}
+
 				$graph -> add_edge(from => $from, to => $to, %{$seen{$from}{$to} });
 			}
 		}

@@ -110,7 +110,7 @@ sub generate_demo
 	my($data_dir)   = 'data';
 	my($html_dir)   = 'html';
 	my(@demo_file)  = read_dir($data_dir);
-	my(@cluster_in) = grep{/clusters.in.gv/} @demo_file;
+	my(@cluster_in) = grep{/clusters.in.gv/} grep{!/skip/} @demo_file;
 
 	$self -> find_clusters($data_dir, $html_dir, \@cluster_in);
 

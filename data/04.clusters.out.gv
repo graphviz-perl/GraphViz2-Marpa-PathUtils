@@ -8,7 +8,7 @@ graph [ label="Cluster A" rankdir="TB" ]
 
 "A" [ color="blue" ]
 "B" [ color="blue" ]
-"A" -> "B" [ label="" ]
+"A" -> "B" [ color="green" label="" ]
 }
 
 subgraph "cluster C"
@@ -17,6 +17,6 @@ graph [ label="Cluster C" rankdir="TB" ]
 
 "C" [ color="blue" ]
 "D" [ color="blue" ]
-"C" -> "D" [ label="" ]
+"C" -> "D" [ color="red" label="" ]
 }
 }

@@ -78,8 +78,8 @@
 </g>
 <!-- F&#45;&gt;G -->
 <g id="edge12" class="edge"><title>F&#45;&gt;G</title>
-<path fill="none" stroke="purple" d="M400,-232C403.565,-232 407.13,-232 410.695,-232"/>
-<polygon fill="purple" stroke="purple" points="410.742,-235.5 420.742,-232 410.742,-228.5 410.742,-235.5"/>
+<path fill="none" stroke="orange" d="M400,-232C403.565,-232 407.13,-232 410.695,-232"/>
+<polygon fill="orange" stroke="orange" points="410.742,-235.5 420.742,-232 410.742,-228.5 410.742,-235.5"/>
 </g>
 <!-- H -->
 <g id="node16" class="node"><title>H</title>

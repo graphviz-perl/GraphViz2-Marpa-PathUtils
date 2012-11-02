@@ -30,8 +30,8 @@
 </g>
 <!-- A&#45;&gt;B -->
 <g id="edge3" class="edge"><title>A&#45;&gt;B</title>
-<path fill="none" stroke="black" d="M43,-116.943C43,-109.149 43,-99.9538 43,-91.3381"/>
-<polygon fill="black" stroke="black" points="46.5001,-91.2494 43,-81.2495 39.5001,-91.2495 46.5001,-91.2494"/>
+<path fill="none" stroke="green" d="M43,-116.943C43,-109.149 43,-99.9538 43,-91.3381"/>
+<polygon fill="green" stroke="green" points="46.5001,-91.2494 43,-81.2495 39.5001,-91.2495 46.5001,-91.2494"/>
 </g>
 <!-- C -->
 <g id="node6" class="node"><title>C</title>
@@ -45,8 +45,8 @@
 </g>
 <!-- C&#45;&gt;D -->
 <g id="edge6" class="edge"><title>C&#45;&gt;D</title>
-<path fill="none" stroke="black" d="M121,-116.943C121,-109.149 121,-99.9538 121,-91.3381"/>
-<polygon fill="black" stroke="black" points="124.5,-91.2494 121,-81.2495 117.5,-91.2495 124.5,-91.2494"/>
+<path fill="none" stroke="red" d="M121,-116.943C121,-109.149 121,-99.9538 121,-91.3381"/>
+<polygon fill="red" stroke="red" points="124.5,-91.2494 121,-81.2495 117.5,-91.2495 124.5,-91.2494"/>
 </g>
 </g>
 </svg>
