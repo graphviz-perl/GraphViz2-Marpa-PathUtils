@@ -2,7 +2,7 @@
 
 perl -Ilib scripts/generate.demo.pl
 
-# $DR is doc root and $PM is Perl-modules/html/graphviz2.pathutils.
+# $DR is my web server's doc root and $PM is Perl-modules/html/graphviz2.pathutils.
 
 cp html/*.html html/*.svg $DR/$PM
 
