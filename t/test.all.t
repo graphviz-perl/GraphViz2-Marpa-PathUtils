@@ -15,7 +15,7 @@ sub check_clusters
 {
 	GraphViz2::Marpa::PathUtils -> new
 	(
-		input_file      => 'data/14.clusters.in.gv',
+		input_file      => 'data/06.clusters.in.gv',
 		report_clusters => 1,
 	) -> find_clusters;
 }
@@ -55,10 +55,10 @@ ok($stdout eq $expected);
 ($stdout, $stderr) = capture \&check_clusters;
 $expected          = <<'EOS';
 Clusters:
-1: A
-2: D, E, F, G
-3: H, I, J, K, L, M, N, O
-4: B, C
+1: H, I
+2: F, G
+3: A, B, C, D, E
+4: J, K
 EOS
 
 ok($stdout eq $expected);
