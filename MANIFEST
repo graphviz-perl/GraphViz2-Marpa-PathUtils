@@ -29,9 +29,7 @@ data/05.clusters.out.gv
 data/06.clusters.in.csv
 data/06.clusters.in.gv
 data/06.clusters.out.gv
-data/07.clusters.in.csv
-data/07.clusters.in.gv
-data/07.clusters.out.gv
+data/07.clusters.in.gv.skip
 htdocs/assets/css/graphviz2/marpa/pathutils/default.css
 htdocs/assets/css/graphviz2/marpa/pathutils/fancy.table.css
 htdocs/assets/css/graphviz2/marpa/pathutils/web.page.css
@@ -57,8 +55,6 @@ html/05.clusters.in.svg
 html/05.clusters.out.svg
 html/06.clusters.in.svg
 html/06.clusters.out.svg
-html/07.clusters.in.svg
-html/07.clusters.out.svg
 html/index.html
 lib/GraphViz2/Marpa/PathUtils.pm
 lib/GraphViz2/Marpa/PathUtils/Config.pm
