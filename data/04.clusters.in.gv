@@ -1,10 +1,9 @@
-digraph graph_04
+digraph graph_03
 {
-	rankdir = LR
+	rankdir = TB
 
-	node [color = magenta]
+	node [color = blue]
 
-	A -> B -> C -> D -> A
-	A -> C
-	B -> D
+	A -> B [color = green]
+	C -> D [color = red]
 }

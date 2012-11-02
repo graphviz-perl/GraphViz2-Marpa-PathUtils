@@ -1,9 +1,16 @@
-digraph graph_03
+digraph graph_51
 {
-	rankdir = TB
+edge [color = blue]
 
-	node [color = blue]
+node [shape = Mdiamond]
 
-	A -> B [color = green]
-	C -> D [color = red]
+A
+
+node [shape = Msquare]
+
+B
+
+graph [label = "Class Demo" rankdir = LR]
+
+A -> B
 }

@@ -1,22 +1,13 @@
-digraph graph_03
+digraph graph_51
 {
-graph [ label="Cluster set" rankdir="TB" ]
+graph [ label="Class Demo" rankdir="LR" ]
 
 subgraph "cluster A"
 {
-graph [ label="Cluster A" rankdir="TB" ]
+graph [ label="Cluster A" rankdir="LR" ]
 
-"A" [ color="blue" ]
-"B" [ color="blue" ]
+"A" [ shape="Mdiamond" ]
+"B" [ shape="Msquare" ]
 "A" -> "B" [ label="" ]
-}
-
-subgraph "cluster C"
-{
-graph [ label="Cluster C" rankdir="TB" ]
-
-"C" [ color="blue" ]
-"D" [ color="blue" ]
-"C" -> "D" [ label="" ]
 }
 }
