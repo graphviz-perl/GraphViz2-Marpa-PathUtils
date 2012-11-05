@@ -1,5 +1,8 @@
 Revision history for Perl extension GraphViz2::Marpa::PathUtils.
 
+1.02  Unreleased.
+	- Remove from TODO things which have been implemented.
+
 1.01  Mon Oct 15 14:20:00 2012
 	- Implement find_clusters() which finds mutually-exclusive clusters of nodes.
 	- Rename data/* and html/* demo files.

@@ -1469,12 +1469,6 @@ The book is now downloadable as a PDF from L<http://www.math.upenn.edu/~wilf/web
 
 =item o High priority - Handle ports
 
-=item o High priority - Handle edge attributes
-
-=item o Low priority - Handle multiple class definitions which change nodes' shapes
-
-See the L<FAQ/Sometimes the cluster has the wrong shape for a node> above for sample code.
-
 =item o Low priority - Perhaps implement logic to find paths which end on a given node
 
 =back
