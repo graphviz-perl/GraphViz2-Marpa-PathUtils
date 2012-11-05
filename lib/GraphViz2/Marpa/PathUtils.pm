@@ -957,6 +957,8 @@ Currently, the only feature available is to find all paths of a given length sta
 
 Sample output: L<http://savage.net.au/Perl-modules/html/graphviz2.pathutils/index.html>.
 
+Command line options and object attributes: L<http://savage.net.au/Perl-modules/html/graphviz2.pathutils/code.attributes.html>.
+
 =head1 Scripts shipped with this distro
 
 All scripts are in the scripts/ directory. This means they do I<not> get installed along with the package.
@@ -964,6 +966,10 @@ All scripts are in the scripts/ directory. This means they do I<not> get install
 Data files are in data/, while html and svg files are in html/.
 
 =over 4
+
+=item o code.attributes2html.pl
+
+Generate both data/code.attributes.csv and data/code.attributes.html.
 
 =item o copy.config.pl
 
@@ -978,10 +984,6 @@ This runs the L</find_clusters()> method in GraphViz2::Marpa::PathUtils.
 
 This runs find.clusters.pl with hard-coded parameters, and is what I use for testing new code.
 
-Then it runs generate.demo.pl.
-
-Lastly it copies the output to my web server's dir, $DR/Perl-modules/html/graphviz2.pathutils/.
-
 =item o find.fixed.length.paths.pl
 
 This runs the L</find_fixed_length_paths()> method in GraphViz2::Marpa::PathUtils.
@@ -992,10 +994,6 @@ Try shell> perl find.fixed.length.paths.pl -h
 
 This runs find.fixed.length.paths.pl with hard-coded parameters, and is what I use for testing new code.
 
-Then it runs generate.demo.pl.
-
-Lastly it copies the output to my web server's doc dir, $DR/Perl-modules/html/graphviz2.pathutils/.
-
 =item o generate.demo.pl
 
 This uses the L<Text::Xslate> template file htdocs/assets/templates/graphviz2/marpa/pathutils/pathutils.tx
@@ -1003,7 +1001,9 @@ to generate html/index.html.
 
 =item o generate.demo.sh
 
-Runs generate.demo.pl and then copies html/*.html and html/*.svg to my web server's dir, $DR/Perl-modules/html/graphviz2.pathutils/.
+Runs generate.demo.pl and code.attributes2html.pl.
+
+Then copies html/*.html and html/*.svg to my web server's dir, $DR/Perl-modules/html/graphviz2.pathutils/.
 
 =item o pod2html.sh
 
@@ -1349,6 +1349,10 @@ The type of image comes from the I<format> parameter to new().
 'tree_image_file' is a parameter to L</new()>. See L</Constructor and Initialization> for details.
 
 =head1 FAQ
+
+=head2 What is the homepage of Marpa?
+
+L<http://jeffreykegler.github.com/Marpa-web-site/>.
 
 =head2 How are clusters named?
 
