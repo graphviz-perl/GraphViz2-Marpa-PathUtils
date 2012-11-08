@@ -29,12 +29,16 @@ data/05.clusters.out.gv
 data/06.clusters.in.csv
 data/06.clusters.in.gv
 data/06.clusters.out.gv
-data/07.clusters.in.gv.skip
+data/07.clusters.in.csv
+data/07.clusters.in.gv
+data/07.clusters.out.gv
+data/code.attributes.csv
 htdocs/assets/css/graphviz2/marpa/pathutils/default.css
 htdocs/assets/css/graphviz2/marpa/pathutils/fancy.table.css
 htdocs/assets/css/graphviz2/marpa/pathutils/web.page.css
 htdocs/assets/templates/graphviz2/marpa/pathutils/basic.column.tx
 htdocs/assets/templates/graphviz2/marpa/pathutils/basic.table.tx
+htdocs/assets/templates/graphviz2/marpa/pathutils/code.attributes.tx
 htdocs/assets/templates/graphviz2/marpa/pathutils/fancy.table.tx
 htdocs/assets/templates/graphviz2/marpa/pathutils/pathutils.report.tx
 html/01.clusters.in.svg
@@ -55,6 +59,9 @@ html/05.clusters.in.svg
 html/05.clusters.out.svg
 html/06.clusters.in.svg
 html/06.clusters.out.svg
+html/07.clusters.in.svg
+html/07.clusters.out.svg
+html/code.attributes.html
 html/index.html
 lib/GraphViz2/Marpa/PathUtils.pm
 lib/GraphViz2/Marpa/PathUtils/Config.pm
@@ -64,6 +71,7 @@ MANIFEST			This list of files
 META.json
 META.yml
 README
+scripts/code.attributes2html.pl
 scripts/copy.config.pl
 scripts/find.clusters.pl
 scripts/find.clusters.sh
