@@ -17,13 +17,13 @@ name: GraphViz2-Marpa-PathUtils
 provides:
   GraphViz2::Marpa::PathUtils:
     file: lib/GraphViz2/Marpa/PathUtils.pm
-    version: 1.01
+    version: 1.02
   GraphViz2::Marpa::PathUtils::Config:
     file: lib/GraphViz2/Marpa/PathUtils/Config.pm
-    version: 1.01
+    version: 1.02
   GraphViz2::Marpa::PathUtils::Utils:
     file: lib/GraphViz2/Marpa/PathUtils/Utils.pm
-    version: 1.01
+    version: 1.02
 requires:
   Capture::Tiny: 0.1
   Config: 0
@@ -51,4 +51,4 @@ requires:
   warnings: 0
 resources:
   license: http://www.perlfoundation.org/artistic_license_1_0
-version: 1.01
+version: 1.02

@@ -57,15 +57,15 @@
    "provides" : {
       "GraphViz2::Marpa::PathUtils" : {
          "file" : "lib/GraphViz2/Marpa/PathUtils.pm",
-         "version" : "1.01"
+         "version" : "1.02"
       },
       "GraphViz2::Marpa::PathUtils::Config" : {
          "file" : "lib/GraphViz2/Marpa/PathUtils/Config.pm",
-         "version" : "1.01"
+         "version" : "1.02"
       },
       "GraphViz2::Marpa::PathUtils::Utils" : {
          "file" : "lib/GraphViz2/Marpa/PathUtils/Utils.pm",
-         "version" : "1.01"
+         "version" : "1.02"
       }
    },
    "release_status" : "stable",
@@ -74,5 +74,5 @@
          "http://www.perlfoundation.org/artistic_license_1_0"
       ]
    },
-   "version" : "1.01"
+   "version" : "1.02"
 }
