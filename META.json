@@ -46,26 +46,26 @@
             "Pod::Usage" : "1.36",
             "Set::Tiny" : "0.01",
             "Text::Xslate" : "1.4001",
-            "feature" : "1.2",
-            "open" : "1.08",
+            "feature" : "0",
+            "open" : "0",
             "parent" : "0.225",
-            "strict" : "1.03",
-            "warnings" : "1.03"
+            "strict" : "0",
+            "warnings" : "0"
          }
       }
    },
    "provides" : {
       "GraphViz2::Marpa::PathUtils" : {
          "file" : "lib/GraphViz2/Marpa/PathUtils.pm",
-         "version" : "1.01"
+         "version" : "1.02"
       },
       "GraphViz2::Marpa::PathUtils::Config" : {
          "file" : "lib/GraphViz2/Marpa/PathUtils/Config.pm",
-         "version" : "1.01"
+         "version" : "1.02"
       },
       "GraphViz2::Marpa::PathUtils::Utils" : {
          "file" : "lib/GraphViz2/Marpa/PathUtils/Utils.pm",
-         "version" : "1.01"
+         "version" : "1.02"
       }
    },
    "release_status" : "stable",
@@ -74,5 +74,5 @@
          "http://www.perlfoundation.org/artistic_license_1_0"
       ]
    },
-   "version" : "1.01"
+   "version" : "1.02"
 }
