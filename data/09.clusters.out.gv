@@ -1,0 +1,44 @@
+digraph g
+{
+graph [ label="Cluster set" rankdir="LR" ]
+
+subgraph "cluster DeltamCherry"
+{
+graph [ label="Cluster DeltamCherry" rankdir="LR" ]
+
+"DeltamCherry" [ color="5" colorscheme="rdbu5" fontcolor="3" shape="rarrow" style="filled" ]
+"product" [ color="2" colorscheme="rdbu5" fontcolor="3" label="" shape="oval" style="filled" ]
+"DeltamCherry" -> "product" [ label="" ]
+"Doxycycline" [ color="4" colorscheme="rdbu5" fontcolor="5" shape="oval" style="filled" ]
+"combination" [ color="4" colorscheme="rdbu5" fontcolor="5" label="rtTA3 + Doxycycline" shape="oval" style="filled" ]
+"Doxycycline" -> "combination" [ label="" ]
+"Gal4VP16" [ color="5" colorscheme="rdbu5" fontcolor="3" label="Gal4-VP16" shape="rarrow" style="filled" ]
+"UAS" [ color="1" colorscheme="rdbu5" fontcolor="3" shape="rpromoter" style="filled" ]
+"Gal4VP16" -> "UAS" [ arrowhead="none" label="" ]
+"Gal4VP16protein" [ color="4" colorscheme="rdbu5" fontcolor="5" label="Gal4-VP16" shape="oval" style="filled" ]
+"Gal4VP16" -> "Gal4VP16protein" [ label="" ]
+"Gal4VP16protein" -> "UAS" [ label="" ]
+"Hef1a" [ color="1" colorscheme="rdbu5" fontcolor="3" shape="rpromoter" style="filled" ]
+"Hef1a" -> "Gal4VP16" [ arrowhead="none" label="" ]
+"Hef1aLacOid" [ color="1" colorscheme="rdbu5" fontcolor="3" label="Hef1a-LacOid" shape="rpromoter" style="filled" ]
+"rtTA3" [ color="5" colorscheme="rdbu5" fontcolor="3" shape="rarrow" style="filled" ]
+"Hef1aLacOid" -> "rtTA3" [ arrowhead="none" label="" ]
+"IPTG" [ color="4" colorscheme="rdbu5" fontcolor="5" shape="oval" style="filled" ]
+"repression" [ color="5" colorscheme="rdbu5" fontcolor="black" label="LacI repression" shape="oval" style="dotted" ]
+"IPTG" -> "repression" [ arrowhead="tee" label="" ]
+"LacI" [ color="5" colorscheme="rdbu5" fontcolor="3" shape="rarrow" style="filled" ]
+"LacI" -> "Hef1aLacOid" [ arrowhead="none" label="" ]
+"LacIprotein" [ color="4" colorscheme="rdbu5" fontcolor="5" label="LacI" shape="oval" style="filled" ]
+"LacI" -> "LacIprotein" [ label="" ]
+"LacIprotein" -> "repression" [ label="" ]
+"TRE" [ color="1" colorscheme="rdbu5" fontcolor="3" shape="rpromoter" style="filled" ]
+"TRE" -> "DeltamCherry" [ arrowhead="none" label="" ]
+"UAS" -> "LacI" [ arrowhead="none" label="" ]
+"combination" -> "TRE" [ label="" ]
+"repression" -> "Hef1aLacOid" [ arrowhead="tee" label="" ]
+"rtTA3" -> "TRE" [ arrowhead="none" label="" ]
+"rtTA3protein" [ color="4" colorscheme="rdbu5" fontcolor="5" label="rtTA3" shape="oval" style="filled" ]
+"rtTA3" -> "rtTA3protein" [ label="" ]
+"rtTA3protein" -> "combination" [ label="" ]
+}
+}

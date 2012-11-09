@@ -1,0 +1,230 @@
+digraph G
+{
+graph [ label="Cluster set" rankdir="LR" ]
+
+subgraph "cluster _box"
+{
+graph [ label="Cluster _box" rankdir="LR" ]
+
+"_box" [ label="" shape="point" ]
+"box" [ label="" shape="point" ]
+"_box" -> "box" [ arrowhead="box" fontsize="10" label="box" ]
+"lbox" [ label="" shape="point" ]
+"_box" -> "lbox" [ arrowhead="lbox" fontsize="10" label="lbox" ]
+"rbox" [ label="" shape="point" ]
+"_box" -> "rbox" [ arrowhead="rbox" fontsize="10" label="rbox" ]
+"olbox" [ label="" shape="point" ]
+"_box" -> "olbox" [ arrowhead="olbox" fontsize="10" label="olbox" ]
+"orbox" [ label="" shape="point" ]
+"_box" -> "orbox" [ arrowhead="orbox" fontsize="10" label="orbox" ]
+"obox" [ label="" shape="point" ]
+"_box" -> "obox" [ arrowhead="obox" fontsize="10" label="obox" ]
+"boxbox" [ label="" shape="point" ]
+"box" -> "boxbox" [ arrowhead="boxbox" fontsize="10" label="boxbox" ]
+"lboxlbox" [ label="" shape="point" ]
+"lbox" -> "lboxlbox" [ arrowhead="lboxlbox" fontsize="10" label="lboxlbox" ]
+"oboxobox" [ label="" shape="point" ]
+"obox" -> "oboxobox" [ arrowhead="oboxobox" fontsize="10" label="oboxobox" ]
+"olboxolbox" [ label="" shape="point" ]
+"olbox" -> "olboxolbox" [ arrowhead="olboxolbox" fontsize="10" label="olboxolbox" ]
+"orboxorbox" [ label="" shape="point" ]
+"orbox" -> "orboxorbox" [ arrowhead="orboxorbox" fontsize="10" label="orboxorbox" ]
+"rboxrbox" [ label="" shape="point" ]
+"rbox" -> "rboxrbox" [ arrowhead="rboxrbox" fontsize="10" label="rboxrbox" ]
+}
+
+subgraph "cluster _crow"
+{
+graph [ label="Cluster _crow" rankdir="LR" ]
+
+"_crow" [ label="" shape="point" ]
+"crow" [ label="" shape="point" ]
+"_crow" -> "crow" [ arrowhead="crow" fontsize="10" label="crow" ]
+"lcrow" [ label="" shape="point" ]
+"_crow" -> "lcrow" [ arrowhead="lcrow" fontsize="10" label="lcrow" ]
+"rcrow" [ label="" shape="point" ]
+"_crow" -> "rcrow" [ arrowhead="rcrow" fontsize="10" label="rcrow" ]
+"crowcrow" [ label="" shape="point" ]
+"crow" -> "crowcrow" [ arrowhead="crowcrow" fontsize="10" label="crowcrow" ]
+"lcrowlcrow" [ label="" shape="point" ]
+"lcrow" -> "lcrowlcrow" [ arrowhead="lcrowlcrow" fontsize="10" label="lcrowlcrow" ]
+"rcrowrcrow" [ label="" shape="point" ]
+"rcrow" -> "rcrowrcrow" [ arrowhead="rcrowrcrow" fontsize="10" label="rcrowrcrow" ]
+}
+
+subgraph "cluster _curve"
+{
+graph [ label="Cluster _curve" rankdir="LR" ]
+
+"_curve" [ label="" shape="point" ]
+"curve" [ label="" shape="point" ]
+"_curve" -> "curve" [ arrowhead="curve" fontsize="10" label="curve" ]
+"lcurve" [ label="" shape="point" ]
+"_curve" -> "lcurve" [ arrowhead="lcurve" fontsize="10" label="lcurve" ]
+"rcurve" [ label="" shape="point" ]
+"_curve" -> "rcurve" [ arrowhead="rcurve" fontsize="10" label="rcurve" ]
+"curvecurve" [ label="" shape="point" ]
+"curve" -> "curvecurve" [ arrowhead="curvecurve" fontsize="10" label="curvecurve" ]
+"lcurvelcurve" [ label="" shape="point" ]
+"lcurve" -> "lcurvelcurve" [ arrowhead="lcurvelcurve" fontsize="10" label="lcurvelcurve" ]
+"rcurvercurve" [ label="" shape="point" ]
+"rcurve" -> "rcurvercurve" [ arrowhead="rcurvercurve" fontsize="10" label="rcurvercurve" ]
+}
+
+subgraph "cluster _diamond"
+{
+graph [ label="Cluster _diamond" rankdir="LR" ]
+
+"_diamond" [ label="" shape="point" ]
+"diamond" [ label="" shape="point" ]
+"_diamond" -> "diamond" [ arrowhead="diamond" fontsize="10" label="diamond" ]
+"ldiamond" [ label="" shape="point" ]
+"_diamond" -> "ldiamond" [ arrowhead="ldiamond" fontsize="10" label="ldiamond" ]
+"rdiamond" [ label="" shape="point" ]
+"_diamond" -> "rdiamond" [ arrowhead="rdiamond" fontsize="10" label="rdiamond" ]
+"oldiamond" [ label="" shape="point" ]
+"_diamond" -> "oldiamond" [ arrowhead="oldiamond" fontsize="10" label="oldiamond" ]
+"ordiamond" [ label="" shape="point" ]
+"_diamond" -> "ordiamond" [ arrowhead="ordiamond" fontsize="10" label="ordiamond" ]
+"odiamond" [ label="" shape="point" ]
+"_diamond" -> "odiamond" [ arrowhead="odiamond" fontsize="10" label="odiamond" ]
+"diamonddiamond" [ label="" shape="point" ]
+"diamond" -> "diamonddiamond" [ arrowhead="diamonddiamond" fontsize="10" label="diamonddiamond" ]
+"ldiamondldiamond" [ label="" shape="point" ]
+"ldiamond" -> "ldiamondldiamond" [ arrowhead="ldiamondldiamond" fontsize="10" label="ldiamondldiamond" ]
+"odiamondodiamond" [ label="" shape="point" ]
+"odiamond" -> "odiamondodiamond" [ arrowhead="odiamondodiamond" fontsize="10" label="odiamondodiamond" ]
+"oldiamondoldiamond" [ label="" shape="point" ]
+"oldiamond" -> "oldiamondoldiamond" [ arrowhead="oldiamondoldiamond" fontsize="10" label="oldiamondoldiamond" ]
+"ordiamondordiamond" [ label="" shape="point" ]
+"ordiamond" -> "ordiamondordiamond" [ arrowhead="ordiamondordiamond" fontsize="10" label="ordiamondordiamond" ]
+"rdiamondrdiamond" [ label="" shape="point" ]
+"rdiamond" -> "rdiamondrdiamond" [ arrowhead="rdiamondrdiamond" fontsize="10" label="rdiamondrdiamond" ]
+}
+
+subgraph "cluster _dot"
+{
+graph [ label="Cluster _dot" rankdir="LR" ]
+
+"_dot" [ label="" shape="point" ]
+"dot" [ label="" shape="point" ]
+"_dot" -> "dot" [ arrowhead="dot" fontsize="10" label="dot" ]
+"odot" [ label="" shape="point" ]
+"_dot" -> "odot" [ arrowhead="odot" fontsize="10" label="odot" ]
+"dotdot" [ label="" shape="point" ]
+"dot" -> "dotdot" [ arrowhead="dotdot" fontsize="10" label="dotdot" ]
+"odotodot" [ label="" shape="point" ]
+"odot" -> "odotodot" [ arrowhead="odotodot" fontsize="10" label="odotodot" ]
+}
+
+subgraph "cluster _inv"
+{
+graph [ label="Cluster _inv" rankdir="LR" ]
+
+"_inv" [ label="" shape="point" ]
+"inv" [ label="" shape="point" ]
+"_inv" -> "inv" [ arrowhead="inv" fontsize="10" label="inv" ]
+"linv" [ label="" shape="point" ]
+"_inv" -> "linv" [ arrowhead="linv" fontsize="10" label="linv" ]
+"rinv" [ label="" shape="point" ]
+"_inv" -> "rinv" [ arrowhead="rinv" fontsize="10" label="rinv" ]
+"olinv" [ label="" shape="point" ]
+"_inv" -> "olinv" [ arrowhead="olinv" fontsize="10" label="olinv" ]
+"orinv" [ label="" shape="point" ]
+"_inv" -> "orinv" [ arrowhead="orinv" fontsize="10" label="orinv" ]
+"oinv" [ label="" shape="point" ]
+"_inv" -> "oinv" [ arrowhead="oinv" fontsize="10" label="oinv" ]
+"invinv" [ label="" shape="point" ]
+"inv" -> "invinv" [ arrowhead="invinv" fontsize="10" label="invinv" ]
+"linvlinv" [ label="" shape="point" ]
+"linv" -> "linvlinv" [ arrowhead="linvlinv" fontsize="10" label="linvlinv" ]
+"oinvoinv" [ label="" shape="point" ]
+"oinv" -> "oinvoinv" [ arrowhead="oinvoinv" fontsize="10" label="oinvoinv" ]
+"olinvolinv" [ label="" shape="point" ]
+"olinv" -> "olinvolinv" [ arrowhead="olinvolinv" fontsize="10" label="olinvolinv" ]
+"orinvorinv" [ label="" shape="point" ]
+"orinv" -> "orinvorinv" [ arrowhead="orinvorinv" fontsize="10" label="orinvorinv" ]
+"rinvrinv" [ label="" shape="point" ]
+"rinv" -> "rinvrinv" [ arrowhead="rinvrinv" fontsize="10" label="rinvrinv" ]
+}
+
+subgraph "cluster _none"
+{
+graph [ label="Cluster _none" rankdir="LR" ]
+
+"_none" [ label="" shape="point" ]
+"none" [ label="" shape="point" ]
+"_none" -> "none" [ arrowhead="none" fontsize="10" label="none" ]
+"nonenone" [ label="" shape="point" ]
+"none" -> "nonenone" [ arrowhead="nonenone" fontsize="10" label="nonenone" ]
+}
+
+subgraph "cluster _normal"
+{
+graph [ label="Cluster _normal" rankdir="LR" ]
+
+"_normal" [ label="" shape="point" ]
+"normal" [ label="" shape="point" ]
+"_normal" -> "normal" [ arrowhead="normal" fontsize="10" label="normal" ]
+"lnormal" [ label="" shape="point" ]
+"_normal" -> "lnormal" [ arrowhead="lnormal" fontsize="10" label="lnormal" ]
+"rnormal" [ label="" shape="point" ]
+"_normal" -> "rnormal" [ arrowhead="rnormal" fontsize="10" label="rnormal" ]
+"olnormal" [ label="" shape="point" ]
+"_normal" -> "olnormal" [ arrowhead="olnormal" fontsize="10" label="olnormal" ]
+"ornormal" [ label="" shape="point" ]
+"_normal" -> "ornormal" [ arrowhead="ornormal" fontsize="10" label="ornormal" ]
+"onormal" [ label="" shape="point" ]
+"_normal" -> "onormal" [ arrowhead="onormal" fontsize="10" label="onormal" ]
+"lnormallnormal" [ label="" shape="point" ]
+"lnormal" -> "lnormallnormal" [ arrowhead="lnormallnormal" fontsize="10" label="lnormallnormal" ]
+"normalnormal" [ label="" shape="point" ]
+"normal" -> "normalnormal" [ arrowhead="normalnormal" fontsize="10" label="normalnormal" ]
+"olnormalolnormal" [ label="" shape="point" ]
+"olnormal" -> "olnormalolnormal" [ arrowhead="olnormalolnormal" fontsize="10" label="olnormalolnormal" ]
+"onormalonormal" [ label="" shape="point" ]
+"onormal" -> "onormalonormal" [ arrowhead="onormalonormal" fontsize="10" label="onormalonormal" ]
+"ornormalornormal" [ label="" shape="point" ]
+"ornormal" -> "ornormalornormal" [ arrowhead="ornormalornormal" fontsize="10" label="ornormalornormal" ]
+"rnormalrnormal" [ label="" shape="point" ]
+"rnormal" -> "rnormalrnormal" [ arrowhead="rnormalrnormal" fontsize="10" label="rnormalrnormal" ]
+}
+
+subgraph "cluster _tee"
+{
+graph [ label="Cluster _tee" rankdir="LR" ]
+
+"_tee" [ label="" shape="point" ]
+"tee" [ label="" shape="point" ]
+"_tee" -> "tee" [ arrowhead="tee" fontsize="10" label="tee" ]
+"ltee" [ label="" shape="point" ]
+"_tee" -> "ltee" [ arrowhead="ltee" fontsize="10" label="ltee" ]
+"rtee" [ label="" shape="point" ]
+"_tee" -> "rtee" [ arrowhead="rtee" fontsize="10" label="rtee" ]
+"lteeltee" [ label="" shape="point" ]
+"ltee" -> "lteeltee" [ arrowhead="lteeltee" fontsize="10" label="lteeltee" ]
+"rteertee" [ label="" shape="point" ]
+"rtee" -> "rteertee" [ arrowhead="rteertee" fontsize="10" label="rteertee" ]
+"teetee" [ label="" shape="point" ]
+"tee" -> "teetee" [ arrowhead="teetee" fontsize="10" label="teetee" ]
+}
+
+subgraph "cluster _vee"
+{
+graph [ label="Cluster _vee" rankdir="LR" ]
+
+"_vee" [ label="" shape="point" ]
+"vee" [ label="" shape="point" ]
+"_vee" -> "vee" [ arrowhead="vee" fontsize="10" label="vee" ]
+"lvee" [ label="" shape="point" ]
+"_vee" -> "lvee" [ arrowhead="lvee" fontsize="10" label="lvee" ]
+"rvee" [ label="" shape="point" ]
+"_vee" -> "rvee" [ arrowhead="rvee" fontsize="10" label="rvee" ]
+"lveelvee" [ label="" shape="point" ]
+"lvee" -> "lveelvee" [ arrowhead="lveelvee" fontsize="10" label="lveelvee" ]
+"rveervee" [ label="" shape="point" ]
+"rvee" -> "rveervee" [ arrowhead="rveervee" fontsize="10" label="rveervee" ]
+"veevee" [ label="" shape="point" ]
+"vee" -> "veevee" [ arrowhead="veevee" fontsize="10" label="veevee" ]
+}
+}
