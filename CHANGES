@@ -1,5 +1,9 @@
 Revision history for Perl extension GraphViz2::Marpa::PathUtils.
 
+1.03  Unreleased.
+	- Add graphs/directed/biological.gv as data/08.clusters.in.gv and graphs/directed/arrows.gv as
+		data/09.clusters.in.gv, both from Graphviz V 2.29.
+
 1.02  Thu Nov  8 12:38:00 2012
 	- No code changes.
 	- For pre-reqs such as strict, warnings, etc, which ship with Perl, set the version # to 0.
