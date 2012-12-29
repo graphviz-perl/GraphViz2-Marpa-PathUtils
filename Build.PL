@@ -22,7 +22,7 @@ EOF
 $class -> new
 (
 	module_name    => 'GraphViz2::Marpa::PathUtils',
-	license        => 'artistic',
+	license        => 'perl_5',
 	dist_abstract  => 'Provide various analyses of Graphviz dot files',
 	dist_author    => 'Ron Savage <ron@savage.net.au>',
 	build_requires =>
