@@ -59,7 +59,7 @@ WriteMakefile
 		Pod::Usage       => 1.36,
 		Set::Tiny        => 0.01,
 		strict           => 0,
-		Test::Simple     => 0.98,
+		Test::More     => 0.98,
 		Test::Pod        => 1.45,
 		Text::Xslate     => 1.4001,
 		warnings         => 0,
