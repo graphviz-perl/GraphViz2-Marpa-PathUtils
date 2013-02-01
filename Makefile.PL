@@ -60,7 +60,7 @@ WriteMakefile
 		Set::Tiny        => 0.01,
 		strict           => 0,
 		Test::More     => 0.98,
-		Test::Pod        => 1.45,
+#		Test::Pod        => 1.45, # Make it optional. See t/pod.t
 		Text::Xslate     => 1.4001,
 		warnings         => 0,
 	},

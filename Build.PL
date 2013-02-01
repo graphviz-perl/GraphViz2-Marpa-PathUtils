@@ -28,7 +28,7 @@ $class -> new
 	build_requires =>
 	{
 		Test::More=> 0.98,
-		Test::Pod  => 1.45,
+#		Test::Pod  => 1.45, # Make it optional. See t/pod.t
 	},
 	configure_requires =>
 	{
