@@ -43,7 +43,7 @@ fieldhash my %start_node       => 'start_node';
 fieldhash my %tree_dot_file    => 'tree_dot_file';
 fieldhash my %tree_image_file  => 'tree_image_file';
 
-our $VERSION = '1.02';
+our $VERSION = '1.03';
 
 # -----------------------------------------------
 # For each node, find all the children of the root
@@ -1350,9 +1350,29 @@ The type of image comes from the I<format> parameter to new().
 
 =head1 FAQ
 
+=head2 I used a node label of "\N" and now your module doesn't work!
+
+The most likely explanation is that you're calling I<find_fixed_path_lengths()> and you've specified all nodes,
+or at least some, to have a label like "\N".
+
+This escape sequence triggers special processing in AT&T's Graphviz to generate labels for nodes, overriding
+the code I use to re-name nodes in the output of I<find_fixed_path_lengths()>.
+
+See I<_prepare_fixed_length_output()> for the gory details.
+
+The purpose of my re-numbering code is to allow a node to appear in the output multiple times but to stop
+Graphviz automatically regarding all such references to be the same node. Giving a node different names
+(which are un-seen) but the same label (which is seen) makes Graphviz think they are really different nodes.
+
+The 3 samples in part 2 of L<the demo page|http://savage.net.au/Perl-modules/html/graphviz2.pathutils/index.html>
+should make this issue clear.
+
 =head2 What is the homepage of Marpa?
 
 L<http://jeffreykegler.github.com/Marpa-web-site/>.
+
+See also Jeffrey's
+L<the annotated blog|http://jeffreykegler.github.io/Ocean-of-Awareness-blog/metapages/annotated.html>.
 
 =head2 How are clusters named?
 
