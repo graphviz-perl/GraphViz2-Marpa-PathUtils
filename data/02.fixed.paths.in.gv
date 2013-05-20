@@ -9,10 +9,7 @@
  */
 graph "Petersen" {
 	node [
-		fontname = "Arial"
 		shape = "circle"
-		width = "0.400000"
-		height = "0.400000"
 		color = "black"
 	]
 	edge [
