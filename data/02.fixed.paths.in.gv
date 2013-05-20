@@ -10,7 +10,6 @@
 graph "Petersen" {
 	node [
 		fontname = "Arial"
-		label = "\N"
 		shape = "circle"
 		width = "0.400000"
 		height = "0.400000"
