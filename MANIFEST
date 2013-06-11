@@ -1,6 +1,6 @@
 Build.PL
 Changelog.ini
-CHANGES
+Changes
 config/.htgraphviz2.marpa.pathutils.conf
 data/01.clusters.in.csv
 data/01.clusters.in.gv
