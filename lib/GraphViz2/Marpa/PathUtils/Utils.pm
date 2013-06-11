@@ -28,7 +28,7 @@ use Text::Xslate 'mark_raw';
 
 fieldhash my %config => 'config';
 
-our $VERSION = '1.03';
+our $VERSION = '1.04';
 
 # -----------------------------------------------
 

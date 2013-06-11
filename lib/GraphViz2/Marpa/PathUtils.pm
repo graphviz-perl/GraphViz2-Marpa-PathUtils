@@ -43,7 +43,7 @@ fieldhash my %start_node       => 'start_node';
 fieldhash my %tree_dot_file    => 'tree_dot_file';
 fieldhash my %tree_image_file  => 'tree_image_file';
 
-our $VERSION = '1.03';
+our $VERSION = '1.04';
 
 # -----------------------------------------------
 # For each node, find all the children of the root

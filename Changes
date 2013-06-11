@@ -1,5 +1,20 @@
 Revision history for Perl extension GraphViz2::Marpa::PathUtils.
 
+1.04  Thu Jun  7 08:55:00 2013
+	- Install Graphviz 2.30.1 from AT&T.
+	- Rename CHANGES to Changes as per CPAN::Changes::Spec.
+	- Re-write the code in Build.PL and Makefile.PL which checks for Graphviz (dot) being installed,
+		since the previous code, using a pipe, was failing on some versions of Windows.
+	- Assume Config.pm is installed, and hence remove it from the pre-reqs.
+		This also stops a warning message generated because Config's version # is undef.
+	- Likewise assume File::Spec and File::Temp are installed, and 'recent enough'.
+		This is because the new code uses these 3 modules before specifying the pre-reqs.
+	- Bump the pre-req for Perl from 5.10.0 to 5.14, since we 'use feature qw/unicode_strings/.
+	- Re-write the code in Build.PL and Makefile.PL which checks for Perl being 'recent enough',
+		since the previous code, using a pre-req of "perl => '5.10.0'" generates a warning message
+		when using Makefile.PL (for my current Perl V 5.14.2). Now we analyze $Config{version}.
+	- Re-create the demo files. See scripts/generate.demo.sh.
+
 1.03  Mon May 20 11:38:00 2013
 	- Add another demo, graphs/directed/arrows.gv as data/08.clusters.in.gv, from Graphviz V 2.29.
 	- Remove the special-case label "\N" from data/02.fixed.paths.in.gv. Such an escape sequence causes
