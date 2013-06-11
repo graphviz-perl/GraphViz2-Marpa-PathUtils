@@ -1,6 +1,6 @@
 Revision history for Perl extension GraphViz2::Marpa::PathUtils.
 
-1.04  Thu Jun  7 08:55:00 2013
+1.04  Wed Jun 12 08:55:00 2013
 	- Install Graphviz 2.30.1 from AT&T.
 	- Rename CHANGES to Changes as per CPAN::Changes::Spec.
 	- Re-write the code in Build.PL and Makefile.PL which checks for Graphviz (dot) being installed,
