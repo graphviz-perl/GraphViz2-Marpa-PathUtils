@@ -80,7 +80,6 @@ WriteMakefile
 	PREREQ_PM =>
 	{
 		Capture::Tiny    => 0.10,
-		Config           => undef,
 		Config::Tiny     => 2.14,
 		Date::Format     => 2.24,
 		Date::Simple     => 3.03,
@@ -88,7 +87,6 @@ WriteMakefile
 		File::Copy       => 2.21,
 		File::HomeDir    => 0.99,
 		File::Slurp      => 9999.19,
-		File::Spec       => 3.33,
 		File::Which      => 1.09,
 		Getopt::Long     => 2.38,
 		GraphViz2        => 2.05,
