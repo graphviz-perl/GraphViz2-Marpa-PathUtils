@@ -9,8 +9,8 @@ ftp://ftp.info-zip.org/pub/infozip/
 
 1 Installing from a Unix-like distro
 ------------------------------------
-shell>gunzip GraphViz2-Marpa-PathUtils-1.00.tgz
-shell>tar mxvf GraphViz2-Marpa-PathUtils-1.00.tar
+shell>gunzip GraphViz2-Marpa-PathUtils-1.04.tgz
+shell>tar mxvf GraphViz2-Marpa-PathUtils-1.04.tar
 
 On Unix-like systems, assuming you have installed Module::Build V 0.25+:
 
@@ -43,7 +43,7 @@ Run PathUtils.pm through your favourite pod2html translator.
 
 2 Installing from an ActiveState distro
 ---------------------------------------
-shell>unzip GraphViz2-Marpa-PathUtils-1.00.zip
+shell>unzip GraphViz2-Marpa-PathUtils-1.04.zip
 shell>ppm install --location=. GraphViz2-Marpa-PathUtils
-shell>del GraphViz2-Marpa-PathUtils-1.00.ppd
-shell>del PPM-GraphViz2-Marpa-PathUtils-1.00.tar.gz
+shell>del GraphViz2-Marpa-PathUtils-1.04.ppd
+shell>del PPM-GraphViz2-Marpa-PathUtils-1.04.tar.gz
