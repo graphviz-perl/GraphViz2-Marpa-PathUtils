@@ -3,11 +3,11 @@ abstract: 'Provide various analyses of Graphviz dot files'
 author:
   - 'Ron Savage <ron@savage.net.au>'
 build_requires:
-  ExtUtils::MakeMaker: 0
+  Test::More: 0.98
 configure_requires:
-  ExtUtils::MakeMaker: 0
+  Module::Build: 0.38
 dynamic_config: 0
-generated_by: 'Module::Build version 0.4005, CPAN::Meta::Converter version 2.120921'
+generated_by: 'Module::Build version 0.4204, CPAN::Meta::Converter version 2.120921'
 license: artistic_2
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -40,7 +40,6 @@ requires:
   Path::Class: 0.23
   Pod::Usage: 1.36
   Set::Tiny: 0.01
-  Test::More: 0.98
   Text::Xslate: 1.4001
   feature: 0
   open: 0

@@ -4,7 +4,7 @@
       "Ron Savage <ron@savage.net.au>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Module::Build version 0.4005, CPAN::Meta::Converter version 2.120921",
+   "generated_by" : "Module::Build version 0.4204",
    "license" : [
       "artistic_2"
    ],
@@ -16,12 +16,12 @@
    "prereqs" : {
       "build" : {
          "requires" : {
-            "ExtUtils::MakeMaker" : "0"
+            "Test::More" : "0.98"
          }
       },
       "configure" : {
          "requires" : {
-            "ExtUtils::MakeMaker" : "0"
+            "Module::Build" : "0.38"
          }
       },
       "runtime" : {
@@ -42,7 +42,6 @@
             "Path::Class" : "0.23",
             "Pod::Usage" : "1.36",
             "Set::Tiny" : "0.01",
-            "Test::More" : "0.98",
             "Text::Xslate" : "1.4001",
             "feature" : "0",
             "open" : "0",
