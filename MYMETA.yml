@@ -8,7 +8,7 @@ configure_requires:
   Module::Build: 0.38
 dynamic_config: 0
 generated_by: 'Module::Build version 0.4204, CPAN::Meta::Converter version 2.120921'
-license: artistic_2
+license: unknown
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
   version: 1.4
@@ -16,13 +16,13 @@ name: GraphViz2-Marpa-PathUtils
 provides:
   GraphViz2::Marpa::PathUtils:
     file: lib/GraphViz2/Marpa/PathUtils.pm
-    version: 1.04
+    version: 1.05
   GraphViz2::Marpa::PathUtils::Config:
     file: lib/GraphViz2/Marpa/PathUtils/Config.pm
-    version: 1.04
+    version: 1.05
   GraphViz2::Marpa::PathUtils::Utils:
     file: lib/GraphViz2/Marpa/PathUtils/Utils.pm
-    version: 1.04
+    version: 1.05
 requires:
   Capture::Tiny: 0.1
   Config::Tiny: 2.14
@@ -47,5 +47,5 @@ requires:
   strict: 0
   warnings: 0
 resources:
-  license: http://www.perlfoundation.org/artistic_license_2_0
-version: 1.04
+  license: http://opensource.org/licenses/artistic-license-2.0.php
+version: 1.05
