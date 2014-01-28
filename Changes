@@ -1,5 +1,9 @@
 Revision history for Perl extension GraphViz2::Marpa::PathUtils.
 
+1.05  Wed Jan 29 10:27:00 2014
+	- After calling find_clusters(), sort the result twice: Once for elements within a set and once for the sets,
+		because Marpa::R2 V 2.079_013 returns results in a different order than previous versions.
+
 1.04  Wed Jun 12 08:55:00 2013
 	- Install Graphviz 2.30.1 from AT&T.
 	- Rename CHANGES to Changes as per CPAN::Changes::Spec.

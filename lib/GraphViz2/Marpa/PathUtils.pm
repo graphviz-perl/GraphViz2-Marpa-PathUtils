@@ -43,7 +43,7 @@ fieldhash my %start_node       => 'start_node';
 fieldhash my %tree_dot_file    => 'tree_dot_file';
 fieldhash my %tree_image_file  => 'tree_image_file';
 
-our $VERSION = '1.04';
+our $VERSION = '1.05';
 
 # -----------------------------------------------
 # For each node, find all the children of the root
@@ -735,17 +735,25 @@ sub _prepare_fixed_length_output
 
 sub report_cluster_members
 {
-	my($self)  = @_;
-	my($count) = 0;
-	my($set)   = $self -> cluster_set;
+	my($self) = @_;
+	my($set)  = $self -> cluster_set;
 
 	$self -> log(notice => 'Clusters:');
 
+	# Marpa::R2 V 2.079_013 returns results in a different order than previous versions, hence the 2nd sort.
+
+	my(@result);
+
 	for my $cluster (@$set)
 	{
-		$count++;
+		push @result, join(', ', sort $cluster -> members);
+	}
 
-		$self -> log(notice => "$count: " . join(', ', sort $cluster -> members) );
+	my($count) = 0;
+
+	for my $cluster (sort @result)
+	{
+		$self -> log(notice => "@{[++$count]}: $cluster");
 	}
 
 } # End of report_cluster_members.
@@ -1377,6 +1385,13 @@ L<the annotated blog|http://jeffreykegler.github.io/Ocean-of-Awareness-blog/meta
 =head2 How are clusters named?
 
 The names of the nodes in each cluster are sorted, and the first is arbitrarily chosen as the name of the cluster.
+
+Member names per cluster are combined with join(', ', @name) for the report. Then, these combined names are also
+sorted, so the report lists the members of all clusters in alphabetical order.
+
+This second sort is because Marpa::R2 V 2.079_013 returns results in a different order than previous versions.
+
+Also, the resultant order is built into t/test.all.t. See lines 58 .. 61 in that script.
 
 =head2 Sometimes the cluster has the wrong shape for a node
 
