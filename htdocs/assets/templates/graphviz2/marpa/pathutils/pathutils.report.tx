@@ -12,6 +12,8 @@
 <body>
 	<h1 align="center">Index of sample files created with <a href="http://metacpan.org/release/GraphViz2-Marpa-PathUtils">GraphViz2::Marpa::PathUtils</a> V <: $version :>.</h1>
 
+	<p align="center">This module only works with L<GraphViz2::Marpa> versions less than 2.00.</p>
+
 	<p align="center">All scripts, input files and output files required to generate these examples are shipped in the GraphViz2::Marpa::PathUtils distro.</p>
 
 <hr />
@@ -30,7 +32,7 @@
 
 <h3 class="global_toc_text">Links</h3>
 
-<h2 align="center">Index page for <a href="http://savage.net.au/Graph-module-demos.html">all graph module demos</a></h2>
+<h2 align="center">Index page for <a href="http://savage.net.au/Graphviz.html">all graph module demos</a></h2>
 
 <h2 align="center"><a href="http://savage.net.au/Perl-modules/html/graphviz2.pathutils/code.attributes.html">Module and Script Attributes</a></h2>
 

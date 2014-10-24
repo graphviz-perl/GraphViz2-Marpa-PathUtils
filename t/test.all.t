@@ -35,7 +35,7 @@ sub check_fixed
 
 # -------------
 
-my($test_count)      = 2;
+my($count)           = 2;
 my($stdout, $stderr) = capture \&check_fixed;
 my($expected)        = <<'EOS';
 Starting node: Act_1. Path length: 3. Allow cycles: 0. Solutions: 9:
@@ -63,4 +63,6 @@ EOS
 
 ok($stdout eq $expected);
 
-done_testing($test_count);
+print "# Internal test count: $count. \n";
+
+done_testing($count);
