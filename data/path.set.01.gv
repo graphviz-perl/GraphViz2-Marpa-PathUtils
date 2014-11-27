@@ -1,0 +1,18 @@
+strict digraph path_set_01
+{
+	# Node to node.
+
+	a -> b
+
+	# Node to subgraph.
+
+	c -> { d e }
+
+	# Subgraph to node.
+
+	{ f g } -> h
+
+	# Subgraph to subgraph.
+
+	{ i j } -> { k l }
+}
