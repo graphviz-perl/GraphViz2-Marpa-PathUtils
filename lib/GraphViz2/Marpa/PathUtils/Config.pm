@@ -1,48 +1,26 @@
 package GraphViz2::Marpa::PathUtils::Config;
 
 use strict;
+use utf8;
 use warnings;
+use warnings  qw(FATAL utf8);    # Fatalize encoding glitches.
+use open      qw(:std :utf8);    # Undeclared streams in UTF-8.
 
 use Config::Tiny;
 
 use File::HomeDir;
 
-use Hash::FieldHash ':all';
-
 use Path::Class;
+
+=pod
 
 fieldhash my %config           => 'config';
 fieldhash my %config_file_path => 'config_file_path';
 fieldhash my %section          => 'section';
 
-our $VERSION = '1.05';
+=cut
 
-# -----------------------------------------------
-
-sub _init
-{
-	my($self, $arg) = @_;
-
-	return from_hash($self, $arg);
-
-} # End of _init.
-
-# -----------------------------------------------
-
-sub new
-{
-	my($class, %arg) = @_;
-    my($self)        = bless {}, $class;
-
-	$self -> _init(\%arg);
-
-	my($path) = Path::Class::file(File::HomeDir -> my_dist_config('GraphViz2-Marpa-PathUtils'), '.htgraphviz2.marpa.pathutils.conf');
-
-	$self -> read($path);
-
-    return $self;
-
-} # End of new.
+our $VERSION = '2.00';
 
 # -----------------------------------------------
 
@@ -102,16 +80,6 @@ See L<GraphViz2::Marpa::PathUtils>.
 L<GraphViz2::Marpa::PathUtils> provides various analyses of Graphviz dot files.
 
 =head1 Methods
-
-=head2 _init()
-
-For use by subclasses.
-
-Sets default values for object attributes.
-
-=head2 new()
-
-For use by subclasses.
 
 =head2 read()
 

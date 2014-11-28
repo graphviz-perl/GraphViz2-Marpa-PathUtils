@@ -1,30 +1,24 @@
 package GraphViz2::Marpa::PathUtils;
 
-use feature qw/say unicode_strings/;
-use open qw(:std :utf8);
 use parent 'GraphViz2::Marpa';
 use strict;
+use utf8;
 use warnings;
-use warnings qw(FATAL utf8);
+use warnings  qw(FATAL utf8);    # Fatalize encoding glitches.
+use open      qw(:std :utf8);    # Undeclared streams in UTF-8.
 
-use Config;
-
-use Date::Format; # For time2str().
-use Date::Simple;
-
-use File::Slurp; # For read_dir().
-use File::Which; # For which().
+=pod
 
 use GraphViz2;
 use GraphViz2::Marpa::PathUtils::Config;
 
-use Hash::FieldHash ':all';
-
 use IPC::Run3; # For run3().
 
-use Set::Tiny;
+=cut
 
-use Text::Xslate 'mark_raw';
+use Moo;
+
+use Set::Tiny;
 
 fieldhash my %allow_cycles     => 'allow_cycles';
 fieldhash my %attributes       => 'attributes';
@@ -230,6 +224,8 @@ sub find_clusters
 {
 	my($self) = @_;
 
+=pod
+
 	# Run code common to all algorithms.
 
 	$self -> _set_up_forest;
@@ -240,6 +236,8 @@ sub find_clusters
 	$self -> report_cluster_members if ($self -> report_clusters);
 	$self -> _find_cluster_paths;
 	$self -> output_cluster_image;
+
+=cut
 
 	# Return 0 for success and 1 for failure.
 

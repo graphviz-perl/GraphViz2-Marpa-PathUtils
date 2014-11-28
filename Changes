@@ -1,5 +1,9 @@
 Revision history for Perl extension GraphViz2::Marpa::PathUtils.
 
+2.00  Fri Nov 28 11:14:00 2014
+	- Re-write to use GraphViz2::Marpa V 2.01.
+	- Switch from Hash::FieldHash to Moo.
+
 1.05  Wed Jan 29 10:27:00 2014
 	- After calling find_clusters(), sort the result twice: Once for elements within a set and once for the sets,
 		because Marpa::R2 V 2.079_013 returns results in a different order than previous versions.

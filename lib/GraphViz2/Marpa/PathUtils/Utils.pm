@@ -1,10 +1,10 @@
 package GraphViz2::Marpa::PathUtils::Utils;
 
-use feature qw/say unicode_strings/;
-use open qw(:std :utf8);
 use strict;
+use utf8;
 use warnings;
-use warnings qw(FATAL utf8);
+use warnings  qw(FATAL utf8);    # Fatalize encoding glitches.
+use open      qw(:std :utf8);    # Undeclared streams in UTF-8.
 
 use Config;
 
@@ -17,8 +17,6 @@ use File::Slurp; # For read_dir().
 use GraphViz2::Marpa::PathUtils;
 use GraphViz2::Marpa::PathUtils::Config;
 
-use Hash::FieldHash ':all';
-
 use IO::File;
 
 use Module::Path 'module_path';
@@ -26,9 +24,7 @@ use Module::Path 'module_path';
 use Text::CSV;
 use Text::Xslate 'mark_raw';
 
-fieldhash my %config => 'config';
-
-our $VERSION = '1.05';
+our $VERSION = '2.00';
 
 # -----------------------------------------------
 
@@ -106,164 +102,6 @@ sub find_fixed_length_paths
 	}
 
 } # End of find_fixed_length_paths.
-
-# -----------------------------------------------
-
-sub generate_code_attributes_csv
-{
-	my($self, $heading)  = @_;
-	my(@script)          = grep{/pl$/} @$heading;
-	my($script_dir_name) = 'scripts';
-
-	my(@lines);
-	my(@mutators, %mutators);
-	my($name);
-	my($script_file_name);
-
-	for my $script (@script)
-	{
-		$script_file_name      = File::Spec -> catfile($script_dir_name, $script);
-		@lines                 = read_file($script_file_name, {chomp => 1});
-		@mutators              = grep{s/=.//; $_} grep{s/^\t'(.+)'.+/$1/; $1} @lines;
-		$mutators{$script}     = {} if (! $mutators{$script});
-		$mutators{$script}{$_} = 1 for @mutators;
-	}
-
-	my(@module)      = grep{/pm$/} @$heading;
-	my(%module_name) =
-	(
-		'PathUtils.pm' => 'GraphViz2::Marpa::PathUtils',
-	);
-
-	my($module_file_name);
-
-	for my $module (@module)
-	{
-		$module_file_name      = module_path($module_name{$module}) || die "Unable to find $module\n";
-		@lines                 = read_file($module_file_name, {chomp => 1});
-		@mutators              = grep{s/=.//; $_} grep{s/^fieldhash my %([^\s]+).+/$1/; $1} @lines;
-		$mutators{$module}     = {} if (! $mutators{$module});
-		$mutators{$module}{$_} = 1 for @mutators;
-	}
-
-	my(%names);
-
-	for my $row (keys %mutators)
-	{
-		for my $column (keys %{$mutators{$row} })
-		{
-			$names{$column}{$row} = defined($mutators{$row}{$column}) ? 'Y' : '.';
-		}
-	}
-
-	my($data_dir_name)  = 'data';
-	my($code_file_name) = File::Spec -> catfile($data_dir_name, 'code.attributes.csv');
-	my($csv)            = Text::CSV -> new;
-
-	my($status);
-
-	open(OUT, '>', $code_file_name) || die "Can't open(> $code_file_name)";
-
-	$csv -> combine('Mutator', @$heading) || die "Can't combine headings\n";
-
-	print OUT $csv -> string, "\n";
-
-	my(@column);
-
-	for my $mutator (sort keys %names)
-	{
-		@column = ();
-
-		for $name (@$heading)
-		{
-			push @column, $mutator if ($#column < 0);
-			push @column, $names{$mutator}{$name};
-		}
-
-		$csv -> combine(@column) || die "Can't combine columns\n";
-
-		print OUT $csv -> string, "\n";
-	}
-
-	close OUT;
-
-} # End of generate_code_attributes_csv.
-
-# -----------------------------------------------
-
-sub generate_code_attributes_index
-{
-	my($self)    = @_;
-	my(@heading) = qw/find.clusters.pl find.fixed.length.paths.pl PathUtils.pm/;
-
-	$self -> generate_code_attributes_csv(\@heading);
-
-	my($data_dir_name)   = 'data';
-	my($code_file_name)  = File::Spec -> catfile($data_dir_name, 'code.attributes.csv');
-	my($code_attributes) = $self -> read_csv_file($code_file_name);
-
-	my($column, @column);
-	my(@row);
-
-	for $column ('Mutator', @heading)
-	{
-		push @column, {td => $column};
-	}
-
-	push @row, [@column];
-
-	for my $item (@$code_attributes)
-	{
-		@column = ();
-
-		for $column ('Mutator', @heading)
-		{
-			push @column, {td => $$item{$column} };
-		}
-
-		push @row, [@column];
-	}
-
-	@column = ();
-
-	for $column ('Mutator', @heading)
-	{
-		push @column, {td => $column};
-	}
-
-	push @row, [@column];
-
-	my($config)    = $self -> config;
-	my($templater) = Text::Xslate -> new
-	(
-		input_layer => '',
-		path        => $$config{template_path},
-	);
-	my($html_dir_name) = 'html';
-	my($file_name)     = File::Spec -> catfile($html_dir_name, 'code.attributes.html');
-
-	open(OUT, '>', $file_name);
-	print OUT $templater -> render
-	(
-	'code.attributes.tx',
-	{
-		border          => 1,
-		default_css     => "$$config{css_url}/default.css",
-		environment     => $self -> generate_demo_environment,
-		fancy_table_css => "$$config{css_url}/fancy.table.css",
-		title           => 'Code and Command Line Attributes for GraphViz2::Marpa::PathUtils',
-		row             => \@row,
-		summary         => 'Code attributes',
-		version         => $VERSION,
-	},
-	);
-	close OUT;
-
-	# Return 0 for success and 1 for failure.
-
-	return 0;
-
-} # End of generate_code_attributes_index.
 
 # -----------------------------------------------
 
@@ -369,30 +207,6 @@ sub generate_demo_environment
 
 # -----------------------------------------------
 
-sub _init
-{
-	my($self, $arg) = @_;
-	$$arg{config}   = GraphViz2::Marpa::PathUtils::Config -> new -> config;
-	$self           = from_hash($self, $arg);
-
-	return $self;
-
-} # End of _init.
-
-# --------------------------------------------------
-
-sub new
-{
-	my($class, %arg) = @_;
-	my($self)        = bless {}, $class;
-	$self            = $self -> _init(\%arg);
-
-	return $self;
-
-}	# End of new.
-
-# -----------------------------------------------
-
 sub read_csv_file
 {
 	my($self, $file_name) = @_;
@@ -451,16 +265,6 @@ It returns a new object of type C<GraphViz2::Marpa::PathUtils::Demo>.
 Generates html/index.html using html/*.svg files.
 
 See scripts/generate.demo.pl.
-
-=head2 _init()
-
-For use by subclasses.
-
-Sets default values for object attributes.
-
-=head2 new()
-
-For use by subclasses.
 
 =head1 Version Numbers
 
