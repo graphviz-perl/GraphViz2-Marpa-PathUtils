@@ -20,6 +20,8 @@ use Moo;
 
 use Set::Tiny;
 
+=pod
+
 fieldhash my %allow_cycles     => 'allow_cycles';
 fieldhash my %attributes       => 'attributes';
 fieldhash my %cluster_edge_set => 'cluster_edge_set';
@@ -37,185 +39,24 @@ fieldhash my %start_node       => 'start_node';
 fieldhash my %tree_dot_file    => 'tree_dot_file';
 fieldhash my %tree_image_file  => 'tree_image_file';
 
-our $VERSION = '1.05';
+=cut
 
-# -----------------------------------------------
-# For each node, find all the children of the root
-# which lead to all copies of that node.
-# Warning: A node with no edges has no ancestors.
-
-sub _find_ancestors
-{
-	my($self) = @_;
-
-	my(%ancestor);
-	my($node_name);
-	my($root_name);
-
-	for my $root ($self -> parser -> edges -> daughters)
-	{
-		$root_name = $root -> name;
-
-		$root -> walk_down
-		({
-			callback =>
-			sub
-			{
-				my($node)                         = @_;
-				$node_name                        = $node -> name;
-				$ancestor{$node_name}             = {} if (! $ancestor{$node_name});
-				$ancestor{$node_name}{$root_name} = 1;
-
-				return 1;
-			},
-			_depth => 0,
-		});
-	}
-
-	$self -> log(info => 'Ancestors:');
-
-	for $node_name (sort keys %ancestor)
-	{
-		$self -> log(info => "Node $node_name. Ancestors: " . join(', ', sort keys %{$ancestor{$node_name} }) );
-	}
-
-	return \%ancestor;
-
-} # End of _find_ancestors.
+our $VERSION = '2.00';
 
 # -----------------------------------------------
 
-sub _find_cluster_kin
+sub _dump_reachable
 {
-	my($self)      = @_;
-	my($ancestors) = $self -> _find_ancestors;
+	my($self, $reachable) = @_;
 
-	# Phase 1: Put nodes with edges into sets.
+	$self -> log(info => '_dump_reachable()');
 
-	my(%cluster);
-	my($name);
-
-	$self -> parser -> edges -> walk_down
-	({
-		callback =>
-		sub
-		{
-			my($node) = @_;
-
-			return 1 if ($node -> is_root);
-
-			$name = $node -> name;
-
-			for my $ancestor_name (keys %{$$ancestors{$name} })
-			{
-				$cluster{$ancestor_name} = Set::Tiny -> new if (! defined $cluster{$ancestor_name});
-
-				$cluster{$ancestor_name} -> insert($name);
-			}
-
-			return 1;
-		},
-		_depth => 0,
-	});
-
-	# Phase 2: Put nodes without edges into sets.
-
-	my($found);
-
-	for $name (keys %{$self -> parser -> nodes})
+	for my $node (sort keys %$reachable)
 	{
-		$found = 0;
-
-		for my $key (keys %cluster)
-		{
-			if ($cluster{$key} -> member($name) )
-			{
-				$found = 1;
-
-				last;
-			}
-		}
-
-		$cluster{$name} = Set::Tiny -> new($name) if (! $found);
+		$self -> log(info => "Node $node can reach: " . $$reachable{$node} -> as_string);
 	}
 
-	return \%cluster;
-
-} # End of _find_cluster_kin.
-
-# -----------------------------------------------
-# For each cluster, we have to re-scan the original *.gv file
-# to find out how the clusters' members are linked together.
-# This means finding the edges between them, and the edges' attributes.
-
-sub _find_cluster_paths
-{
-	my($self)  = @_;
-	my($count) = 0;
-	my($set)   = $self -> cluster_set;
-
-	my(@cluster_set);
-	my($edge, @edge_set);
-	my(@member, %member);
-	my($name_1, $name_2);
-
-	for my $cluster (@$set)
-	{
-		$count++;
-
-		@edge_set        = ();
-		@member          = $cluster -> members;
-		%member          = ();
-		@member{@member} = (1) x @member;
-
-		if ($#member == 0)
-		{
-			# Use undef since node names can be ''.
-
-			push @edge_set, [$member[0], undef];
-		}
-		else
-		{
-			$self -> parser -> edges -> walk_down
-			({
-				callback => sub
-				{
-					my($node) = @_;
-					$name_1   = $node -> name;
-
-					if (defined $member{$name_1})
-					{
-						$edge = ${$node -> attributes}{edge};
-
-						for my $kid ($node -> daughters)
-						{
-							$name_2 = $kid -> name;
-
-							if (defined $member{$name_2} && ($name_1 ne $name_2) )
-							{
-								push @edge_set, [$name_1, $name_2];
-							}
-						}
-					}
-
-					return 1;
-				},
-				_depth => 0,
-			});
-		}
-
-		@edge_set = sort{(defined($a) ? $$a[0] : '') cmp (defined($b) ? $$b[0] : '')} @edge_set;
-
-		push @cluster_set, [@edge_set];
-	}
-
-	# The extra () stop warning msgs of the form: Argument "X" isn't numeric
-
-	@cluster_set = sort{(defined($a) ? $$a[0][0] : '') cmp (defined($b) ? $$b[0][0] : '')} @cluster_set;
-
-	$self -> cluster_edge_set(\@cluster_set);
-
-} # End of _find_cluster_paths.
+} # End of _dump_reachable.
 
 # -----------------------------------------------
 # Called by the user.
@@ -224,17 +65,25 @@ sub find_clusters
 {
 	my($self) = @_;
 
+	# Parse the input and create $self -> tree.
+
+	$self -> run;
+
+	# Find mothers who have edges amongst their daughters.
+
+	my($edgy) = $self -> _find_mothers_with_edges;
+
+	# Process the daughters of mothers who have edges.
+
+	my($reachable) = $self -> _find_reachable_nodes($edgy);
+
+	$self -> _dump_reachable($reachable);
+
 =pod
-
-	# Run code common to all algorithms.
-
-	$self -> _set_up_forest;
 
 	# Process the tree.
 
-	$self -> _winnow_cluster_sets($self -> _find_cluster_kin);
 	$self -> report_cluster_members if ($self -> report_clusters);
-	$self -> _find_cluster_paths;
 	$self -> output_cluster_image;
 
 =cut
@@ -246,6 +95,203 @@ sub find_clusters
 } # End of find_clusters.
 
 # -----------------------------------------------
+
+sub _find_mothers_with_edges
+{
+	my($self) = @_;
+
+	$self -> log(info => '_find_mothers_with_edges()');
+
+	my($attributes);
+	my($name);
+	my(%seen);
+	my($uid);
+
+	$self -> tree -> walk_down
+	({
+		callback => sub
+		{
+			my($node) = @_;
+			$name     = $node -> name;
+
+			# Ignore non-edges.
+
+			return 1 if ($name ne 'edge_id');
+
+			$attributes = $node -> mother -> attributes;
+			$uid        = $$attributes{uid};
+
+			# Ignore if this mother has been seen.
+
+			return 1 if ($seen{$uid});
+
+			# Save mother's details.
+
+			$seen{$uid} = $node -> mother;
+
+			$self -> log(info => "Mother uid '$uid' had a daughter with an edge");
+
+			return 1;
+		},
+		_depth => 0,
+	});
+
+	return \%seen;
+
+} # End of _find_mothers_with_edges.
+
+# -----------------------------------------------
+
+sub _find_reachable_nodes
+{
+	my($self, $edgy) = @_;
+
+	$self -> log(info => '_find_reachable_nodes()');
+
+	my($attributes);
+	my(@daughters, $daughter_uid);
+	my($head, $head_attr);
+	my($name, %node);
+	my(%reachable);
+	my($tail, $tail_attr);
+
+	for my $uid (keys %$edgy)
+	{
+		@daughters = $$edgy{$uid} -> daughters;
+
+		for my $index (0 .. $#daughters)
+		{
+			$name = $daughters[$index] -> name;
+
+			# Ignore non-edges.
+
+			next if ($name ne 'edge_id');
+
+			$attributes   = $daughters[$index] -> attributes;
+			$daughter_uid = $$attributes{uid};
+
+			$self -> log(info => "Mother: uid: $uid. Daughter index: $index. uid: $daughter_uid");
+
+			# These offsets are only valid if the DOT file is valid.
+			# We use @path and not ($tail_name, $head_name), so we can use loops below.
+
+			$node{tail} =
+			{
+				node_name => $daughters[$index - 1] -> name,
+				real_name => ${$daughters[$index - 1] -> attributes}{value},
+			};
+			$node{head} =
+			{
+				node_name => $daughters[$index + 1] -> name,
+				real_name => ${$daughters[$index + 1] -> attributes}{value},
+			};
+
+			# Cases to handle:
+			# o a -> b.
+			# o c -> { d e }.
+			# o { f g } -> h.
+			# o { i j } -> { k l }.
+
+			if ($node{tail}{node_name} eq 'node_id')
+			{
+				if ($node{head}{node_name} eq 'node_id')
+				{
+					# Case: a -> b.
+					# So now we add 'b' to the set of all nodes reachable from 'a'.
+					# The point is that, if 'a' appears anywhere else in the graph, then all
+					# nodes connected (via edges) to that other copy of 'a' are also connected to 'b'.
+					# Likewise for 'b'.
+					# The reason for doing both 'a' and 'b' is that either one may appear elsewhere
+					# in the graph, but we don't know which one, if either, will.
+					# Handle 'a' and 'b'.
+
+					for my $n (qw/tail head/)
+					{
+						$name             = $node{$n}{real_name};
+						$reachable{$name} ||= Set::Tiny -> new;
+
+						$reachable{$name} -> insert($n eq 'tail' ? $node{head}{real_name} : $node{tail}{real_name});
+					}
+				}
+				else
+				{
+					# Case: c -> { d e }.
+					# From 'c', every node in the subgraph can be reached.
+					# Handle 'd', 'e'.
+					# Start at $index + 1 in order to skip the '{'.
+
+					$self -> _find_reachable_subgraph_1(\%node, $index + 1, \@daughters, \%reachable);
+				}
+			}
+			else
+			{
+				if ($node{head}{node_name} eq 'node_id')
+				{
+					# Case: { f g } -> h.
+					# Every node in the subgraph can reach 'h'.
+					# Handle 'f', 'g'.
+
+					#$self -> _find_reachable_subgraph_2($head, $index - 1, \@daughters, \%reachable);
+				}
+				else
+				{
+					# Case: { i j } -> { k l }.
+					# Every node in the 1st subgraph can reach every node in the 2nd.
+					# Handle 'i', 'j'.
+					# Handle 'k', 'l'.
+					# Start at $index + 1 in order to skip the '{'.
+
+					#$self -> _find_reachable_subgraph_3($index - 1, $index + 1, \@daughters, \%reachable);
+				}
+			}
+		}
+	}
+
+	return \%reachable;
+
+} # End of _find_reachable_nodes.
+
+# -----------------------------------------------
+
+sub _find_reachable_subgraph_1
+{
+	my($self, $node, $index, $daughters, $reachable) = @_;
+	my($tail) = $$node{tail}{real_name};
+
+	my($attributes);
+	my($node_name);
+	my($real_name);
+
+	for my $i ($index .. $#$daughters)
+	{
+		$node_name  = $$daughters[$i] -> name;
+		$attributes = $$daughters[$i] -> attributes;
+
+		# Stop at the first matching '}'.
+
+		last if ( ($node_name eq 'literal') && ($$attributes{value} eq '}') );
+
+		# Ignore non-nodes.
+
+		last if ($node_name ne 'node_id');
+
+		# Stockpile all nodes within the subgraph.
+
+		$real_name         = $$attributes{value};
+		$$reachable{$tail} ||= Set::Tiny -> new;
+
+		$$reachable{$tail} -> insert($real_name);
+
+		$$reachable{$real_name} ||= Set::Tiny -> new;
+
+		$$reachable{$real_name} -> insert($tail);
+	}
+
+} # End of _find_reachable_subgraph_1.
+
+# -----------------------------------------------
+
+=pod
 
 sub _find_edge_attributes
 {
@@ -286,8 +332,12 @@ sub _find_edge_attributes
 
 } # End of _find_edge_attributes.
 
+=cut
+
 # -----------------------------------------------
 # Find N candidates for the next node along the path.
+
+=pod
 
 sub _find_fixed_length_candidates
 {
@@ -333,8 +383,12 @@ sub _find_fixed_length_candidates
 
 } # End of _find_fixed_length_candidates.
 
+=cut
+
 # -----------------------------------------------
 # Find all paths starting from any copy of the target start_node.
+
+=pod
 
 sub _find_fixed_length_path_set
 {
@@ -399,8 +453,12 @@ sub _find_fixed_length_path_set
 
 } # End of _find_fixed_length_path_set.
 
+=cut
+
 # -----------------------------------------------
 # Find all paths starting from any copy of the target start_node.
+
+=pod
 
 sub _find_fixed_length_paths
 {
@@ -434,10 +492,14 @@ sub _find_fixed_length_paths
 
 	$self -> _find_fixed_length_path_set(\@start);
 
-} # End of _find_fixed_length_paths.
+} # End of
+
+=cut
 
 # -----------------------------------------------
 # Called by the user.
+
+=pod
 
 sub find_fixed_length_paths
 {
@@ -471,7 +533,11 @@ sub find_fixed_length_paths
 
 } # End of find_fixed_length_paths.
 
+=cut
+
 # -----------------------------------------------
+
+=pod
 
 sub _init
 {
@@ -498,19 +564,11 @@ sub _init
 
 } # End of _init.
 
-# --------------------------------------------------
-
-sub new
-{
-	my($class, %arg) = @_;
-	my($self)        = bless {}, $class;
-	$self            = $self -> _init(\%arg);
-
-	return $self;
-
-}	# End of new.
+=cut
 
 # -----------------------------------------------
+
+=pod
 
 sub output_cluster_image
 {
@@ -599,7 +657,11 @@ sub output_cluster_image
 
 } # End of output_cluster_image.
 
+=cut
+
 # -----------------------------------------------
+
+=pod
 
 sub output_dot_file
 {
@@ -613,7 +675,11 @@ sub output_dot_file
 
 } # End of output_dot_file.
 
+=cut
+
 # -----------------------------------------------
+
+=pod
 
 sub output_fixed_length_image
 {
@@ -653,8 +719,12 @@ sub output_fixed_length_image
 
 } # End of output_fixed_length_image.
 
+=cut
+
 # -----------------------------------------------
 # Prepare the dot input, renumbering the nodes so dot does not coalesce the path set.
+
+=pod
 
 sub _prepare_fixed_length_output
 {
@@ -729,7 +799,11 @@ sub _prepare_fixed_length_output
 
 } # End of _prepare_fixed_length_output.
 
+=cut
+
 # -----------------------------------------------
+
+=pod
 
 sub report_cluster_members
 {
@@ -756,7 +830,11 @@ sub report_cluster_members
 
 } # End of report_cluster_members.
 
+=cut
+
 # -----------------------------------------------
+
+=pod
 
 sub report_fixed_length_paths
 {
@@ -772,9 +850,13 @@ sub report_fixed_length_paths
 
 } # End of report_fixed_length_paths.
 
+=cut
+
 # -----------------------------------------------
 # Parse the input dot file and build a forest of all paths.
 # Also, find the ancestor of each node in each path.
+
+=pod
 
 sub _set_up_forest
 {
@@ -788,53 +870,12 @@ sub _set_up_forest
 
 } # End of _set_up_forest.
 
-# -----------------------------------------------
-# Eliminate solutions which share members.
-
-sub _winnow_cluster_sets
-{
-	my($self, $cluster) = @_;
-
-	my($overlap);
-	my(%merge);
-	my(%seen);
-
-	for my $set_1 (keys %$cluster)
-	{
-		next if ($merge{$set_1});
-
-		$overlap      = 1;
-		$seen{$set_1} = 1;
-
-		while ($overlap)
-		{
-			$overlap = 0;
-
-			for my $set_2 (keys %$cluster)
-			{
-				next if ($merge{$set_2} || $seen{$set_2});
-
-				# If the sets have any members in common, (size > 0), so coelesce.
-
-				if ($$cluster{$set_1} -> intersection($$cluster{$set_2}) -> size)
-				{
-					$overlap       = 1;
-					$merge{$set_2} = 1;
-
-					$$cluster{$set_1} -> insert($$cluster{$set_2} -> members);
-				}
-			}
-		}
-	}
-
-	delete $$cluster{$_} for keys %merge;
-
-	$self -> cluster_set([values %$cluster]);
-
-} # End of _winnow_cluster_sets.
+=cut
 
 # -----------------------------------------------
 # Eliminate solutions which have (unwanted) cycles.
+
+=pod
 
 sub _winnow_fixed_length_paths
 {
@@ -870,6 +911,8 @@ sub _winnow_fixed_length_paths
 	$self -> fixed_path_set([@solutions]);
 
 } # End of _winnow_fixed_length_paths.
+
+cut
 
 # -----------------------------------------------
 

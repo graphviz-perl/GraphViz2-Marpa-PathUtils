@@ -81,7 +81,7 @@ L<GraphViz2::Marpa::PathUtils> provides various analyses of Graphviz dot files.
 
 =head1 Methods
 
-=head2 read()
+1=head2 read()
 
 read() is called by new(). It does the actual reading of the config file.
 
