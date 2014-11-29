@@ -220,7 +220,7 @@ sub _find_reachable_nodes
 					# Handle 'd', 'e'.
 					# Start at $index + 1 in order to skip the '{'.
 
-					$self -> _find_reachable_subgraph_1(\%node, $index + 1, \@daughters, \%reachable);
+					$self -> _find_reachable_subgraph_1(\%node, $daughters[$index + 1], \%reachable);
 				}
 			}
 			else
@@ -255,36 +255,39 @@ sub _find_reachable_nodes
 
 sub _find_reachable_subgraph_1
 {
-	my($self, $node, $index, $daughters, $reachable) = @_;
-	my($tail) = $$node{tail}{real_name};
+	my($self, $node, $subgraph, $reachable) = @_;
+	my($real_tail) = $$node{tail}{real_name};
+	my(@daughters) = $subgraph -> daughters;
 
 	my($attributes);
 	my($node_name);
 	my($real_name);
 
-	for my $i ($index .. $#$daughters)
+	for my $i (0 .. $#daughters)
 	{
-		$node_name  = $$daughters[$i] -> name;
-		$attributes = $$daughters[$i] -> attributes;
+		$node_name  = $daughters[$i] -> name;
+		$attributes = $daughters[$i] -> attributes;
 
-		# Stop at the first matching '}'.
+		$self -> log(info => "1 node_name: $node_name. uid: $$attributes{uid}");
 
-		last if ( ($node_name eq 'literal') && ($$attributes{value} eq '}') );
+		# Ignore non-nodes within subgraph.
 
-		# Ignore non-nodes.
+		next if ($node_name ne 'node_id');
 
-		last if ($node_name ne 'node_id');
+		$self -> log(info => "2 node_name: $node_name. uid: $$attributes{uid}");
 
 		# Stockpile all nodes within the subgraph.
 
-		$real_name         = $$attributes{value};
-		$$reachable{$tail} ||= Set::Tiny -> new;
+		$real_name              = $$attributes{value};
+		$$reachable{$real_tail} ||= Set::Tiny -> new;
 
-		$$reachable{$tail} -> insert($real_name);
+		$$reachable{$real_tail} -> insert($real_name);
 
 		$$reachable{$real_name} ||= Set::Tiny -> new;
 
-		$$reachable{$real_name} -> insert($tail);
+		$$reachable{$real_name} -> insert($real_tail);
+
+		$self -> log(info => "Linking $real_tail => $real_name");
 	}
 
 } # End of _find_reachable_subgraph_1.
