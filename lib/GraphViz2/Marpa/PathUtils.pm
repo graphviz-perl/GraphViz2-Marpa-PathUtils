@@ -75,19 +75,19 @@ sub _coelesce_sets
 	my(@nodes) = keys %$reachable;
 	my($count) = 0;
 
-	my(%subgraph);
+	my(%subgraphs);
 
 	for my $node (@nodes)
 	{
 		$count++;
 
-		$subgraph{$count} = Set::Tiny -> new;
+		$subgraphs{$count} = Set::Tiny -> new;
 
-		$subgraph{$count} -> insert($node);
-		$self -> _coelesce_membership($count, $node, $reachable, \%subgraph);
+		$subgraphs{$count} -> insert($node);
+		$self -> _coelesce_membership($count, $node, $reachable, \%subgraphs);
 	}
 
-	return \%subgraph;
+	return \%subgraphs;
 
 } # End of _coelesce_sets.
 
@@ -121,10 +121,33 @@ sub find_clusters
 
 	# Process the daughters of mothers who have edges.
 
-	my($reachable)    = $self -> _find_reachable_nodes($edgy);
-	my($subgraph_set) = $self -> _coelesce_sets($reachable);
+	my($reachable) = $self -> _find_reachable_nodes($edgy);
+	my($subgraphs) = $self -> _coelesce_sets($reachable);
 
-	$self -> _dump_subgraph($subgraph_set);
+	# Renumber subgraphs by discarding duplicate sets.
+
+	my($count) = 0;
+
+	my(@members, $members);
+	my(%subgraph_sets, %seen);
+
+	for my $id (keys %$subgraphs)
+	{
+		@members = sort $$subgraphs{$id} -> members;
+		$members = join(' ', @members);
+
+		next if ($seen{$members});
+
+		$seen{$members} = 1;
+
+		$count++;
+
+		$subgraph_sets{$count} = Set::Tiny -> new;
+
+		$subgraph_sets{$count} -> insert(@members);
+	}
+
+	$self -> _dump_subgraph(\%subgraph_sets);
 
 =pod
 
