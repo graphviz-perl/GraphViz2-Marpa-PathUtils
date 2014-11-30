@@ -49,11 +49,9 @@ sub _dump_reachable
 {
 	my($self, $reachable) = @_;
 
-	$self -> log(info => '_dump_reachable()');
-
 	for my $node (sort keys %$reachable)
 	{
-		$self -> log(info => "Node $node can reach: " . $$reachable{$node} -> as_string);
+		$self -> log(info => "Node $node can reach " . $$reachable{$node} -> as_string);
 	}
 
 } # End of _dump_reachable.
@@ -100,8 +98,6 @@ sub _find_mothers_with_edges
 {
 	my($self) = @_;
 
-	$self -> log(info => '_find_mothers_with_edges()');
-
 	my($attributes);
 	my($name);
 	my(%seen);
@@ -129,8 +125,6 @@ sub _find_mothers_with_edges
 
 			$seen{$uid} = $node -> mother;
 
-			$self -> log(info => "Mother uid '$uid' had a daughter with an edge");
-
 			return 1;
 		},
 		_depth => 0,
@@ -145,8 +139,6 @@ sub _find_mothers_with_edges
 sub _find_reachable_nodes
 {
 	my($self, $edgy) = @_;
-
-	$self -> log(info => '_find_reachable_nodes()');
 
 	my($attributes);
 	my(@daughters, $daughter_uid);
@@ -170,10 +162,10 @@ sub _find_reachable_nodes
 			$attributes   = $daughters[$index] -> attributes;
 			$daughter_uid = $$attributes{uid};
 
-			$self -> log(info => "Mother: uid: $uid. Daughter index: $index. uid: $daughter_uid");
-
 			# These offsets are only valid if the DOT file is valid.
-			# We use @path and not ($tail_name, $head_name), so we can use loops below.
+			# Values for 'node_name':
+			# o node_id => A node. 'real_name' hold the name.
+			# o literal => A subgraph. 'real_name' holds '{' or '}'.
 
 			$node{tail} =
 			{
@@ -186,7 +178,7 @@ sub _find_reachable_nodes
 				real_name => ${$daughters[$index + 1] -> attributes}{value},
 			};
 
-			# Cases to handle:
+			# Cases to handle (see data/path.set.01.gv):
 			# o a -> b.
 			# o c -> { d e }.
 			# o { f g } -> h.
@@ -230,8 +222,9 @@ sub _find_reachable_nodes
 					# Case: { f g } -> h.
 					# Every node in the subgraph can reach 'h'.
 					# Handle 'f', 'g'.
+					# We use $index - 2 ('{') since we know $index -1 is '}'.
 
-					#$self -> _find_reachable_subgraph_2($head, $index - 1, \@daughters, \%reachable);
+					$self -> _find_reachable_subgraph_2(\%node, $daughters[$index - 2], \%reachable);
 				}
 				else
 				{
@@ -240,8 +233,9 @@ sub _find_reachable_nodes
 					# Handle 'i', 'j'.
 					# Handle 'k', 'l'.
 					# Start at $index + 1 in order to skip the '{'.
+					# We use $index - 2 ('{') since we know $index -1 is '}'.
 
-					#$self -> _find_reachable_subgraph_3($index - 1, $index + 1, \@daughters, \%reachable);
+					$self -> _find_reachable_subgraph_3(\%node, $daughters[$index - 2], $daughters[$index + 1], \%reachable);
 				}
 			}
 		}
@@ -255,42 +249,114 @@ sub _find_reachable_nodes
 
 sub _find_reachable_subgraph_1
 {
-	my($self, $node, $subgraph, $reachable) = @_;
+	my($self, $node, $head_subgraph, $reachable) = @_;
 	my($real_tail) = $$node{tail}{real_name};
-	my(@daughters) = $subgraph -> daughters;
+	my(@daughters) = $head_subgraph -> daughters;
 
 	my($attributes);
 	my($node_name);
-	my($real_name);
+	my($real_head);
 
 	for my $i (0 .. $#daughters)
 	{
 		$node_name  = $daughters[$i] -> name;
 		$attributes = $daughters[$i] -> attributes;
 
-		$self -> log(info => "1 node_name: $node_name. uid: $$attributes{uid}");
-
-		# Ignore non-nodes within subgraph.
+		# Ignore non-nodes within the head subgraph.
 
 		next if ($node_name ne 'node_id');
 
-		$self -> log(info => "2 node_name: $node_name. uid: $$attributes{uid}");
+		# Stockpile all nodes within the head subgraph.
 
-		# Stockpile all nodes within the subgraph.
-
-		$real_name              = $$attributes{value};
+		$real_head              = $$attributes{value};
 		$$reachable{$real_tail} ||= Set::Tiny -> new;
 
-		$$reachable{$real_tail} -> insert($real_name);
+		$$reachable{$real_tail} -> insert($real_head);
 
-		$$reachable{$real_name} ||= Set::Tiny -> new;
+		$$reachable{$real_head} ||= Set::Tiny -> new;
 
-		$$reachable{$real_name} -> insert($real_tail);
-
-		$self -> log(info => "Linking $real_tail => $real_name");
+		$$reachable{$real_head} -> insert($real_tail);
 	}
 
 } # End of _find_reachable_subgraph_1.
+
+# -----------------------------------------------
+
+sub _find_reachable_subgraph_2
+{
+	my($self, $node, $tail_subgraph, $reachable) = @_;
+	my($real_head) = $$node{head}{real_name};
+	my(@daughters) = $tail_subgraph -> daughters;
+
+	my($attributes);
+	my($node_name);
+	my($real_tail);
+
+	for my $i (0 .. $#daughters)
+	{
+		$node_name  = $daughters[$i] -> name;
+		$attributes = $daughters[$i] -> attributes;
+
+		# Ignore non-nodes within tail subgraph.
+
+		next if ($node_name ne 'node_id');
+
+		# Stockpile all nodes within the tail subgraph.
+
+		$real_tail              = $$attributes{value};
+		$$reachable{$real_head} ||= Set::Tiny -> new;
+
+		$$reachable{$real_head} -> insert($real_tail);
+
+		$$reachable{$real_tail} ||= Set::Tiny -> new;
+
+		$$reachable{$real_tail} -> insert($real_head);
+	}
+
+} # End of _find_reachable_subgraph_2.
+
+# -----------------------------------------------
+
+sub _find_reachable_subgraph_3
+{
+	my($self, $node, $tail_subgraph, $head_subgraph, $reachable) = @_;
+	my(@tail_daughters) = $tail_subgraph -> daughters;
+	my(@head_daughters) = $head_subgraph -> daughters;
+
+	my($attributes);
+	my($node_name);
+	my($real_tail, $real_head);
+
+	for my $i (0 .. $#tail_daughters)
+	{
+		$node_name  = $tail_daughters[$i] -> name;
+		$attributes = $tail_daughters[$i] -> attributes;
+
+		# Ignore non-nodes within tail subgraph.
+
+		next if ($node_name ne 'node_id');
+
+		# Stockpile all nodes within the tail subgraph.
+
+		$real_tail = $$attributes{value};
+
+		for my $j (0 .. $#head_daughters)
+		{
+			$node_name  = $head_daughters[$j] -> name;
+			$attributes = $head_daughters[$j] -> attributes;
+
+			$real_head              = $$attributes{value};
+			$$reachable{$real_head} ||= Set::Tiny -> new;
+
+			$$reachable{$real_head} -> insert($real_tail);
+
+			$$reachable{$real_tail} ||= Set::Tiny -> new;
+
+			$$reachable{$real_tail} -> insert($real_head);
+		}
+	}
+
+} # End of _find_reachable_subgraph_3.
 
 # -----------------------------------------------
 
