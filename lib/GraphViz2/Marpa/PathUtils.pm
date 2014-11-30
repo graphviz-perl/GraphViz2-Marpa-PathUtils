@@ -45,16 +45,64 @@ our $VERSION = '2.00';
 
 # -----------------------------------------------
 
-sub _dump_reachable
+sub _coelesce_membership
+{
+	my($self, $count, $node, $reachable, $subgraph) = @_;
+
+	# Some nodes may be heads but never tails, so they won't exist in this hash.
+
+	return if (! defined $$reachable{$node});
+
+	for my $member ($$reachable{$node} -> members)
+	{
+		next if ($$subgraph{$count} -> member($member) );
+
+		$$subgraph{$count} -> insert($member);
+		$self -> _coelesce_membership($count, $member, $reachable, $subgraph);
+	}
+
+} # End of _coelesce_membership.
+
+# -----------------------------------------------
+
+sub _coelesce_sets
+{
+	my($self, $reachable) = @_;
+
+	# We take a copy of the keys so that we can delete hash keys
+	# in arbitrary order while processing the sets which are the values.
+
+	my(@nodes) = keys %$reachable;
+	my($count) = 0;
+
+	my(%subgraph);
+
+	for my $node (@nodes)
+	{
+		$count++;
+
+		$subgraph{$count} = Set::Tiny -> new;
+
+		$subgraph{$count} -> insert($node);
+		$self -> _coelesce_membership($count, $node, $reachable, \%subgraph);
+	}
+
+	return \%subgraph;
+
+} # End of _coelesce_sets.
+
+# -----------------------------------------------
+
+sub _dump_subgraph
 {
 	my($self, $reachable) = @_;
 
 	for my $node (sort keys %$reachable)
 	{
-		$self -> log(info => "Node $node can reach " . $$reachable{$node} -> as_string);
+		$self -> log(info => "Subgraph set $node contains " . $$reachable{$node} -> as_string);
 	}
 
-} # End of _dump_reachable.
+} # End of _dump_subgraph.
 
 # -----------------------------------------------
 # Called by the user.
@@ -73,9 +121,10 @@ sub find_clusters
 
 	# Process the daughters of mothers who have edges.
 
-	my($reachable) = $self -> _find_reachable_nodes($edgy);
+	my($reachable)    = $self -> _find_reachable_nodes($edgy);
+	my($subgraph_set) = $self -> _coelesce_sets($reachable);
 
-	$self -> _dump_reachable($reachable);
+	$self -> _dump_subgraph($subgraph_set);
 
 =pod
 
