@@ -736,7 +736,7 @@ sub output_cluster_image
 		$members      = [$$sets{$id} -> members];
 
 		$graph -> push_subgraph(name => $cluster_name, graph => {label => ucfirst $cluster_name, rankdir => 'TB'});
-		$self -> output_node_attributes($graph, $members);
+		$self -> output_nodes($graph, $members);
 		$graph -> pop_subgraph;
 	}
 
@@ -770,7 +770,7 @@ sub output_dot_text
 
 # -----------------------------------------------
 
-sub output_node_attributes
+sub output_nodes
 {
 	my($self, $graph, $set) = @_;
 
@@ -802,30 +802,28 @@ sub output_node_attributes
 
 			# Got a wanted (Graphviz) node. Does it have any attributes?
 
-			$seen{$name} = 1;
+			@attributes  = ();
 			@daughters   = $node -> daughters;
+			$seen{$name} = 1;
 
-			if ($#daughters >= 0)
+			# Yes, it has attributes.
+			# Skip 0 and $#daughters because they are '{' and '}'.
+
+			for my $i (1 .. $#daughters - 1)
 			{
-				# Yes, it has attributes.
-				# Skip 0 and $#daughters because they are '{' and '}'.
+				$attributes = $daughters[$i] -> attributes;
 
-				for my $i (1 .. $#daughters - 1)
-				{
-					$attributes = $daughters[$i] -> attributes;
-
-					push @attributes, $$attributes{type}, $$attributes{value};
-				}
-
-				$graph -> add_node(name => $name, @attributes);
+				push @attributes, $$attributes{type}, $$attributes{value};
 			}
+
+			$graph -> add_node(name => $name, @attributes);
 
 			return 1;
 		},
 		_depth => 0,
 	});
 
-} # End of output_node_attributes.
+} # End of output_nodes.
 
 # -----------------------------------------------
 
