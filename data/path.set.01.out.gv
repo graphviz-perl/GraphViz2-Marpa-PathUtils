@@ -6,19 +6,18 @@ subgraph "cluster 1"
 {
 graph [ label="Cluster 1" rankdir="TB" ]
 
-"i" [ color="lemonchiffon" style="filled" ]
-"j" [ color="yellow" style="filled" ]
-"k" [ color="olivedrab" style="filled" ]
-"l" [ color="lime" style="filled" ]
+"c" [ color="blue" style="filled" ]
+"d" [ color="orange" style="filled" ]
+"e" [ color="goldenrod" style="filled" ]
 }
 
 subgraph "cluster 2"
 {
 graph [ label="Cluster 2" rankdir="TB" ]
 
-"c" [ color="blue" style="filled" ]
-"d" [ color="orange" style="filled" ]
-"e" [ color="goldenrod" style="filled" ]
+"f" [ color="coral" style="filled" ]
+"g" [ color="salmon" style="filled" ]
+"h" [ color="mistyrose" style="filled" ]
 }
 
 subgraph "cluster 3"
@@ -33,8 +32,9 @@ subgraph "cluster 4"
 {
 graph [ label="Cluster 4" rankdir="TB" ]
 
-"f" [ color="coral" style="filled" ]
-"g" [ color="salmon" style="filled" ]
-"h" [ color="mistyrose" style="filled" ]
+"i" [ color="lemonchiffon" style="filled" ]
+"j" [ color="yellow" style="filled" ]
+"k" [ color="olivedrab" style="filled" ]
+"l" [ color="lime" style="filled" ]
 }
 }

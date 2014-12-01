@@ -464,49 +464,6 @@ sub _find_reachable_subgraph_3
 
 # -----------------------------------------------
 
-=pod
-
-sub _find_edge_attributes
-{
-	my($self, $from, $to) = @_;
-	my($found) = 0;
-
-	my($attributes);
-	my($from_name);
-	my($to_name);
-
-	$self -> parser -> edges -> walk_down
-	({
-		callback =>
-		sub
-		{
-			my($node, $options) = @_;
-			$from_name = $node -> name;
-
-			return 1 if ( ($node -> is_root) || ($from ne $from_name) );
-
-			for my $child ($node -> daughters)
-			{
-				$to_name = $child -> name;
-
-				last if ($to ne $to_name);
-
-				$attributes = $node -> attributes;
-
-				return 0;
-			}
-
-			return 1;
-		},
-		_depth => 0,
-	});
-
-	return $attributes ? $attributes : {};
-
-} # End of _find_edge_attributes.
-
-=cut
-
 # -----------------------------------------------
 # Find N candidates for the next node along the path.
 
@@ -771,13 +728,15 @@ sub output_cluster_image
 	my($sets) = $self -> cluster_sets;
 
 	my($cluster_name);
+	my($members);
 
 	for my $id (sort keys %$sets)
 	{
 		$cluster_name = "cluster $id";
+		$members      = [$$sets{$id} -> members];
 
-		$graph -> push_subgraph(name => $cluster_name, graph => {label => ucfirst $cluster_name});
-		$self -> output_node_attributes($graph, [$$sets{$id} -> members]);
+		$graph -> push_subgraph(name => $cluster_name, graph => {label => ucfirst $cluster_name, rankdir => 'TB'});
+		$self -> output_node_attributes($graph, $members);
 		$graph -> pop_subgraph;
 	}
 
@@ -1025,26 +984,6 @@ sub report_fixed_length_paths
 	}
 
 } # End of report_fixed_length_paths.
-
-=cut
-
-# -----------------------------------------------
-# Parse the input dot file and build a forest of all paths.
-# Also, find the ancestor of each node in each path.
-
-=pod
-
-sub _set_up_forest
-{
-	my($self) = @_;
-
-	# Generate the RAM-based version of the graph.
-
-	my($result) = $self -> run;
-
-	$self -> log(info => "Result of calling lexer and parser: $result (0 is success)");
-
-} # End of _set_up_forest.
 
 =cut
 
