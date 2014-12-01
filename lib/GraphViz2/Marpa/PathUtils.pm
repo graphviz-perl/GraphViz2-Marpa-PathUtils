@@ -761,7 +761,7 @@ sub output_cluster_members
 {
 	my($self, $graph, $members) = @_;
 
-	my($attributes, @attributes);
+	my($attributes, @attributes, %attributes_output);
 	my(@daughters);
 	my($kind);
 	my($name);
@@ -779,11 +779,11 @@ sub output_cluster_members
 			$kind       = $node -> name;
 			$attributes = $node -> attributes;
 			$name       = $$attributes{value};
-
-			if ( ($kind eq 'node_id') && $wanted{$name})
+			if ( ($kind eq 'node_id') && $wanted{$name} && ! $attributes_output{$name})
 			{
-				$self -> log(info => "Output $name ($kind)");
+				$attributes_output{$name} = 1;
 
+				$self -> log(info => "Output $name ($kind)");
 				$self -> output_cluster_node($graph, $node, $name);
 
 				return 1;
