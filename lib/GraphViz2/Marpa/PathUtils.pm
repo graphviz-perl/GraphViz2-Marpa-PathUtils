@@ -759,8 +759,6 @@ sub output_cluster_image
 		$digraph = 1 if ($$attributes{value} eq 'digraph');
 	}
 
-	$self -> log(info => "Strict: $strict. Digraph: $digraph");
-
 	my($graph) = GraphViz2 -> new
 		(
 			global => {directed => $digraph, name => '"Cluster Analysis"', strict => $strict},
@@ -795,7 +793,7 @@ sub output_cluster_image
 		output_file => $self -> output_image_file,
 	);
 
-	$self -> log(notice => 'Wrote ' . $self -> output_image_file . '. Size: ' . (-s $self -> output_image_file) . ' bytes') if ($self -> output_image_file);
+	$self -> log(info => 'Wrote ' . $self -> output_image_file . '. Size: ' . (-s $self -> output_image_file) . ' bytes') if ($self -> output_image_file);
 	$self -> output_dot_text($graph) if ($self -> output_dot_file);
 
 } # End of output_cluster_image.
@@ -810,7 +808,7 @@ sub output_dot_text
 	print $fh $graph -> dot_input;
 	close $fh;
 
-	$self -> log(debug => 'Wrote ' . $self -> output_dot_file . '. Size: ' . (-s $self -> output_dot_file) . ' bytes');
+	$self -> log(info => 'Wrote ' . $self -> output_dot_file . '. Size: ' . (-s $self -> output_dot_file) . ' bytes');
 
 } # End of output_dot_text.
 

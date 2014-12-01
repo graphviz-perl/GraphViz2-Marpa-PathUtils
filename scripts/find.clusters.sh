@@ -11,7 +11,7 @@ cp html/$SVG $DR/Perl-modules/html/graphviz2.marpa.pathutils
 
 ls -aFl html/$SVG $DR/Perl-modules/html/graphviz2.marpa.pathutils/$SVG
 
-perl -Ilib scripts/find.clusters.pl -input data/$GV -max $2 -output_dot $GV2 -output_image html/$SVG2 -report_clusters 1
+perl -Ilib scripts/find.clusters.pl -input data/$GV -max $2 -output_dot data/$GV2 -output_image html/$SVG2 -report_clusters 1
 
 cp html/$SVG2 $DR/Perl-modules/html/graphviz2.marpa.pathutils
 
