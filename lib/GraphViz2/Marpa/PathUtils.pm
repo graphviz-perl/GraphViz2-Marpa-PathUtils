@@ -762,12 +762,11 @@ sub output_cluster_image
 	my($graph) = GraphViz2 -> new
 		(
 			global => {directed => $digraph, name => '"Cluster Analysis"', strict => $strict},
-			graph  => {label => 'Cluster Analysis'},
+			graph  => {label => 'Cluster Analysis', rankdir => 'TB'},
 			logger => $self -> logger,
 		);
 
-	# Note: $graph -> run() must be called even if $self -> tree_image_file is '',
-	# so as to generate $graph -> dot_input, which is used below.
+	# Find the 1st reference to each node in each cluster, and output its attributes.
 
 	my($sets) = $self -> cluster_sets;
 
@@ -777,15 +776,13 @@ sub output_cluster_image
 	{
 		$cluster_name = "cluster $id";
 
-		$graph -> push_subgraph(name => $cluster_name, graph => {label => ucfirst $cluster_name}, rank => 'same');
-
-		for my $node (reverse sort $$sets{$id} -> members)
-		{
-			$graph -> add_node(name => $node);
-		}
-
+		$graph -> push_subgraph(name => $cluster_name, graph => {label => ucfirst $cluster_name});
+		$self -> output_node_attributes($graph, [$$sets{$id} -> members]);
 		$graph -> pop_subgraph;
 	}
+
+	# Note: $graph -> run() must be called even if $self -> tree_image_file is '',
+	# so as to generate $graph -> dot_input, which is used in output_dot_text().
 
 	$graph -> run
 	(
@@ -811,6 +808,65 @@ sub output_dot_text
 	$self -> log(info => 'Wrote ' . $self -> output_dot_file . '. Size: ' . (-s $self -> output_dot_file) . ' bytes');
 
 } # End of output_dot_text.
+
+# -----------------------------------------------
+
+sub output_node_attributes
+{
+	my($self, $graph, $set) = @_;
+
+	my($attributes, @attributes);
+	my(@daughters);
+	my($name);
+	my(%seen);
+	my(%wanted);
+
+	@wanted{@$set} = (1) x @$set;
+
+	$self -> tree -> walk_down
+	({
+		callback => sub
+		{
+			my($node) = @_;
+			$name     = $node -> name;
+
+			# Ignore non-nodes.
+
+			return 1 if ($name ne 'node_id');
+
+			$attributes = $node -> attributes;
+			$name       = $$attributes{value};
+
+			# Ignore if this node has been seen, or is not wanted.
+
+			return 1 if ($seen{$name} || ! $wanted{$name});
+
+			# Got a wanted (Graphviz) node. Does it have any attributes?
+
+			$seen{$name} = 1;
+			@daughters   = $node -> daughters;
+
+			if ($#daughters >= 0)
+			{
+				# Yes, it has attributes.
+				# Skip 0 and $#daughters because they are '{' and '}'.
+
+				for my $i (1 .. $#daughters - 1)
+				{
+					$attributes = $daughters[$i] -> attributes;
+
+					push @attributes, $$attributes{type}, $$attributes{value};
+				}
+
+				$graph -> add_node(name => $name, @attributes);
+			}
+
+			return 1;
+		},
+		_depth => 0,
+	});
+
+} # End of output_node_attributes.
 
 # -----------------------------------------------
 
