@@ -203,7 +203,7 @@ sub _find_mothers_with_edges
 	my($self) = @_;
 
 	my($attributes);
-	my($name);
+	my($kind);
 	my(%seen);
 	my($uid);
 
@@ -212,11 +212,11 @@ sub _find_mothers_with_edges
 		callback => sub
 		{
 			my($node) = @_;
-			$name     = $node -> name;
+			$kind     = $node -> name;
 
 			# Ignore non-edges.
 
-			return 1 if ($name ne 'edge_id');
+			return 1 if ($kind ne 'edge_id');
 
 			$attributes = $node -> mother -> attributes;
 			$uid        = $$attributes{uid};
@@ -247,7 +247,8 @@ sub _find_reachable_nodes
 	my($attributes);
 	my(@daughters, $daughter_uid);
 	my($head, $head_attr);
-	my($name, %node);
+	my($kind);
+	my(%node, $name);
 	my(%reachable);
 	my($tail, $tail_attr);
 
@@ -257,11 +258,11 @@ sub _find_reachable_nodes
 
 		for my $index (0 .. $#daughters)
 		{
-			$name = $daughters[$index] -> name;
+			$kind = $daughters[$index] -> name;
 
 			# Ignore non-edges.
 
-			next if ($name ne 'edge_id');
+			next if ($kind ne 'edge_id');
 
 			$attributes   = $daughters[$index] -> attributes;
 			$daughter_uid = $$attributes{uid};
@@ -273,13 +274,13 @@ sub _find_reachable_nodes
 
 			$node{tail} =
 			{
-				node_name => $daughters[$index - 1] -> name,
-				real_name => ${$daughters[$index - 1] -> attributes}{value},
+				kind => $daughters[$index - 1] -> name,
+				name => ${$daughters[$index - 1] -> attributes}{value},
 			};
 			$node{head} =
 			{
-				node_name => $daughters[$index + 1] -> name,
-				real_name => ${$daughters[$index + 1] -> attributes}{value},
+				kind => $daughters[$index + 1] -> name,
+				name => ${$daughters[$index + 1] -> attributes}{value},
 			};
 
 			# Cases to handle (see data/path.set.01.gv):
@@ -288,9 +289,9 @@ sub _find_reachable_nodes
 			# o { f g } -> h.
 			# o { i j } -> { k l }.
 
-			if ($node{tail}{node_name} eq 'node_id')
+			if ($node{tail}{kind} eq 'node_id')
 			{
-				if ($node{head}{node_name} eq 'node_id')
+				if ($node{head}{kind} eq 'node_id')
 				{
 					# Case: a -> b.
 					# So now we add 'b' to the set of all nodes reachable from 'a'.
@@ -303,10 +304,10 @@ sub _find_reachable_nodes
 
 					for my $n (qw/tail head/)
 					{
-						$name             = $node{$n}{real_name};
+						$name             = $node{$n}{name};
 						$reachable{$name} ||= Set::Tiny -> new;
 
-						$reachable{$name} -> insert($n eq 'tail' ? $node{head}{real_name} : $node{tail}{real_name});
+						$reachable{$name} -> insert($n eq 'tail' ? $node{head}{name} : $node{tail}{name});
 					}
 				}
 				else
@@ -321,7 +322,7 @@ sub _find_reachable_nodes
 			}
 			else
 			{
-				if ($node{head}{node_name} eq 'node_id')
+				if ($node{head}{kind} eq 'node_id')
 				{
 					# Case: { f g } -> h.
 					# Every node in the subgraph can reach 'h'.
@@ -354,7 +355,7 @@ sub _find_reachable_nodes
 sub _find_reachable_subgraph_1
 {
 	my($self, $node, $head_subgraph, $reachable) = @_;
-	my($real_tail) = $$node{tail}{real_name};
+	my($real_tail) = $$node{tail}{name};
 	my(@daughters) = $head_subgraph -> daughters;
 
 	my($attributes);
@@ -389,7 +390,7 @@ sub _find_reachable_subgraph_1
 sub _find_reachable_subgraph_2
 {
 	my($self, $node, $tail_subgraph, $reachable) = @_;
-	my($real_head) = $$node{head}{real_name};
+	my($real_head) = $$node{head}{name};
 	my(@daughters) = $tail_subgraph -> daughters;
 
 	my($attributes);
@@ -654,8 +655,8 @@ sub find_fixed_length_paths
 
 	$self -> _prepare_fixed_length_output($title);
 	$self -> report_fixed_length_paths($title) if ($self -> report_paths);
-	$self -> output_dot_file                   if ($self -> tree_dot_file);
-	$self -> output_fixed_length_image         if ($self -> tree_image_file);
+	$self -> output_dot_text                   if ($self -> output_dot_file);
+	$self -> output_fixed_length_image         if ($self -> output_image_file);
 
 	# Return 0 for success and 1 for failure.
 
@@ -723,7 +724,7 @@ sub output_cluster_image
 			logger => $self -> logger,
 		);
 
-	# Find the 1st reference to each node in each cluster, and output its attributes.
+	# Output all references to each node in each cluster.
 
 	my($sets) = $self -> cluster_sets;
 
@@ -736,11 +737,11 @@ sub output_cluster_image
 		$members      = [$$sets{$id} -> members];
 
 		$graph -> push_subgraph(name => $cluster_name, graph => {label => ucfirst $cluster_name, rankdir => 'TB'});
-		$self -> output_nodes($graph, $members);
+		$self -> output_cluster_members($graph, $members);
 		$graph -> pop_subgraph;
 	}
 
-	# Note: $graph -> run() must be called even if $self -> tree_image_file is '',
+	# Note: $graph -> run() must be called even if $self -> output_image_file is '',
 	# so as to generate $graph -> dot_input, which is used in output_dot_text().
 
 	$graph -> run
@@ -753,6 +754,71 @@ sub output_cluster_image
 	$self -> output_dot_text($graph) if ($self -> output_dot_file);
 
 } # End of output_cluster_image.
+
+# -----------------------------------------------
+
+sub output_cluster_members
+{
+	my($self, $graph, $members) = @_;
+
+	my($attributes, @attributes);
+	my(@daughters);
+	my($kind);
+	my($name);
+	my(%wanted);
+
+	@wanted{@$members} = (1) x @$members;
+
+	$self -> log(info => 'Processing: ' . join(', ', @$members) );
+
+	$self -> tree -> walk_down
+	({
+		callback => sub
+		{
+			my($node)   = @_;
+			$kind       = $node -> name;
+			$attributes = $node -> attributes;
+			$name       = $$attributes{value};
+
+			if ( ($kind eq 'node_id') && $wanted{$name})
+			{
+				$self -> log(info => "Output $name ($kind)");
+
+				$self -> output_cluster_node($graph, $node, $name);
+
+				return 1;
+			}
+
+			# TODO.
+
+			return 1;
+		},
+		_depth => 0,
+	});
+
+} # End of output_cluster_members.
+
+# -----------------------------------------------
+
+sub output_cluster_node
+{
+	my($self, $graph, $node, $name) = @_;
+	my(@daughters) = $node -> daughters;
+
+	my($attributes, @attributes);
+
+	# Skip 0 and $#daughters because they are '{' and '}'.
+
+	for my $i (1 .. $#daughters - 1)
+	{
+		$attributes = $daughters[$i] -> attributes;
+
+		push @attributes, $$attributes{type}, $$attributes{value};
+	}
+
+	$graph -> add_node(name => $name, @attributes);
+
+} # End of output_cluster_node.
 
 # -----------------------------------------------
 
@@ -770,77 +836,20 @@ sub output_dot_text
 
 # -----------------------------------------------
 
-sub output_nodes
-{
-	my($self, $graph, $set) = @_;
-
-	my($attributes, @attributes);
-	my(@daughters);
-	my($name);
-	my(%seen);
-	my(%wanted);
-
-	@wanted{@$set} = (1) x @$set;
-
-	$self -> tree -> walk_down
-	({
-		callback => sub
-		{
-			my($node) = @_;
-			$name     = $node -> name;
-
-			# Ignore non-nodes.
-
-			return 1 if ($name ne 'node_id');
-
-			$attributes = $node -> attributes;
-			$name       = $$attributes{value};
-
-			# Ignore if this node has been seen, or is not wanted.
-
-			return 1 if ($seen{$name} || ! $wanted{$name});
-
-			# Got a wanted (Graphviz) node. Does it have any attributes?
-
-			@attributes  = ();
-			@daughters   = $node -> daughters;
-			$seen{$name} = 1;
-
-			# Yes, it has attributes.
-			# Skip 0 and $#daughters because they are '{' and '}'.
-
-			for my $i (1 .. $#daughters - 1)
-			{
-				$attributes = $daughters[$i] -> attributes;
-
-				push @attributes, $$attributes{type}, $$attributes{value};
-			}
-
-			$graph -> add_node(name => $name, @attributes);
-
-			return 1;
-		},
-		_depth => 0,
-	});
-
-} # End of output_nodes.
-
-# -----------------------------------------------
-
 =pod
 
 sub output_fixed_length_image
 {
 	my($self) = @_;
 
-	if ($self -> input_file eq $self -> tree_image_file)
+	if ($self -> input_file eq $self -> output_image_file)
 	{
 		die "Error: Input file and tree image file have the same name. Refusing to overwrite the latter\n";
 	}
 
 	my($driver)     = $self -> driver;
 	my($format)     = $self -> format;
-	my($image_file) = $self -> tree_image_file;
+	my($image_file) = $self -> output_image_file;
 
 	# This line has been copied from GraphViz2's run() method.
 	# Except, that is, for the timeout, which is not used in GraphViz2 anyway.
@@ -1047,10 +1056,10 @@ Either pass parameters in to new():
 
 	GraphViz2::Marpa::PathUtils -> new
 	(
-	    input_file      => 'data/jointed.edges.gv',
-	    report_clusters => 1,
-	    tree_dot_file   => 'data/clusters.gv',
-	    tree_image_file => 'html/clusters.svg',
+	    input_file        => 'data/jointed.edges.gv',
+	    output_dot_file   => 'data/clusters.gv',
+	    output_image_file => 'html/clusters.svg',
+	    report_clusters   => 1,
 	);
 
 Or call methods to set parameters;
@@ -1058,9 +1067,9 @@ Or call methods to set parameters;
 	my($parser) = GraphViz2::Marpa::PathUtils -> new;
 
 	$parser -> input_file('data/jointed.edges.gv');
+	$parser -> output_dot_file('data/fixed.length.paths.gv');
+	$parser -> output_image_file('html/fixed.length.paths.sgv');
 	$parser -> report_clusters(1);
-	$parser -> tree_dot_file('data/fixed.length.paths.gv');
-	$parser -> tree_image_file('html/fixed.length.paths.sgv');
 
 And then:
 
@@ -1078,13 +1087,13 @@ Either pass parameters in to new():
 
 	GraphViz2::Marpa::PathUtils -> new
 	(
-	    allow_cycles    => 1,
-	    input_file      => 'data/90.KW91.gv',
-	    path_length     => 4,
-	    report_paths    => 1,
-	    start_node      => 'Act_1',
-	    tree_dot_file   => 'data/fixed.length.paths.gv',
-	    tree_image_file => 'html/fixed.length.paths.svg',
+	    allow_cycles      => 1,
+	    input_file        => 'data/90.KW91.gv',
+	    output_dot_file   => 'data/fixed.length.paths.gv',
+	    output_image_file => 'html/fixed.length.paths.svg',
+	    path_length       => 4,
+	    report_paths      => 1,
+	    start_node        => 'Act_1',
 	) -> find_fixed_length_paths;
 
 Or call methods to set parameters;
@@ -1093,11 +1102,11 @@ Or call methods to set parameters;
 
 	$parser -> allow_cycles(1);
 	$parser -> input_file('data/90.KW91.gv');
+	$parser -> output_dot_file('data/fixed.length.paths.gv');
+	$parser -> output_image_file('html/fixed.length.paths.sgv');
 	$parser -> path_length(4);
 	$parser -> report_paths(1);
 	$parser -> start_node('Act_1');
-	$parser -> tree_dot_file('data/fixed.length.paths.gv');
-	$parser -> tree_image_file('html/fixed.length.paths.sgv');
 
 And then:
 
@@ -1297,6 +1306,24 @@ Specify the image type to pass to I<dot>, as the value of dot's -T option.
 
 Default: 'svg'.
 
+=item o output_dot_file => aDOTInputFileName
+
+Specify the name of a file to write which will contain the DOT description of the image of all solutions.
+
+Default: ''.
+
+This file is not written if the value is ''.
+
+=item o outpit_image_file => aDOTOutputFileName
+
+Specify the name of a file to write which will contain the output of running I<dot>.
+
+The value of the I<format> option determines what sort of image is created.
+
+Default: ''.
+
+This file is not written if the value is ''.
+
 =item o path_length => $integer
 
 Specify the length of all paths to be included in the output.
@@ -1336,24 +1363,6 @@ This parameter is mandatory.
 The name can be the empty string, but must not be undef.
 
 This option is only used when calling L</find_fixed_length_paths()>.
-
-=item o tree_dot_file => aDOTInputFileName
-
-Specify the name of a file to write which will contain the DOT description of the image of all solutions.
-
-Default: ''.
-
-This file is not written if the value is ''.
-
-=item o tree_image_file => aDOTOutputFileName
-
-Specify the name of a file to write which will contain the output of running I<dot>.
-
-The value of the I<format> option determines what sort of image is created.
-
-Default: ''.
-
-This file is not written if the value is ''.
 
 =back
 
@@ -1441,16 +1450,30 @@ See L</Constructor and Initialization> for details on the parameters accepted by
 
 =head2 output_cluster_image()
 
-This writes the clusters found, as a DOT output file, as long as new(tree_image_file => $name) was specified.
+This writes the clusters found, as a DOT output file, as long as new(output_image_file => $name) was specified.
 
 =head2 output_fixed_length_image($title)
 
-This writes the paths found, as a DOT output file, as long as new(tree_image_file => $name) was specified,
-or if tree_image_file($name) was called before L</find_fixed_length_paths()> was called.
+This writes the paths found, as a DOT output file, as long as new(output_image_file => $name) was specified,
+or if output_image_file($name) was called before L</find_fixed_length_paths()> was called.
 
-=head2 output_dot_file($title)
+=head2 output_dot_file([$name])
 
-This writes the DOT file generated, as long as new(tree_dot_file => $name) was specified.
+Here the [] indicate an optional parameter.
+
+Get or set the name of the I<dot> input file to write.
+
+'output_dot_file' is a parameter to L</new()>. See L</Constructor and Initialization> for details.
+
+=head2 output_image_file([$name])
+
+Here the [] indicate an optional parameter.
+
+Get or set the name of the I<dot> output file to write.
+
+The type of image comes from the I<format> parameter to new().
+
+'output_image_file' is a parameter to L</new()>. See L</Constructor and Initialization> for details.
 
 =head2 path_length([$integer])
 
@@ -1491,24 +1514,6 @@ Here the [] indicate an optional parameter.
 Get or set the name of the node from where all paths must start.
 
 'start_node' is a parameter to L</new()>. See L</Constructor and Initialization> for details.
-
-=head2 tree_dot_file([$name])
-
-Here the [] indicate an optional parameter.
-
-Get or set the name of the I<dot> input file to write.
-
-'tree_dot_file' is a parameter to L</new()>. See L</Constructor and Initialization> for details.
-
-=head2 tree_image_file([$name])
-
-Here the [] indicate an optional parameter.
-
-Get or set the name of the I<dot> output file to write.
-
-The type of image comes from the I<format> parameter to new().
-
-'tree_image_file' is a parameter to L</new()>. See L</Constructor and Initialization> for details.
 
 =head1 FAQ
 
