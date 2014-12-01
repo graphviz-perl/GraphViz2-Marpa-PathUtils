@@ -1,0 +1,40 @@
+strict digraph "Cluster Analysis"
+{
+graph [ label="Cluster Analysis" ]
+
+subgraph "cluster 1"
+{
+graph [ label="Cluster 1" ]
+
+"l"
+"k"
+"j"
+"i"
+}
+
+subgraph "cluster 2"
+{
+graph [ label="Cluster 2" ]
+
+"b"
+"a"
+}
+
+subgraph "cluster 3"
+{
+graph [ label="Cluster 3" ]
+
+"h"
+"g"
+"f"
+}
+
+subgraph "cluster 4"
+{
+graph [ label="Cluster 4" ]
+
+"e"
+"d"
+"c"
+}
+}

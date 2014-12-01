@@ -25,16 +25,11 @@ if ($option_parser -> getoptions
 	'format=s',
 	'help',
 	'input_file=s',
-	'lexed_file=s',
 	'maxlevel=s',
 	'minlevel=s',
-	'output_file=s',
-	'parsed_file=s',
+	'output_dot_file=s',
+	'output_image_file=s',
 	'report_clusters=i',
-	'report_forest=i',
-	'report_items=i',
-	'tree_dot_file=s',
-	'tree_image_file=s',
 ) )
 {
 	pod2usage(1) if ($option{'help'});
@@ -62,17 +57,12 @@ find.clusters.pl [options]
 	-description graphDescription
 	-format imageFormatType
 	-help
-	-input_file aDotInputFileName
-	-lexed_file aLexedOutputFileName
+	-input_file aDOTInputFileName
 	-maxlevel logOption1
 	-minlevel logOption2
-	-output_file aDOTInputFileName
-	-parsed_file aParsedOutputFileName
+	-output_dot_file aDOTInputFileName
+	-output_image_file aDOTOutputFileName
 	-report_clusters $Boolean
-	-report_forest $Boolean
-	-report_items $Boolean
-	-tree_dot_file aDOTInputFileName
-	-tree_image_file aDOTOutputFileName
 
 Exit value: 0 for success, 1 for failure. Die upon error.
 
@@ -114,16 +104,6 @@ Default: ''.
 
 See the distro for data/*.gv.
 
-=item o -lexed_file aLexedOutputFileName
-
-Specify the name of a CSV file of parsed tokens to write.
-
-See the distro for data/*.lex.
-
-Default: ''.
-
-The default means the file is not written.
-
 =item o -maxlevel logOption1
 
 This option affects Log::Handler.
@@ -142,11 +122,19 @@ Default: 'error'.
 
 No lower levels are used.
 
-=item o -parsed_file aParsedOutputFileName
+=item o -output_dot_file aDOTInputFileName
 
-Specify the name of a CSV file of parsed tokens to write.
+Specify the name of a DOT file to write for the trees found.
 
-See the distro for data/*.parse.
+Default: ''.
+
+The default means the file is not written.
+
+=item o -output_image_file aDOTOutputFileName
+
+Specify the name of an SVG file to write for the trees found.
+
+If this file is created, the value of the format option (which defaults to 'svg') is passed to dot.
 
 Default: ''.
 
@@ -157,36 +145,6 @@ The default means the file is not written.
 Log the clusters detected.
 
 Default: 0.
-
-=item o -report_forest $Boolean
-
-Log the forest parsed from the input file.
-
-Default: 0.
-
-=item o -report_items $Boolean
-
-Log the items recognized by the parser.
-
-Default: 0.
-
-=item o -tree_dot_file aDOTInputFileName
-
-Specify the name of a DOT file to write for the trees found.
-
-Default: ''.
-
-The default means the file is not written.
-
-=item o -tree_image_file aDOTOutputFileName
-
-Specify the name of an SVG file to write for the trees found.
-
-If this file is created, the value of the format option (which defaults to 'svg') is passed to dot.
-
-Default: ''.
-
-The default means the file is not written.
 
 =back
 

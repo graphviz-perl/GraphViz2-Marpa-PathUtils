@@ -11,12 +11,12 @@
 <polygon fill="white" stroke="none" points="-4,4 -4,-112 418,-112 418,4 -4,4"/>
 <!-- a -->
 <g id="node1" class="node"><title>a</title>
-<ellipse fill="none" stroke="black" cx="27" cy="-90" rx="27" ry="18"/>
+<ellipse fill="red" stroke="red" cx="27" cy="-90" rx="27" ry="18"/>
 <text text-anchor="middle" x="27" y="-86.3" font-family="Times,serif" font-size="14.00">a</text>
 </g>
 <!-- b -->
 <g id="node2" class="node"><title>b</title>
-<ellipse fill="none" stroke="black" cx="27" cy="-18" rx="27" ry="18"/>
+<ellipse fill="green" stroke="green" cx="27" cy="-18" rx="27" ry="18"/>
 <text text-anchor="middle" x="27" y="-14.3" font-family="Times,serif" font-size="14.00">b</text>
 </g>
 <!-- a&#45;&gt;b -->
@@ -26,12 +26,12 @@
 </g>
 <!-- c -->
 <g id="node3" class="node"><title>c</title>
-<ellipse fill="none" stroke="black" cx="99" cy="-90" rx="27" ry="18"/>
+<ellipse fill="blue" stroke="blue" cx="99" cy="-90" rx="27" ry="18"/>
 <text text-anchor="middle" x="99" y="-86.3" font-family="Times,serif" font-size="14.00">c</text>
 </g>
 <!-- d -->
 <g id="node4" class="node"><title>d</title>
-<ellipse fill="none" stroke="black" cx="99" cy="-18" rx="27" ry="18"/>
+<ellipse fill="orange" stroke="orange" cx="99" cy="-18" rx="27" ry="18"/>
 <text text-anchor="middle" x="99" y="-14.3" font-family="Times,serif" font-size="14.00">d</text>
 </g>
 <!-- c&#45;&gt;d -->
@@ -41,7 +41,7 @@
 </g>
 <!-- e -->
 <g id="node5" class="node"><title>e</title>
-<ellipse fill="none" stroke="black" cx="171" cy="-18" rx="27" ry="18"/>
+<ellipse fill="goldenrod" stroke="goldenrod" cx="171" cy="-18" rx="27" ry="18"/>
 <text text-anchor="middle" x="171" y="-14.3" font-family="Times,serif" font-size="14.00">e</text>
 </g>
 <!-- c&#45;&gt;e -->
@@ -51,12 +51,12 @@
 </g>
 <!-- f -->
 <g id="node6" class="node"><title>f</title>
-<ellipse fill="none" stroke="black" cx="171" cy="-90" rx="27" ry="18"/>
+<ellipse fill="coral" stroke="coral" cx="171" cy="-90" rx="27" ry="18"/>
 <text text-anchor="middle" x="171" y="-86.3" font-family="Times,serif" font-size="14.00">f</text>
 </g>
 <!-- h -->
 <g id="node8" class="node"><title>h</title>
-<ellipse fill="none" stroke="black" cx="243" cy="-18" rx="27" ry="18"/>
+<ellipse fill="mistyrose" stroke="mistyrose" cx="243" cy="-18" rx="27" ry="18"/>
 <text text-anchor="middle" x="243" y="-14.3" font-family="Times,serif" font-size="14.00">h</text>
 </g>
 <!-- f&#45;&gt;h -->
@@ -66,7 +66,7 @@
 </g>
 <!-- g -->
 <g id="node7" class="node"><title>g</title>
-<ellipse fill="none" stroke="black" cx="243" cy="-90" rx="27" ry="18"/>
+<ellipse fill="salmon" stroke="salmon" cx="243" cy="-90" rx="27" ry="18"/>
 <text text-anchor="middle" x="243" y="-86.3" font-family="Times,serif" font-size="14.00">g</text>
 </g>
 <!-- g&#45;&gt;h -->
@@ -76,12 +76,12 @@
 </g>
 <!-- i -->
 <g id="node9" class="node"><title>i</title>
-<ellipse fill="none" stroke="black" cx="315" cy="-90" rx="27" ry="18"/>
+<ellipse fill="lemonchiffon" stroke="lemonchiffon" cx="315" cy="-90" rx="27" ry="18"/>
 <text text-anchor="middle" x="315" y="-86.3" font-family="Times,serif" font-size="14.00">i</text>
 </g>
 <!-- k -->
 <g id="node11" class="node"><title>k</title>
-<ellipse fill="none" stroke="black" cx="315" cy="-18" rx="27" ry="18"/>
+<ellipse fill="olivedrab" stroke="olivedrab" cx="315" cy="-18" rx="27" ry="18"/>
 <text text-anchor="middle" x="315" y="-14.3" font-family="Times,serif" font-size="14.00">k</text>
 </g>
 <!-- i&#45;&gt;k -->
@@ -91,7 +91,7 @@
 </g>
 <!-- l -->
 <g id="node12" class="node"><title>l</title>
-<ellipse fill="none" stroke="black" cx="387" cy="-18" rx="27" ry="18"/>
+<ellipse fill="lime" stroke="lime" cx="387" cy="-18" rx="27" ry="18"/>
 <text text-anchor="middle" x="387" y="-14.3" font-family="Times,serif" font-size="14.00">l</text>
 </g>
 <!-- i&#45;&gt;l -->
@@ -101,7 +101,7 @@
 </g>
 <!-- j -->
 <g id="node10" class="node"><title>j</title>
-<ellipse fill="none" stroke="black" cx="387" cy="-90" rx="27" ry="18"/>
+<ellipse fill="yellow" stroke="yellow" cx="387" cy="-90" rx="27" ry="18"/>
 <text text-anchor="middle" x="387" y="-86.3" font-family="Times,serif" font-size="14.00">j</text>
 </g>
 <!-- j&#45;&gt;k -->

@@ -7,18 +7,57 @@ use warnings;
 use warnings  qw(FATAL utf8);    # Fatalize encoding glitches.
 use open      qw(:std :utf8);    # Undeclared streams in UTF-8.
 
-=pod
-
 use GraphViz2;
-use GraphViz2::Marpa::PathUtils::Config;
 
 use IPC::Run3; # For run3().
-
-=cut
 
 use Moo;
 
 use Set::Tiny;
+
+use Try::Tiny;
+
+use Types::Standard qw/HashRef Int Str/;
+
+has format =>
+(
+	default  => sub{return 'svg'},
+	is       => 'rw',
+	isa      => Str,
+	required => 0,
+);
+
+has output_dot_file =>
+(
+	default  => sub{return ''},
+	is       => 'rw',
+	isa      => Str,
+	required => 0,
+);
+
+has output_image_file =>
+(
+	default  => sub{return ''},
+	is       => 'rw',
+	isa      => Str,
+	required => 0,
+);
+
+has cluster_sets =>
+(
+	default  => sub{return {} },
+	is       => 'rw',
+	isa      => HashRef,
+	required => 0,
+);
+
+has report_clusters =>
+(
+	default  => sub{return 0},
+	is       => 'rw',
+	isa      => Int,
+	required => 0,
+);
 
 =pod
 
@@ -147,16 +186,9 @@ sub find_clusters
 		$subgraph_sets{$count} -> insert(@members);
 	}
 
-	$self -> _dump_subgraph(\%subgraph_sets);
-
-=pod
-
-	# Process the tree.
-
+	$self -> cluster_sets(\%subgraph_sets);
 	$self -> report_cluster_members if ($self -> report_clusters);
-	$self -> output_cluster_image;
-
-=cut
+	$self -> output_cluster_image if (length($self -> output_dot_file) + length($self -> output_image_file) > 0);
 
 	# Return 0 for success and 1 for failure.
 
@@ -709,74 +741,49 @@ sub _init
 
 # -----------------------------------------------
 
-=pod
-
 sub output_cluster_image
 {
-	my($self) = @_;
+	my($self)       = @_;
+	my(@first_born) = $self -> tree -> daughters;
+	my(@prolog)     = $first_born[0] -> daughters;
+	my($strict)     = 0;
+	my($digraph)    = 0;
 
-	# Short-circuit if no output wanted.
+	my($attributes);
 
-	return if (! $self -> tree_dot_file && ! $self -> tree_image_file);
+	for my $node (@prolog)
+	{
+		$attributes = $node -> attributes;
 
-	my(%nodes) = %{$self -> parser -> nodes};
-	my(%style) = %{$self -> parser -> style};
-	my(%type)  = %{$self -> parser -> type};
+		$strict  = 1 if ($$attributes{value} eq 'strict');
+		$digraph = 1 if ($$attributes{value} eq 'digraph');
+	}
+
+	$self -> log(info => "Strict: $strict. Digraph: $digraph");
+
 	my($graph) = GraphViz2 -> new
 		(
-			edge   => '', # TODO.
-			global => {directed => $type{digraph}, name => $type{graph_id}, strict => $type{strict} },
-			graph  => {label => $style{label} || 'Cluster set', rankdir => $style{rankdir} || 'LR'},
+			global => {directed => $digraph, name => '"Cluster Analysis"', strict => $strict},
+			graph  => {label => 'Cluster Analysis'},
 			logger => $self -> logger,
-			node   => '', # TODO.
 		);
 
 	# Note: $graph -> run() must be called even if $self -> tree_image_file is '',
 	# so as to generate $graph -> dot_input, which is used below.
 
+	my($sets) = $self -> cluster_sets;
+
 	my($cluster_name);
-	my($from);
-	my(%seen);
-	my($to);
 
-	for my $cluster (@{$self -> cluster_edge_set})
+	for my $id (sort keys %$sets)
 	{
-		$cluster_name = "cluster $$cluster[0][0]";
+		$cluster_name = "cluster $id";
 
-		$graph -> push_subgraph(name => $cluster_name, graph => {label => ucfirst $cluster_name});
+		$graph -> push_subgraph(name => $cluster_name, graph => {label => ucfirst $cluster_name}, rank => 'same');
 
-		for my $node (@$cluster)
+		for my $node (reverse sort $$sets{$id} -> members)
 		{
-			$from = $$node[0];
-			$to   = $$node[1];
-
-			if (! $seen{$from})
-			{
-				$seen{$from} = {};
-
-				$graph -> add_node(name => $from, %{$nodes{$from}{attributes} });
-			}
-
-			# Allow for the case of 1-node (isolated node) clusters.
-
-			if (defined $to)
-			{
-				if (! $seen{$to})
-				{
-					$seen{$to} = {};
-
-					$graph -> add_node(name => $to, %{$nodes{$to}{attributes} });
-				}
-
-				$seen{$from}{$to} = $seen{$to}{$from} if ($seen{$to}{$from});
-
-				if (! $seen{$from}{$to})
-				{
-					$seen{$from}{$to} = $self -> _find_edge_attributes($from, $to);
-				}
-
-				$graph -> add_edge(from => $from, to => $to, %{$seen{$from}{$to} });
-			}
+			$graph -> add_node(name => $node);
 		}
 
 		$graph -> pop_subgraph;
@@ -785,38 +792,27 @@ sub output_cluster_image
 	$graph -> run
 	(
 		format      => $self -> format,
-		output_file => $self -> tree_image_file ? $self -> tree_image_file : '',
+		output_file => $self -> output_image_file,
 	);
 
-	$self -> log(notice => 'Wrote ' . $self -> tree_image_file . '. Size: ' . (-s $self -> tree_image_file) . ' bytes') if ($self -> tree_image_file);
-
-	if ($self -> tree_dot_file)
-	{
-		$self -> dot_input($graph -> dot_input);
-		$self -> output_dot_file;
-	}
+	$self -> log(notice => 'Wrote ' . $self -> output_image_file . '. Size: ' . (-s $self -> output_image_file) . ' bytes') if ($self -> output_image_file);
+	$self -> output_dot_text($graph) if ($self -> output_dot_file);
 
 } # End of output_cluster_image.
 
-=cut
-
 # -----------------------------------------------
 
-=pod
-
-sub output_dot_file
+sub output_dot_text
 {
-	my($self) = @_;
+	my($self, $graph) = @_;
 
-	open(OUT, '>', $self -> tree_dot_file) || die "Error: Can't open(> ", $self -> tree_dot_file, "): $!\n";
-	print OUT $self -> dot_input;
-	close OUT;
+	open(my $fh, '>', $self -> output_dot_file) || die "Error: Can't open(> ", $self -> output_dot_file, "): $!\n";
+	print $fh $graph -> dot_input;
+	close $fh;
 
-	$self -> log(debug => 'Wrote ' . $self -> tree_dot_file . '. Size: ' . length($self -> dot_input) . ' bytes');
+	$self -> log(debug => 'Wrote ' . $self -> output_dot_file . '. Size: ' . (-s $self -> output_dot_file) . ' bytes');
 
-} # End of output_dot_file.
-
-=cut
+} # End of output_dot_text.
 
 # -----------------------------------------------
 
@@ -944,34 +940,19 @@ sub _prepare_fixed_length_output
 
 # -----------------------------------------------
 
-=pod
-
 sub report_cluster_members
 {
 	my($self) = @_;
-	my($set)  = $self -> cluster_set;
+	my($sets) = $self -> cluster_sets;
 
-	$self -> log(notice => 'Clusters:');
+	$self -> log(info => 'Clusters:');
 
-	# Marpa::R2 V 2.079_013 returns results in a different order than previous versions, hence the 2nd sort.
-
-	my(@result);
-
-	for my $cluster (@$set)
+	for my $id (sort keys %$sets)
 	{
-		push @result, join(', ', sort $cluster -> members);
-	}
-
-	my($count) = 0;
-
-	for my $cluster (sort @result)
-	{
-		$self -> log(notice => "@{[++$count]}: $cluster");
+		$self -> log(info => "Subgraph $id contains " . $$sets{$id} -> as_string);
 	}
 
 } # End of report_cluster_members.
-
-=cut
 
 # -----------------------------------------------
 
