@@ -1,10 +1,9 @@
 #!/usr/bin/env perl
 
-use feature qw/say unicode_strings/;
-use open qw(:std :utf8);
 use strict;
 use warnings;
-use warnings qw(FATAL utf8);
+use warnings qw(FATAL utf8); # Fatalize encoding glitches.
+use open     qw(:std :utf8); # Undeclared streams in UTF-8.
 
 use Getopt::Long;
 
@@ -24,6 +23,7 @@ if ($option_parser -> getoptions
 	'description=s',
 	'format=s',
 	'help',
+	'html_page_name=s',
 	'input_file=s',
 	'maxlevel=s',
 	'minlevel=s',
@@ -56,6 +56,7 @@ find.clusters.pl [options]
 	-description graphDescription
 	-format imageFormatType
 	-help
+	-html_page_name aHTMLPageName
 	-input_file aDOTInputFileName
 	-maxlevel logOption1
 	-minlevel logOption2
@@ -85,6 +86,16 @@ Default: ''.
 Specify the type of image output by DOT to the tree_image_file, if any.
 
 Default: 'svg'.
+
+=item o -html_page_name aHTMLPageName
+
+Specify the name of the HTML file to write.
+
+This file contains the SVG versions of the input DOT file and all output DOT files.
+
+Default: ''.
+
+The default means the file is not written.
 
 =item o -help
 
@@ -124,7 +135,7 @@ No lower levels are used.
 
 Specify the prefix of the DOT files to write for each cluster found.
 
-The prefix has ".$number.gv" attached as a suffix, for clusters 1 .. N.
+The prefix has ".$n.gv" attached as a suffix, for clusters 1 .. N.
 
 Default: ''.
 

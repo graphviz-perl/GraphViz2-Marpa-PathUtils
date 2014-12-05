@@ -1,10 +1,9 @@
 package GraphViz2::Marpa::PathUtils::Utils;
 
 use strict;
-use utf8;
 use warnings;
-use warnings  qw(FATAL utf8);    # Fatalize encoding glitches.
-use open      qw(:std :utf8);    # Undeclared streams in UTF-8.
+use warnings qw(FATAL utf8); # Fatalize encoding glitches.
+use open     qw(:std :utf8); # Undeclared streams in UTF-8.
 
 use Config;
 
@@ -19,7 +18,7 @@ use GraphViz2::Marpa::PathUtils::Config;
 
 use IO::File;
 
-use Module::Path 'module_path';
+use Moo;
 
 use Text::CSV;
 use Text::Xslate 'mark_raw';
@@ -204,6 +203,14 @@ sub generate_demo_environment
 	return \@environment;
 }
  # End of generate_demo_environment.
+
+# -----------------------------------------------
+
+sub generate_html4cluster
+{
+	my($self) = @_;
+
+} # End of generate_html4cluster.
 
 # -----------------------------------------------
 

@@ -3,17 +3,29 @@
 GV=path.set.$1.in.gv
 GV2=path.set.$1.out
 SVG=path.set.$1.in.svg
-SVG2=path.set.$1.out.svg
+
+MAX=$2
+
+if [ -z "$MAX" ]
+then
+	MAX=info
+fi
 
 dot -Tsvg data/$GV > html/$SVG
 
 cp html/$SVG $DR/Perl-modules/html/graphviz2.marpa.pathutils
 
-perl -Ilib scripts/find.clusters.pl -input data/$GV -max $2 -output_dot_file_prefix data/$GV2 -report_clusters 1
+perl -Ilib scripts/find.clusters.pl -input data/$GV -max $MAX -output_dot_file_prefix data/$GV2 -report_clusters 1
 
-cp html/$SVG2 $DR/Perl-modules/html/graphviz2.marpa.pathutils
+for i in data/$GV2* ;
+do
+	IN=`basename $i .gv`
+	OUT="$IN.svg"
+	IN="$IN.gv";
 
-ls -aFl html/$SVG html/$SVG2 $DR/Perl-modules/html/graphviz2.marpa.pathutils/$SVG $DR/Perl-modules/html/graphviz2.marpa.pathutils/$SVG2
+	dot -Tsvg data/$IN > html/$OUT
 
-#	-parsed_file data/$1.clusters.in.csv -tree_dot_file data/$1.clusters.out.gv \
-#	-report_clusters 1 -report_forest 1 -tree_image html/$1.clusters.out.svg
+	cp html/$OUT $DR/Perl-modules/html/graphviz2.marpa.pathutils/
+done
+
+ls -aFl data/$GV2* -aFl html/$GV2* $DR/Perl-modules/html/graphviz2.marpa.pathutils/$GV2*
