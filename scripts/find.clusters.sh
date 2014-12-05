@@ -1,7 +1,7 @@
 #!/bin/bash
 
 GV=path.set.$1.in.gv
-GV2=path.set.$1.out.gv
+GV2=path.set.$1.out
 SVG=path.set.$1.in.svg
 SVG2=path.set.$1.out.svg
 
@@ -9,7 +9,7 @@ dot -Tsvg data/$GV > html/$SVG
 
 cp html/$SVG $DR/Perl-modules/html/graphviz2.marpa.pathutils
 
-perl -Ilib scripts/find.clusters.pl -input data/$GV -max $2 -output_dot data/$GV2 -output_image html/$SVG2 -report_clusters 1
+perl -Ilib scripts/find.clusters.pl -input data/$GV -max $2 -output_dot_file_prefix data/$GV2 -report_clusters 1
 
 cp html/$SVG2 $DR/Perl-modules/html/graphviz2.marpa.pathutils
 

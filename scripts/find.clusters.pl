@@ -27,8 +27,7 @@ if ($option_parser -> getoptions
 	'input_file=s',
 	'maxlevel=s',
 	'minlevel=s',
-	'output_dot_file=s',
-	'output_image_file=s',
+	'output_dot_file_prefix=s',
 	'report_clusters=i',
 ) )
 {
@@ -60,8 +59,7 @@ find.clusters.pl [options]
 	-input_file aDOTInputFileName
 	-maxlevel logOption1
 	-minlevel logOption2
-	-output_dot_file aDOTInputFileName
-	-output_image_file aDOTOutputFileName
+	-output_dot_file_prefix aDOTInputFileNamePrefix
 	-report_clusters $Boolean
 
 Exit value: 0 for success, 1 for failure. Die upon error.
@@ -122,23 +120,15 @@ Default: 'error'.
 
 No lower levels are used.
 
-=item o -output_dot_file aDOTInputFileName
+=item o -output_dot_file_prefix aDOTInputFileNamePrefix
 
-Specify the name of a DOT file to write for the trees found.
+Specify the prefix of the DOT files to write for each cluster found.
 
-Default: ''.
-
-The default means the file is not written.
-
-=item o -output_image_file aDOTOutputFileName
-
-Specify the name of an SVG file to write for the trees found.
-
-If this file is created, the value of the format option (which defaults to 'svg') is passed to dot.
+The prefix has ".$number.gv" attached as a suffix, for clusters 1 .. N.
 
 Default: ''.
 
-The default means the file is not written.
+The default means the files are not written.
 
 =item o -report_clusters $Boolean
 

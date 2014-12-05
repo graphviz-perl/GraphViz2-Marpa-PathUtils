@@ -7,9 +7,7 @@ use warnings;
 use warnings  qw(FATAL utf8);    # Fatalize encoding glitches.
 use open      qw(:std :utf8);    # Undeclared streams in UTF-8.
 
-use GraphViz2;
-
-use IPC::Run3; # For run3().
+use GraphViz2::Marpa::Renderer::Graphviz;
 
 use Moo;
 
@@ -27,15 +25,7 @@ has format =>
 	required => 0,
 );
 
-has output_dot_file =>
-(
-	default  => sub{return ''},
-	is       => 'rw',
-	isa      => Str,
-	required => 0,
-);
-
-has output_image_file =>
+has output_dot_file_prefix =>
 (
 	default  => sub{return ''},
 	is       => 'rw',
@@ -86,18 +76,18 @@ our $VERSION = '2.00';
 
 sub _coelesce_membership
 {
-	my($self, $count, $node, $reachable, $subgraph) = @_;
+	my($self, $count, $node, $clusters, $subgraph) = @_;
 
 	# Some nodes may be heads but never tails, so they won't exist in this hash.
 
-	return if (! defined $$reachable{$node});
+	return if (! defined $$clusters{$node});
 
-	for my $member ($$reachable{$node} -> members)
+	for my $member ($$clusters{$node} -> members)
 	{
 		next if ($$subgraph{$count} -> member($member) );
 
 		$$subgraph{$count} -> insert($member);
-		$self -> _coelesce_membership($count, $member, $reachable, $subgraph);
+		$self -> _coelesce_membership($count, $member, $clusters, $subgraph);
 	}
 
 } # End of _coelesce_membership.
@@ -106,12 +96,12 @@ sub _coelesce_membership
 
 sub _coelesce_sets
 {
-	my($self, $reachable) = @_;
+	my($self, $clusters) = @_;
 
 	# We take a copy of the keys so that we can delete hash keys
 	# in arbitrary order while processing the sets which are the values.
 
-	my(@nodes) = keys %$reachable;
+	my(@nodes) = keys %$clusters;
 	my($count) = 0;
 
 	my(%subgraphs);
@@ -123,25 +113,12 @@ sub _coelesce_sets
 		$subgraphs{$count} = Set::Tiny -> new;
 
 		$subgraphs{$count} -> insert($node);
-		$self -> _coelesce_membership($count, $node, $reachable, \%subgraphs);
+		$self -> _coelesce_membership($count, $node, $clusters, \%subgraphs);
 	}
 
 	return \%subgraphs;
 
 } # End of _coelesce_sets.
-
-# -----------------------------------------------
-
-sub _dump_subgraph
-{
-	my($self, $reachable) = @_;
-
-	for my $node (sort keys %$reachable)
-	{
-		$self -> log(info => "Subgraph set $node contains " . $$reachable{$node} -> as_string);
-	}
-
-} # End of _dump_subgraph.
 
 # -----------------------------------------------
 # Called by the user.
@@ -155,13 +132,11 @@ sub find_clusters
 	$self -> run;
 
 	# Find mothers who have edges amongst their daughters.
+	# Then process the daughters of those mothers.
 
-	my($edgy) = $self -> _find_mothers_with_edges;
-
-	# Process the daughters of mothers who have edges.
-
-	my($reachable) = $self -> _find_reachable_nodes($edgy);
-	my($subgraphs) = $self -> _coelesce_sets($reachable);
+	my($edgy)      = $self -> _find_mothers_with_edges;
+	my($clusters)  = $self -> _find_reachable_nodes($edgy);
+	my($subgraphs) = $self -> _coelesce_sets($clusters);
 
 	# Renumber subgraphs by discarding duplicate sets.
 
@@ -186,9 +161,14 @@ sub find_clusters
 		$subgraph_sets{$count} -> insert(@members);
 	}
 
-	$self -> cluster_sets(\%subgraph_sets);
+	# Find nodes which do not participate in paths,
+	# i.e. there are no edges leading to them or from them.
+	# Such nodes are stand-alone clusters.
+
+	$self -> _find_standalone_nodes(\%subgraph_sets);
 	$self -> report_cluster_members if ($self -> report_clusters);
-	$self -> output_cluster_image if (length($self -> output_dot_file) + length($self -> output_image_file) > 0);
+	$self -> _tree_per_cluster;
+	$self -> output_clusters if ($self -> output_dot_file_prefix);
 
 	# Return 0 for success and 1 for failure.
 
@@ -198,12 +178,106 @@ sub find_clusters
 
 # -----------------------------------------------
 
+sub _find_cluster_members
+{
+	my($self, $members) = @_;
+
+	# We use a copy of the tree so the user of this module can still get access to the whole tree
+	# after each cluster cuts out the unwanted nodes (i.e. those nodes in all other clusters).
+	# Further, this means the copy has all the node and edge attributes for the wanted nodes.
+	#
+	# We will excise all nodes which are not members, and also excise any subgraphs consisting
+	# entirely of unwanted nodes. Also, we'll excise all edges involving the unwanted nodes.
+	# Note: The Tree::DAG_Node docs warn against editing the tree during a walk_down(), so we
+	# stockpile mothers whose daughters need to be processed after walk_down() returns.
+
+	my($cluster) = $self -> tree -> copy_tree;
+
+	$self -> log(info => 'Processing: ' . join(', ', @$members) );
+
+	my(%wanted);
+
+	@wanted{@$members} = (1) x @$members;
+
+	my($attributes);
+	my($name);
+	my(%seen);
+	my($uid);
+	my($value);
+
+	$cluster -> walk_down
+	({
+		callback => sub
+		{
+			my($node)   = @_;
+			$name       = $node -> name;
+			$attributes = $node -> attributes;
+			$uid        = $$attributes{uid};
+			$value      = $$attributes{value};
+
+			# Check for unwanted nodes.
+
+			if ( ($name eq 'node_id') && ! $wanted{$value})
+			{
+				$seen{$uid} = $node -> mother;
+			}
+
+			return 1; # Keep walking.
+		},
+		_depth => 0,
+	});
+
+	# This loop is outwardly the same as the one in _find_reachable_nodes().
+
+	my($candidate_uid);
+	my(@daughters);
+	my($limit);
+	my($mother);
+
+	for my $unwanted_uid (keys %seen)
+	{
+		$mother    = $seen{$unwanted_uid};
+		@daughters = $mother -> daughters;
+		$limit     = $#daughters;
+
+		# Cases to handle (see data/path.set.01.in.gv):
+		# o Delete the node, and edges in these combinations:
+		# o a -> b.
+		# o c -> { d e }.
+		# o { f g } -> h.
+		# o { i j } -> { k l } (Impossible, given the tree node is a 'node_id').
+
+		for my $i (0 .. $limit)
+		{
+			$candidate_uid = ${$daughters[$i] -> attributes}{uid};
+
+			next if ($unwanted_uid != $candidate_uid);
+
+			$daughters[$i] -> unlink_from_mother;
+
+			for my $offset ($i - 1, $i + 1)
+			{
+				next if ( ($offset < 0) || ($offset > $limit) );
+
+				$name = $daughters[$offset] -> name;
+
+				$daughters[$offset] -> unlink_from_mother if ($name eq 'edge_id');
+			}
+		}
+	}
+
+	return $cluster;
+
+} # End of _find_cluster_members.
+
+# -----------------------------------------------
+
 sub _find_mothers_with_edges
 {
 	my($self) = @_;
 
 	my($attributes);
-	my($kind);
+	my($name);
 	my(%seen);
 	my($uid);
 
@@ -212,24 +286,24 @@ sub _find_mothers_with_edges
 		callback => sub
 		{
 			my($node) = @_;
-			$kind     = $node -> name;
+			$name     = $node -> name;
 
 			# Ignore non-edges.
 
-			return 1 if ($kind ne 'edge_id');
+			return 1 if ($name ne 'edge_id'); # Keep walking.
 
 			$attributes = $node -> mother -> attributes;
 			$uid        = $$attributes{uid};
 
 			# Ignore if this mother has been seen.
 
-			return 1 if ($seen{$uid});
+			return 1 if ($seen{$uid}); # Keep walking.
 
 			# Save mother's details.
 
 			$seen{$uid} = $node -> mother;
 
-			return 1;
+			return 1; # Keep walking.
 		},
 		_depth => 0,
 	});
@@ -244,54 +318,48 @@ sub _find_reachable_nodes
 {
 	my($self, $edgy) = @_;
 
-	my($attributes);
-	my(@daughters, $daughter_uid);
-	my($head, $head_attr);
-	my($kind);
+	my(%clusters);
+	my(@daughters);
 	my(%node, $name);
-	my(%reachable);
-	my($tail, $tail_attr);
+	my($value);
 
-	for my $uid (keys %$edgy)
+	# This loop is outwardly the same as the one in _find_cluster_members().
+
+	for my $mother_uid (sort keys %$edgy)
 	{
-		@daughters = $$edgy{$uid} -> daughters;
+		@daughters = $$edgy{$mother_uid} -> daughters;
 
 		for my $index (0 .. $#daughters)
 		{
-			$kind = $daughters[$index] -> name;
+			$name = $daughters[$index] -> name;
 
-			# Ignore non-edges.
+			# Ignore non-edges, since we are checking for connectivity.
 
-			next if ($kind ne 'edge_id');
-
-			$attributes   = $daughters[$index] -> attributes;
-			$daughter_uid = $$attributes{uid};
+			next if ($name ne 'edge_id');
 
 			# These offsets are only valid if the DOT file is valid.
-			# Values for 'node_name':
-			# o node_id => A node. 'real_name' hold the name.
-			# o literal => A subgraph. 'real_name' holds '{' or '}'.
 
 			$node{tail} =
 			{
-				kind => $daughters[$index - 1] -> name,
-				name => ${$daughters[$index - 1] -> attributes}{value},
+				name  => $daughters[$index - 1] -> name,
+				value => ${$daughters[$index - 1] -> attributes}{value},
 			};
 			$node{head} =
 			{
-				kind => $daughters[$index + 1] -> name,
-				name => ${$daughters[$index + 1] -> attributes}{value},
+				name  => $daughters[$index + 1] -> name,
+				value => ${$daughters[$index + 1] -> attributes}{value},
 			};
 
-			# Cases to handle (see data/path.set.01.gv):
+			# Cases to handle (see data/path.set.01.in.gv):
+			# o These edge combinations:
 			# o a -> b.
 			# o c -> { d e }.
 			# o { f g } -> h.
 			# o { i j } -> { k l }.
 
-			if ($node{tail}{kind} eq 'node_id')
+			if ($node{tail}{name} eq 'node_id')
 			{
-				if ($node{head}{kind} eq 'node_id')
+				if ($node{head}{name} eq 'node_id')
 				{
 					# Case: a -> b.
 					# So now we add 'b' to the set of all nodes reachable from 'a'.
@@ -300,53 +368,48 @@ sub _find_reachable_nodes
 					# Likewise for 'b'.
 					# The reason for doing both 'a' and 'b' is that either one may appear elsewhere
 					# in the graph, but we don't know which one, if either, will.
-					# Handle 'a' and 'b'.
 
 					for my $n (qw/tail head/)
 					{
-						$name             = $node{$n}{name};
-						$reachable{$name} ||= Set::Tiny -> new;
+						$value            = $node{$n}{value};
+						$clusters{$value} ||= Set::Tiny -> new;
 
-						$reachable{$name} -> insert($n eq 'tail' ? $node{head}{name} : $node{tail}{name});
+						$clusters{$value} -> insert($n eq 'tail' ? $node{head}{value} : $node{tail}{value});
 					}
 				}
 				else
 				{
 					# Case: c -> { d e }.
 					# From 'c', every node in the subgraph can be reached.
-					# Handle 'd', 'e'.
-					# Start at $index + 1 in order to skip the '{'.
+					# Start at $index + 1, which is the '{'.
 
-					$self -> _find_reachable_subgraph_1(\%node, $daughters[$index + 1], \%reachable);
+					$self -> _find_reachable_subgraph_1(\%clusters, \%node, $daughters[$index + 1]);
 				}
 			}
 			else
 			{
-				if ($node{head}{kind} eq 'node_id')
+				if ($node{head}{name} eq 'node_id')
 				{
 					# Case: { f g } -> h.
 					# Every node in the subgraph can reach 'h'.
-					# Handle 'f', 'g'.
-					# We use $index - 2 ('{') since we know $index -1 is '}'.
+					# We use $index - 2 ('{') since we know $index - 1 is '}'.
 
-					$self -> _find_reachable_subgraph_2(\%node, $daughters[$index - 2], \%reachable);
+					$self -> _find_reachable_subgraph_2(\%clusters, \%node, $daughters[$index - 2]);
 				}
 				else
 				{
 					# Case: { i j } -> { k l }.
 					# Every node in the 1st subgraph can reach every node in the 2nd.
-					# Handle 'i', 'j'.
-					# Handle 'k', 'l'.
 					# Start at $index + 1 in order to skip the '{'.
-					# We use $index - 2 ('{') since we know $index -1 is '}'.
+					# We use $index - 2 ('{') since we know $index - 1 is '}'.
 
-					$self -> _find_reachable_subgraph_3(\%node, $daughters[$index - 2], $daughters[$index + 1], \%reachable);
+					$self -> _find_reachable_subgraph_3(\%clusters, \%node, $daughters[$index - 2], $daughters[$index + 1]);
 				}
 			}
 		}
 	}
 
-	return \%reachable;
+	return \%clusters;
 
 } # End of _find_reachable_nodes.
 
@@ -354,8 +417,8 @@ sub _find_reachable_nodes
 
 sub _find_reachable_subgraph_1
 {
-	my($self, $node, $head_subgraph, $reachable) = @_;
-	my($real_tail) = $$node{tail}{name};
+	my($self, $clusters, $node, $head_subgraph) = @_;
+	my($real_tail) = $$node{tail}{value};
 	my(@daughters) = $head_subgraph -> daughters;
 
 	my($attributes);
@@ -373,14 +436,14 @@ sub _find_reachable_subgraph_1
 
 		# Stockpile all nodes within the head subgraph.
 
-		$real_head              = $$attributes{value};
-		$$reachable{$real_tail} ||= Set::Tiny -> new;
+		$real_head             = $$attributes{value};
+		$$clusters{$real_tail} ||= Set::Tiny -> new;
 
-		$$reachable{$real_tail} -> insert($real_head);
+		$$clusters{$real_tail} -> insert($real_head);
 
-		$$reachable{$real_head} ||= Set::Tiny -> new;
+		$$clusters{$real_head} ||= Set::Tiny -> new;
 
-		$$reachable{$real_head} -> insert($real_tail);
+		$$clusters{$real_head} -> insert($real_tail);
 	}
 
 } # End of _find_reachable_subgraph_1.
@@ -389,8 +452,8 @@ sub _find_reachable_subgraph_1
 
 sub _find_reachable_subgraph_2
 {
-	my($self, $node, $tail_subgraph, $reachable) = @_;
-	my($real_head) = $$node{head}{name};
+	my($self, $clusters, $node, $tail_subgraph) = @_;
+	my($real_head) = $$node{head}{value};
 	my(@daughters) = $tail_subgraph -> daughters;
 
 	my($attributes);
@@ -408,14 +471,14 @@ sub _find_reachable_subgraph_2
 
 		# Stockpile all nodes within the tail subgraph.
 
-		$real_tail              = $$attributes{value};
-		$$reachable{$real_head} ||= Set::Tiny -> new;
+		$real_tail             = $$attributes{value};
+		$$clusters{$real_head} ||= Set::Tiny -> new;
 
-		$$reachable{$real_head} -> insert($real_tail);
+		$$clusters{$real_head} -> insert($real_tail);
 
-		$$reachable{$real_tail} ||= Set::Tiny -> new;
+		$$clusters{$real_tail} ||= Set::Tiny -> new;
 
-		$$reachable{$real_tail} -> insert($real_head);
+		$$clusters{$real_tail} -> insert($real_head);
 	}
 
 } # End of _find_reachable_subgraph_2.
@@ -424,7 +487,7 @@ sub _find_reachable_subgraph_2
 
 sub _find_reachable_subgraph_3
 {
-	my($self, $node, $tail_subgraph, $head_subgraph, $reachable) = @_;
+	my($self, $clusters, $node, $tail_subgraph, $head_subgraph) = @_;
 	my(@tail_daughters) = $tail_subgraph -> daughters;
 	my(@head_daughters) = $head_subgraph -> daughters;
 
@@ -450,20 +513,75 @@ sub _find_reachable_subgraph_3
 			$node_name  = $head_daughters[$j] -> name;
 			$attributes = $head_daughters[$j] -> attributes;
 
-			$real_head              = $$attributes{value};
-			$$reachable{$real_head} ||= Set::Tiny -> new;
+			# Ignore non-nodes within head subgraph.
 
-			$$reachable{$real_head} -> insert($real_tail);
+			next if ($node_name ne 'node_id');
 
-			$$reachable{$real_tail} ||= Set::Tiny -> new;
+			$real_head             = $$attributes{value};
+			$$clusters{$real_head} ||= Set::Tiny -> new;
 
-			$$reachable{$real_tail} -> insert($real_head);
+			$$clusters{$real_head} -> insert($real_tail);
+
+			$$clusters{$real_tail} ||= Set::Tiny -> new;
+
+			$$clusters{$real_tail} -> insert($real_head);
 		}
 	}
 
 } # End of _find_reachable_subgraph_3.
 
 # -----------------------------------------------
+
+sub _find_standalone_nodes
+{
+	my($self, $subgraphs) = @_;
+	my(@keys)  = sort keys %$subgraphs;
+	my($count) = $#keys < 0 ? 0 : $keys[$#keys];
+
+	# Get the names of all members of all subgraphs.
+	# Any nodes found by walk_down(), which are not in this collection,
+	# are standalone nodes.
+
+	my(@members);
+	my(%seen);
+
+	for my $id (keys %$subgraphs)
+	{
+		@members        = $$subgraphs{$id} -> members;
+		@seen{@members} = (1) x @members;
+	}
+
+	my($attributes);
+	my($name);
+	my($value);
+
+	$self -> tree -> walk_down
+	({
+		callback => sub
+		{
+			my($node)   = @_;
+			$name       = $node -> name;
+			$attributes = $node -> attributes;
+			$value      = $$attributes{value};
+
+			# Ignore non-nodes and nodes which have been seen.
+
+			return 1 if ( ($name ne 'node_id') || defined $seen{$value}); # Keep walking.
+
+			$count++;
+
+			$$subgraphs{$count} = Set::Tiny -> new;
+
+			$$subgraphs{$count} -> insert($value);
+
+			return 1; # Keep walking.
+		},
+		_depth => 0,
+	});
+
+	$self -> cluster_sets($subgraphs);
+
+} # End of _find_standalone_nodes.
 
 # -----------------------------------------------
 # Find N candidates for the next node along the path.
@@ -492,7 +610,7 @@ sub _find_fixed_length_candidates
 			# o It is the root node.
 			# o It is not the current node.
 
-			return 1 if ( ($node -> is_root) || ($node -> name ne $current_node -> name) );
+			return 1 if ( ($node -> is_root) || ($node -> name ne $current_node -> name) ); # Keep walking.
 
 			# Now find its neighbours.
 
@@ -501,7 +619,7 @@ sub _find_fixed_length_candidates
 			push @node, $node -> mother if (! $node -> mother -> is_root);
 			push @neighbours, @node;
 
-			return 1;
+			return 1; # Keep walking.
 		},
 		_depth => 0,
 	});
@@ -606,11 +724,11 @@ sub _find_fixed_length_paths
 		{
 			my($node) = @_;
 
-			return 1 if ($node -> is_root);
+			return 1 if ($node -> is_root); # Keep walking.
 
 			push @start, $node if ($node -> name eq $self -> start_node);
 
-			return 1;
+			return 1; # Keep walking.
 		},
 		_depth => 0,
 	});
@@ -699,140 +817,30 @@ sub _init
 
 # -----------------------------------------------
 
-sub output_cluster_image
+sub output_clusters
 {
-	my($self)       = @_;
-	my(@first_born) = $self -> tree -> daughters;
-	my(@prolog)     = $first_born[0] -> daughters;
-	my($strict)     = 0;
-	my($digraph)    = 0;
+	my($self)   = @_;
+	my($sets)   = $self -> cluster_sets;
+	my($prefix) = $self -> output_dot_file_prefix;
 
-	my($attributes);
-
-	for my $node (@prolog)
-	{
-		$attributes = $node -> attributes;
-
-		$strict  = 1 if ($$attributes{value} eq 'strict');
-		$digraph = 1 if ($$attributes{value} eq 'digraph');
-	}
-
-	my($graph) = GraphViz2 -> new
-		(
-			global => {directed => $digraph, name => '"Cluster Analysis"', strict => $strict},
-			graph  => {label => 'Cluster Analysis', rankdir => 'TB'},
-			logger => $self -> logger,
-		);
-
-	# Output all references to each node in each cluster.
-
-	my($sets) = $self -> cluster_sets;
-
-	my($cluster_name);
-	my($members);
+	my($file_name);
+	my($renderer);
 
 	for my $id (sort keys %$sets)
 	{
-		$cluster_name = "cluster $id";
-		$members      = [$$sets{$id} -> members];
+		$file_name = sprintf('%s.%03i.gv', $prefix, $id);
 
-		$graph -> push_subgraph(name => $cluster_name, graph => {label => ucfirst $cluster_name, rankdir => 'TB'});
-		$self -> output_cluster_members($graph, $members);
-		$graph -> pop_subgraph;
+		GraphViz2::Marpa::Renderer::Graphviz -> new
+		(
+			logger      => $self -> logger,
+			output_file => $file_name,
+			tree        => $$sets{$id},
+		) -> run;
+
+		$self -> log(info => "Wrote cluster $id to $file_name");
 	}
 
-	# Note: $graph -> run() must be called even if $self -> output_image_file is '',
-	# so as to generate $graph -> dot_input, which is used in output_dot_text().
-
-	$graph -> run
-	(
-		format      => $self -> format,
-		output_file => $self -> output_image_file,
-	);
-
-	$self -> log(info => 'Wrote ' . $self -> output_image_file . '. Size: ' . (-s $self -> output_image_file) . ' bytes') if ($self -> output_image_file);
-	$self -> output_dot_text($graph) if ($self -> output_dot_file);
-
-} # End of output_cluster_image.
-
-# -----------------------------------------------
-
-sub output_cluster_members
-{
-	my($self, $graph, $members) = @_;
-
-	my($attributes, @attributes, %attributes_output);
-	my(@daughters);
-	my($kind);
-	my($name);
-	my(%wanted);
-
-	@wanted{@$members} = (1) x @$members;
-
-	$self -> log(info => 'Processing: ' . join(', ', @$members) );
-
-	$self -> tree -> walk_down
-	({
-		callback => sub
-		{
-			my($node)   = @_;
-			$kind       = $node -> name;
-			$attributes = $node -> attributes;
-			$name       = $$attributes{value};
-			if ( ($kind eq 'node_id') && $wanted{$name} && ! $attributes_output{$name})
-			{
-				$attributes_output{$name} = 1;
-
-				$self -> log(info => "Output $name ($kind)");
-				$self -> output_cluster_node($graph, $node, $name);
-
-				return 1;
-			}
-
-			# TODO.
-
-			return 1;
-		},
-		_depth => 0,
-	});
-
-} # End of output_cluster_members.
-
-# -----------------------------------------------
-
-sub output_cluster_node
-{
-	my($self, $graph, $node, $name) = @_;
-	my(@daughters) = $node -> daughters;
-
-	my($attributes, @attributes);
-
-	# Skip 0 and $#daughters because they are '{' and '}'.
-
-	for my $i (1 .. $#daughters - 1)
-	{
-		$attributes = $daughters[$i] -> attributes;
-
-		push @attributes, $$attributes{type}, $$attributes{value};
-	}
-
-	$graph -> add_node(name => $name, @attributes);
-
-} # End of output_cluster_node.
-
-# -----------------------------------------------
-
-sub output_dot_text
-{
-	my($self, $graph) = @_;
-
-	open(my $fh, '>', $self -> output_dot_file) || die "Error: Can't open(> ", $self -> output_dot_file, "): $!\n";
-	print $fh $graph -> dot_input;
-	close $fh;
-
-	$self -> log(info => 'Wrote ' . $self -> output_dot_file . '. Size: ' . (-s $self -> output_dot_file) . ' bytes');
-
-} # End of output_dot_text.
+} # End of output_clusters.
 
 # -----------------------------------------------
 
@@ -965,11 +973,11 @@ sub report_cluster_members
 	my($self) = @_;
 	my($sets) = $self -> cluster_sets;
 
-	$self -> log(info => 'Clusters:');
+	$self -> log(info => 'Cluster membership:');
 
 	for my $id (sort keys %$sets)
 	{
-		$self -> log(info => "Subgraph $id contains " . $$sets{$id} -> as_string);
+		$self -> log(info => "Cluster $id contains " . $$sets{$id} -> as_string);
 	}
 
 } # End of report_cluster_members.
@@ -993,6 +1001,28 @@ sub report_fixed_length_paths
 } # End of report_fixed_length_paths.
 
 =cut
+
+# -----------------------------------------------
+
+sub _tree_per_cluster
+{
+	my($self) = @_;
+	my($sets) = $self -> cluster_sets;
+
+	my(%new_clusters);
+
+	for my $id (keys %$sets)
+	{
+		$self -> log(info => "Tree for cluster $id:");
+
+		$new_clusters{$id} = $self -> _find_cluster_members([$$sets{$id} -> members]);
+
+		$self -> log(info => join("\n", @{$new_clusters{$id} -> tree2string}) );
+	}
+
+	$self -> cluster_sets(\%new_clusters);
+
+} # End of _tree_per_cluster.
 
 # -----------------------------------------------
 # Eliminate solutions which have (unwanted) cycles.
