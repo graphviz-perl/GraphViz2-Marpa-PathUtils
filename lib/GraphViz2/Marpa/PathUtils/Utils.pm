@@ -11,17 +11,11 @@ use Date::Format; # For time2str().
 use Date::Simple;
 
 use File::Spec;
-use File::Slurp; # For read_dir().
 
 use GraphViz2::Marpa::PathUtils;
 use GraphViz2::Marpa::PathUtils::Config;
 
-use IO::File;
-
 use Moo;
-
-use Text::CSV;
-use Text::Xslate 'mark_raw';
 
 our $VERSION = '2.00';
 
@@ -104,130 +98,6 @@ sub find_fixed_length_paths
 
 # -----------------------------------------------
 
-sub generate_demo
-{
-	my($self)       = @_;
-	my($data_dir)   = 'data';
-	my($html_dir)   = 'html';
-	my(@demo_file)  = read_dir($data_dir);
-	my(@cluster_in) = grep{/clusters.in.gv/} grep{!/skip/} @demo_file;
-
-	$self -> find_clusters($data_dir, $html_dir, \@cluster_in);
-
-	my(@fixed_in) = grep{/fixed.paths.in.gv/}  @demo_file;
-
-	$self -> find_fixed_length_paths($data_dir, $html_dir, \@fixed_in);
-
-	@demo_file       = read_dir($html_dir);
-	@cluster_in      = sort grep{/clusters.in.svg/}     @demo_file;
-	my(@cluster_out) = sort grep{/clusters.out.svg/}    @demo_file;
-	@fixed_in        = sort grep{/fixed.paths.in.svg/}  @demo_file;
-	my(@fixed_out)   = sort grep{/fixed.paths.out.svg/} @demo_file;
-
-	my(@cluster);
-
-	for my $i (0 .. $#cluster_in)
-	{
-		push @cluster,
-		[
-			{td => mark_raw qq|<object data="$cluster_in[$i]">|},
-			{td => $cluster_in[$i]},
-		],
-		[
-			{td => mark_raw qq|<object data="$cluster_out[$i]">|},
-			{td => $cluster_out[$i]},
-		];
-	}
-
-	my(@fixed_path);
-
-	for my $i (0 .. $#fixed_in)
-	{
-		push @fixed_path,
-		[
-			{td => mark_raw qq|<object data="$fixed_in[$i]">|},
-			{td => $fixed_in[$i]},
-		],
-		[
-			{td => mark_raw qq|<object data="$fixed_out[$i]">|},
-			{td => $fixed_out[$i]},
-		];
-	}
-
-	my($config)    = $self -> config;
-	my($templater) = Text::Xslate -> new
-	(
-	  input_layer => '',
-	  path        => $$config{template_path},
-	);
-	my($index) = $templater -> render
-	(
-		'pathutils.report.tx',
-		{
-			border          => 1,
-			cluster_data    => [@cluster],
-			date_stamp      => time2str('%Y-%m-%d %T', time),
-			default_css     => "$$config{css_url}/default.css",
-			environment     => $self -> generate_demo_environment,
-			fancy_table_css => "$$config{css_url}/fancy.table.css",
-			fixed_data      => [@fixed_path],
-			version         => $VERSION,
-		}
-	);
-	my($file_name) = File::Spec -> catfile('html', 'index.html');
-
-	open(OUT, '>', $file_name);
-	print OUT $index;
-	close OUT;
-
-	print "Wrote: $file_name\n";
-
-} # End of generate_demo.
-
-# ------------------------------------------------
-
-sub generate_demo_environment
-{
-	my($self) = @_;
-
-	my(@environment);
-
-	# mark_raw() is needed because of the HTML tag <a>.
-
-	push @environment,
-	{left => 'Author', right => mark_raw(qq|<a href="http://savage.net.au/">Ron Savage</a>|)},
-	{left => 'Date',   right => Date::Simple -> today},
-	{left => 'OS',     right => 'Debian V 7'},
-	{left => 'Perl',   right => $Config{version} };
-
-	return \@environment;
-}
- # End of generate_demo_environment.
-
-# -----------------------------------------------
-
-sub generate_html4cluster
-{
-	my($self) = @_;
-
-} # End of generate_html4cluster.
-
-# -----------------------------------------------
-
-sub read_csv_file
-{
-	my($self, $file_name) = @_;
-	my($csv) = Text::CSV_XS -> new({allow_whitespace => 1});
-	my($io)  = IO::File -> new($file_name, 'r');
-
-	$csv -> column_names($csv -> getline($io) );
-
-	return $csv -> getline_hr_all($io);
-
-} # End of read_csv_file.
-
-# -----------------------------------------------
-
 1;
 
 =pod
@@ -266,12 +136,6 @@ C<new()> is called as C<< my($obj) = GraphViz2::Marpa::PathUtils::Demo -> new >>
 It returns a new object of type C<GraphViz2::Marpa::PathUtils::Demo>.
 
 =head1 Methods
-
-=head2 generate_demo()
-
-Generates html/index.html using html/*.svg files.
-
-See scripts/generate.demo.pl.
 
 =head1 Version Numbers
 

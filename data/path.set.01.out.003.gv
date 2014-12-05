@@ -1,0 +1,23 @@
+strict digraph path_set_01
+{
+	a[ color = "red" style = "filled"]
+	b[ color = "green" style = "filled"]
+	a -> b
+	{
+
+	}
+
+	{
+
+	}
+
+	{
+
+	}
+ ->
+	
+	{
+
+	}
+
+}

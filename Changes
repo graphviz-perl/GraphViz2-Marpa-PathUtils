@@ -1,9 +1,13 @@
 Revision history for Perl extension GraphViz2::Marpa::PathUtils.
 
 2.00  Fri Nov 28 11:14:00 2014
-	- Re-write to use GraphViz2::Marpa V 2.01.
 	- Switch from Hash::FieldHash to Moo.
-	- Add data/path.set.01.gv, as a demo of cluster processing.
+	- Re-write to use GraphViz2::Marpa V 2.02. This involves many changes.
+	- Split *::Utils into *::Demo and *::Utils. This means I can refer to *::Config in *::Demo
+		but end users do not need to run scripts/copy.config.pl in order to run tests.
+	- Add data/path.set.* and html/path.set.* as a demo of cluster processing.
+	- Add use strict and warnings to Build.PL and Makefile.PL.
+	- Update MANIFEST.
 
 1.05  Wed Jan 29 10:27:00 2014
 	- After calling find_clusters(), sort the result twice: Once for elements within a set and once for the sets,

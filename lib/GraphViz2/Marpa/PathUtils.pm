@@ -12,8 +12,6 @@ use Moo;
 
 use Set::Tiny;
 
-use Try::Tiny;
-
 use Types::Standard qw/HashRef Int Str/;
 
 has format =>

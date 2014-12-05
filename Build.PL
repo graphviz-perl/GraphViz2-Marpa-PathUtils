@@ -1,3 +1,6 @@
+use strict;
+use warnings;
+
 use Config;
 
 use File::Spec;
@@ -69,33 +72,38 @@ $class -> new
 	dist_author    => 'Ron Savage <ron@savage.net.au>',
 	build_requires =>
 	{
-		Test::More=> 0.98,
-#		Test::Pod  => 1.45, # Make it optional. See t/pod.t
+		'Test::More' => 0.98,
+#		'Test::Pod'  => 1.45, # Make it optional. See t/pod.t
 	},
 	configure_requires =>
 	{
-		Module::Build => 0.3800,
+		'Module::Build' => 0.3800,
 	},
 	requires =>
 	{
-		Capture::Tiny    => 0.10,
-		Config::Tiny     => 2.14,
-		Date::Format     => 2.24,
-		Date::Simple     => 3.03,
-		feature          => 0,
-		File::Copy       => 2.21,
-		File::HomeDir    => 0.99,
-		File::Slurp      => 9999.19,
-		Getopt::Long     => 2.38,
-		GraphViz2::Marpa => 1.06,
-		IPC::Run3        => 0.045,
-		open             => 0,
-		parent           => 0.225,
-		Path::Class      => 0.23,
-		Pod::Usage       => 1.36,
-		Set::Tiny        => 0.01,
-		strict           => 0,
-		Text::Xslate     => 1.4001,
-		warnings         => 0,
+		'Capture::Tiny'    => 0.10,
+		'Config'           => 0,
+		'Config::Tiny'     => 2.14,
+		'Date::Format'     => 2.24,
+		'Date::Simple'     => 3.03,
+		'File::Copy'       => 2.21,
+		'File::HomeDir'    => 0.99,
+		'File::Spec'       => 0,
+		'File::Temp'       => 0,
+		'Getopt::Long'     => 2.38,
+		'GraphViz2::Marpa' => 1.06,
+		'GraphViz2::Marpa::Renderer::Graphviz' => 2.02,
+		'IPC::Run3'        => 0.045,
+		'Moo'              => 1.006001,
+		'open'             => 0,
+		'parent'           => 0.225,
+		'Path::Class'      => 0.23,
+		'Path::Tiny'       => 0.061,
+		'Pod::Usage'       => 1.36,
+		'Set::Tiny'        => 0.01,
+		'strict'           => 0,
+		'Text::Xslate'     => 1.4001,
+		'Types::Standard'  => 1.000004,
+		'warnings'         => 0,
 	},
 ) -> create_build_script();
