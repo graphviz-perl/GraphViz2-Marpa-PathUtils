@@ -14,6 +14,22 @@ use Set::Tiny;
 
 use Types::Standard qw/HashRef Int Str/;
 
+has cluster_sets =>
+(
+	default  => sub{return {} },
+	is       => 'rw',
+	isa      => HashRef,
+	required => 0,
+);
+
+has cluster_trees =>
+(
+	default  => sub{return {} },
+	is       => 'rw',
+	isa      => HashRef,
+	required => 0,
+);
+
 has format =>
 (
 	default  => sub{return 'svg'},
@@ -27,14 +43,6 @@ has output_dot_file_prefix =>
 	default  => sub{return ''},
 	is       => 'rw',
 	isa      => Str,
-	required => 0,
-);
-
-has cluster_sets =>
-(
-	default  => sub{return {} },
-	is       => 'rw',
-	isa      => HashRef,
 	required => 0,
 );
 
@@ -165,6 +173,7 @@ sub find_clusters
 	$self -> _find_standalone_nodes(\%subgraph_sets);
 	$self -> report_cluster_members if ($self -> report_clusters);
 	$self -> _tree_per_cluster;
+	$self -> _winnow_cluster_trees;
 	$self -> output_clusters if ($self -> output_dot_file_prefix);
 
 	# Return 0 for success and 1 for failure.
@@ -532,6 +541,10 @@ sub _find_reachable_subgraph_3
 sub _find_standalone_nodes
 {
 	my($self, $subgraphs) = @_;
+
+	# We need to find the # of subgraphs, since any stand-alone clusters
+	# will be numbered starting 1 after the highest set # so far.
+
 	my(@keys)  = sort keys %$subgraphs;
 	my($count) = $#keys < 0 ? 0 : $keys[$#keys];
 
@@ -817,7 +830,7 @@ sub _init
 sub output_clusters
 {
 	my($self)   = @_;
-	my($sets)   = $self -> cluster_sets;
+	my($sets)   = $self -> cluster_trees;
 	my($prefix) = $self -> output_dot_file_prefix;
 
 	my($file_name);
@@ -1017,9 +1030,49 @@ sub _tree_per_cluster
 		$self -> log(info => join("\n", @{$new_clusters{$id} -> tree2string}) );
 	}
 
-	$self -> cluster_sets(\%new_clusters);
+	$self -> cluster_trees(\%new_clusters);
 
 } # End of _tree_per_cluster.
+
+# -----------------------------------------------
+
+sub _winnow_cluster_trees
+{
+	my($self)  = @_;
+	my($trees) = $self -> cluster_trees;
+
+	# Each tree will probably have had nodes deleted. This may have left
+	# empty subgraphs, such as {} or subgraph {} or subgraph sub_name {}.
+	# We wish to delete these from the tree. They are all characterized by
+	# having no nodes in the {}, even if they have edges and attributes there.
+
+	my(@daughters);
+	my(%seen);
+	my($uid);
+
+	for my $id (keys %$trees)
+	{
+		$$trees{$id} -> walk_down
+		({
+			callback => sub
+			{
+				my($node)  = @_;
+				@daughters = $node -> daughters;
+
+				if ($self -> _winnow_subgraph(\@daughters) )
+				{
+					$uid        = ${$node -> attributes}{uid};
+					$seen{$uid} = 1;
+				}
+
+				return 1; # Keep walking.
+			},
+			_depth => 0,
+		});
+
+	}
+
+} # End of _winnow_cluster_trees.
 
 # -----------------------------------------------
 # Eliminate solutions which have (unwanted) cycles.
@@ -1061,7 +1114,17 @@ sub _winnow_fixed_length_paths
 
 } # End of _winnow_fixed_length_paths.
 
-cut
+=cut
+
+# -----------------------------------------------
+
+sub _winnow_subgraph
+{
+	my($self, $daughters) = @_;
+
+	return 0;
+
+} # End of _winnow_subgraph.
 
 # -----------------------------------------------
 
