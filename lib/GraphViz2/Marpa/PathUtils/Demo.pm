@@ -172,7 +172,7 @@ sub generate_html4cluster
 
 =head1 NAME
 
-L<GraphViz2::Marpa::PathUtils::Demo> - Provide various analyses of Graphviz dot files
+C<GraphViz2::Marpa::PathUtils::Demo> - Provide various analyses of Graphviz dot files
 
 =head1 SYNOPSIS
 
@@ -210,6 +210,16 @@ It returns a new object of type C<GraphViz2::Marpa::PathUtils::Demo>.
 Generates html/index.html using html/*.svg files.
 
 See scripts/generate.demo.pl.
+
+=head2 generate_demo_environment()
+
+Called by generate_demo(). Just adds a footer to the output file html/index.html.
+
+=head2 generate_html4cluster()
+
+Given an input_dot_file_prefix, provided to C<new()> or by calling C<generate_html4cluster($s)>,
+find the input DOT file, and all the output DOT files, and combine their corresponding SVGs into
+a web page.
 
 =head1 Version Numbers
 

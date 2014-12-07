@@ -1349,39 +1349,6 @@ or:
 	make test
 	make install
 
-=head2 The Configuration File
-
-All that remains is to tell L<GraphViz2::Marpa::PathUtils> your values for some options.
-
-For that, see config/.htgraphviz2.marpa.pathutils.conf.
-
-If you are using Build.PL, running Build (without parameters) will run scripts/copy.config.pl,
-as explained next.
-
-If you are using Makefile.PL, running make (without parameters) will also run scripts/copy.config.pl.
-
-Either way, before editing the config file, ensure you run scripts/copy.config.pl. It will copy
-the config file using L<File::HomeDir>, to a directory where the run-time code in
-L<GraphViz2::Marpa::PathUtils> will look for it.
-
-	shell>cd GraphViz2-Marpa-PathUtils-1.00
-	shell>perl scripts/copy.config.pl
-
-Under Debian, this directory will be $HOME/.perl/GraphViz2-Marpa-PathUtils/. When you
-run copy.config.pl, it will report where it has copied the config file to.
-
-Check the docs for L<File::HomeDir> to see what your operating system returns for a
-call to my_dist_config().
-
-The point of this is that after the module is installed, the config file will be
-easily accessible and editable without needing permission to write to the directory
-structure in which modules are stored.
-
-That's why L<File::HomeDir> and L<Path::Class> are pre-requisites for this module.
-
-Although this is a good mechanism for modules which ship with their own config files, be advised that some
-CPAN tester machines run tests as users who don't have home directories, resulting in test failures.
-
 =head1 Constructor and Initialization
 
 =head2 Calling new()

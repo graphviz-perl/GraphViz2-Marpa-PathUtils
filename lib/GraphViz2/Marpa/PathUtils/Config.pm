@@ -7,10 +7,6 @@ use open     qw(:std :utf8); # Undeclared streams in UTF-8.
 
 use Config::Tiny;
 
-use File::HomeDir;
-
-use Path::Class;
-
 =pod
 
 fieldhash my %config           => 'config';
@@ -80,20 +76,13 @@ L<GraphViz2::Marpa::PathUtils> provides various analyses of Graphviz dot files.
 
 =head1 Methods
 
-1=head2 read()
+=head2 read()
+
+This is only for the use of the author.
 
 read() is called by new(). It does the actual reading of the config file.
 
 If the file can't be read, die is called.
-
-The path to the config file is determined by:
-
-	Path::Class::file(File::HomeDir -> my_dist_config('GraphViz2-Marpa-PathUtils'), '.htgraphviz2.marpa.pathutils.conf');
-
-During installation, you should have run scripts/copy.config.pl, which uses the same code, to move the config file
-from the config/ directory in the disto into an OS-dependent directory.
-
-The run-time code uses this module to look in the same directory as used by scripts/copy.config.pl.
 
 =head1 Support
 

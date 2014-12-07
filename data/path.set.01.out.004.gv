@@ -1,14 +1,5 @@
 strict digraph path_set_01
 {
-	c[ color = "blue" style = "filled"]
-	d[ color = "orange" style = "filled"]
-	e[ color = "goldenrod" style = "filled"]
-	c ->
-	
-	{
-		d
-		e
-	}
 
 	{
 
@@ -16,11 +7,21 @@ strict digraph path_set_01
 
 	{
 
+	}
+	i[ color = "lemonchiffon" style = "filled"]
+	j[ color = "yellow" style = "filled"]
+	k[ color = "olivedrab" style = "filled"]
+	l[ color = "lime" style = "filled"]
+
+	{
+		i
+		j
 	}
  ->
 	
 	{
-
+		k
+		l
 	}
 
 }

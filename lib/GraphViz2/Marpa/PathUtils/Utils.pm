@@ -104,7 +104,7 @@ sub find_fixed_length_paths
 
 =head1 NAME
 
-L<GraphViz2::Marpa::PathUtils::Demo> - Provide various analyses of Graphviz dot files
+C<GraphViz2::Marpa::PathUtils::Demo> - Provide various analyses of Graphviz dot files
 
 =head1 SYNOPSIS
 
