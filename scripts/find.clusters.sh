@@ -28,4 +28,4 @@ do
 	cp html/$OUT $DR/Perl-modules/html/graphviz2.marpa.pathutils/
 done
 
-ls -aFl data/$GV2* -aFl html/$GV2* $DR/Perl-modules/html/graphviz2.marpa.pathutils/$GV2*
+#ls -aFl data/$GV2* -aFl html/$GV2* $DR/Perl-modules/html/graphviz2.marpa.pathutils/$GV2*

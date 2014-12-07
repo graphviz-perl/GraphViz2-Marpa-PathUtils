@@ -173,7 +173,6 @@ sub find_clusters
 	$self -> _find_standalone_nodes(\%subgraph_sets);
 	$self -> report_cluster_members if ($self -> report_clusters);
 	$self -> _tree_per_cluster;
-	$self -> _winnow_cluster_trees;
 	$self -> output_clusters if ($self -> output_dot_file_prefix);
 
 	# Return 0 for success and 1 for failure.
@@ -198,8 +197,6 @@ sub _find_cluster_members
 	# stockpile mothers whose daughters need to be processed after walk_down() returns.
 
 	my($cluster) = $self -> tree -> copy_tree;
-
-	$self -> log(info => 'Processing: ' . join(', ', @$members) );
 
 	my(%wanted);
 
@@ -1023,11 +1020,16 @@ sub _tree_per_cluster
 
 	for my $id (keys %$sets)
 	{
-		$self -> log(info => "Tree for cluster $id:");
+		$self -> log(debug => "Tree for cluster $id:");
 
 		$new_clusters{$id} = $self -> _find_cluster_members([$$sets{$id} -> members]);
 
-		$self -> log(info => join("\n", @{$new_clusters{$id} -> tree2string}) );
+		$self -> log(debug => join("\n", @{$new_clusters{$id} -> tree2string}) );
+
+		# This is commented out because I'm not sure how to handle nested subgraphs.
+
+		#$self -> _winnow_cluster_tree($new_clusters{$id});
+		#$self -> log(debug => join("\n", @{$new_clusters{$id} -> tree2string}) );
 	}
 
 	$self -> cluster_trees(\%new_clusters);
@@ -1036,43 +1038,41 @@ sub _tree_per_cluster
 
 # -----------------------------------------------
 
-sub _winnow_cluster_trees
+sub _winnow_cluster_tree
 {
-	my($self)  = @_;
-	my($trees) = $self -> cluster_trees;
+	my($self, $tree) = @_;
 
 	# Each tree will probably have had nodes deleted. This may have left
 	# empty subgraphs, such as {} or subgraph {} or subgraph sub_name {}.
 	# We wish to delete these from the tree. They are all characterized by
 	# having no nodes in the {}, even if they have edges and attributes there.
+	# Of course, there must be no nodes in nested subgraphs too.
 
 	my(@daughters);
 	my(%seen);
 	my($uid);
 
-	for my $id (keys %$trees)
-	{
-		$$trees{$id} -> walk_down
-		({
-			callback => sub
+	$tree -> walk_down
+	({
+		callback => sub
+		{
+			my($node)  = @_;
+			@daughters = $node -> daughters;
+
+			if ($self -> _winnow_subgraph(\@daughters) )
 			{
-				my($node)  = @_;
-				@daughters = $node -> daughters;
+				$uid        = ${$node -> attributes}{uid};
+				$seen{$uid} = 1;
+			}
 
-				if ($self -> _winnow_subgraph(\@daughters) )
-				{
-					$uid        = ${$node -> attributes}{uid};
-					$seen{$uid} = 1;
-				}
+			return 1; # Keep walking.
+		},
+		_depth => 0,
+	});
 
-				return 1; # Keep walking.
-			},
-			_depth => 0,
-		});
+	$self -> log(info => "Target for winnow: $_") for sort keys %seen;
 
-	}
-
-} # End of _winnow_cluster_trees.
+} # End of _winnow_cluster_tree.
 
 # -----------------------------------------------
 # Eliminate solutions which have (unwanted) cycles.
@@ -1122,7 +1122,48 @@ sub _winnow_subgraph
 {
 	my($self, $daughters) = @_;
 
-	return 0;
+	# A subgraph is empty if 2 daughters, { and }, have no nodes between them.
+
+	my($brace_found) = 0;
+
+	my($attributes);
+	my($node_count);
+
+	for my $i (0 .. $#$daughters)
+	{
+		$attributes = $$daughters[$i] -> attributes;
+
+		# Find an open brace, {.
+
+		if ( ($$daughters[$i] -> name eq 'literal') && ($$attributes{value} eq '{') )
+		{
+			$brace_found = 1;
+			$node_count  = 0;
+
+			for (my $j = $i + 1; $j <= $#$daughters; $j++)
+			{
+				$attributes = $$daughters[$j] -> attributes;
+
+				# Find the first closing brace, }.
+
+				last if ( ($$daughters[$j] -> name eq 'literal') && ($$attributes{value} eq '}') );
+
+				# Count the nodes between the { and }.
+
+				$node_count++ if ($$daughters[$j] -> name eq 'node_id');
+			}
+
+			# Exit when at least 1 set of 'empty' braces was found.
+
+			last if ($node_count == 0);
+		}
+	}
+
+	# Return 0 if there is no need to stockpile the uid of the mother,
+	# and return 1 if a nodeless set of braces was found, since in the
+	# latter case there is something in the tree worth winnowing.
+
+	return ($brace_found && ($node_count == 0) ) ? 1 : 0;
 
 } # End of _winnow_subgraph.
 
