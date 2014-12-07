@@ -54,17 +54,7 @@ sub is_perl_recent
 is_dot_installed();
 is_perl_recent();
 
-my $class = Module::Build->subclass(code => <<'EOF');
-
-sub ACTION_build
-{
-	my $self = shift;
-	$self->SUPER::ACTION_build(@_);
-	$self->run_perl_script('scripts/copy.config.pl');
-}
-EOF
-
-$class -> new
+Module::Build -> new
 (
 	module_name    => 'GraphViz2::Marpa::PathUtils',
 	license        => 'artistic_2',

@@ -180,6 +180,8 @@ C<GraphViz2::Marpa::PathUtils::Demo> - Provide various analyses of Graphviz dot 
 
 =head1 DESCRIPTION
 
+This module is only for the use of the author.
+
 GraphViz2::Marpa::PathUtils::Demo generates html/index.html using html/*.svg files.
 
 See scripts/generate.demo.pl.

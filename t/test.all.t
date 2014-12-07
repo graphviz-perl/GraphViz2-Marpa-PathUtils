@@ -15,7 +15,7 @@ sub check_clusters
 {
 	GraphViz2::Marpa::PathUtils -> new
 	(
-		input_file      => 'data/06.clusters.in.gv',
+		input_file      => 'data/clusters.in.06.gv',
 		report_clusters => 1,
 	) -> find_clusters;
 }
@@ -26,7 +26,7 @@ sub check_fixed
 {
 	GraphViz2::Marpa::PathUtils -> new
 	(
-		input_file   => 'data/01.fixed.paths.in.gv',
+		input_file   => 'data/fixed.paths.in.01.gv',
 		report_paths => 1,
 		start_node   => 'Act_1',
 		path_length  => 3,

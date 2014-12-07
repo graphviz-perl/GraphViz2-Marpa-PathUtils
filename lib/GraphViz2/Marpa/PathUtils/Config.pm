@@ -72,13 +72,13 @@ See L<GraphViz2::Marpa::PathUtils>.
 
 =head1 Description
 
+This module is only for the use of the author.
+
 L<GraphViz2::Marpa::PathUtils> provides various analyses of Graphviz dot files.
 
 =head1 Methods
 
 =head2 read()
-
-This is only for the use of the author.
 
 read() is called by new(). It does the actual reading of the config file.
 

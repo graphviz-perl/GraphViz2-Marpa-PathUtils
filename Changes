@@ -3,15 +3,24 @@ Revision history for Perl extension GraphViz2::Marpa::PathUtils.
 2.00  Fri Nov 28 11:14:00 2014
 	- Switch from Hash::FieldHash to Moo.
 	- Re-write to use GraphViz2::Marpa V 2.02. This involves many changes.
+		One effect is that the original structure and attributes of nodes and edges is now preserved
+		in the output clusters.
 	- Split *::Utils into *::Demo and *::Utils. This means I can refer to *::Config in *::Demo
 		but end users do not need to run scripts/copy.config.pl in order to run tests.
-	- Add data/path.set.* and html/path.set.* as a demo of cluster processing.
+		This in turn means Build.PL and Makefile.PL no longer run copy.config.pl.
 	- Add use strict and warnings to Build.PL and Makefile.PL.
 	- Update MANIFEST.
+	- Edit line lengths in docs to be 100 chars, max.
+	- Renumber data/*.gv files, and move output *.gv files into out/.
+	- With clusters, output each cluster into its own *.gv and *.svg file.
+	- Add generate.html4cluster.pl, which combines a set of input and output files from one run of
+		find.clusters.pl, into a HTML file. See the docs for details.
+	- Rename parameters to new().
 
 1.05  Wed Jan 29 10:27:00 2014
-	- After calling find_clusters(), sort the result twice: Once for elements within a set and once for the sets,
-		because Marpa::R2 V 2.079_013 returns results in a different order than previous versions.
+	- After calling find_clusters(), sort the result twice: Once for elements within a set and once
+		for the sets, because Marpa::R2 V 2.079_013 returns results in a different order than
+		previous versions.
 
 1.04  Wed Jun 12 08:55:00 2013
 	- Install Graphviz 2.30.1 from AT&T.
@@ -30,12 +39,13 @@ Revision history for Perl extension GraphViz2::Marpa::PathUtils.
 
 1.03  Mon May 20 11:38:00 2013
 	- Add another demo, graphs/directed/arrows.gv as data/08.clusters.in.gv, from Graphviz V 2.29.
-	- Remove the special-case label "\N" from data/02.fixed.paths.in.gv. Such an escape sequence causes
-		Graphviz to override the node-renumbering logic in find_fixed_length_paths(), which I need to allow
-		the same node to appear multiple times in the output graph without Graphviz automatically coalescing
-		them into a single node.
+	- Remove the special-case label "\N" from data/02.fixed.paths.in.gv. Such an escape sequence
+		causes Graphviz to override the node-renumbering logic in find_fixed_length_paths(), which I
+		need to allow the same node to appear multiple times in the output graph without Graphviz
+		automatically coalescing them into a single node.
 	- Add a new FAQ entry (the first in the list) to discuss this issue.
-	- Remove some other, redundant, node attributes from data/02.fixed.paths.in.gv, to simplify debugging all this.
+	- Remove some other, redundant, node attributes from data/02.fixed.paths.in.gv, to simplify
+		debugging all this.
 
 1.02  Thu Nov  8 12:38:00 2012
 	- No code changes.

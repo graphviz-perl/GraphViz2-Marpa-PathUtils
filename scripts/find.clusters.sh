@@ -1,8 +1,8 @@
 #!/bin/bash
 
-GV=path.set.$1.in.gv
-GV2=path.set.$1.out
-SVG=path.set.$1.in.svg
+GV=clusters.in.$1.gv
+GV2=clusters.out.$1
+SVG=clusters.in.$1.svg
 
 MAX=$2
 
@@ -15,15 +15,15 @@ dot -Tsvg data/$GV > html/$SVG
 
 cp html/$SVG $DR/Perl-modules/html/graphviz2.marpa.pathutils
 
-perl -Ilib scripts/find.clusters.pl -input data/$GV -max $MAX -output_dot_file_prefix data/$GV2 -report_clusters 1
+perl -Ilib scripts/find.clusters.pl -input data/$GV -max $MAX -output_dot_file_prefix out/$GV2 -report_clusters 1
 
-for i in data/$GV2* ;
+for i in out/$GV2* ;
 do
 	IN=`basename $i .gv`
 	OUT="$IN.svg"
 	IN="$IN.gv";
 
-	dot -Tsvg data/$IN > html/$OUT
+	dot -Tsvg out/$IN > html/$OUT
 
 	cp html/$OUT $DR/Perl-modules/html/graphviz2.marpa.pathutils/
 done

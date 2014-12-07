@@ -76,9 +76,7 @@ WriteMakefile
 	DISTNAME  => 'GraphViz2-Marpa-PathUtils',
 	NAME      => 'GraphViz2::Marpa::PathUtils',
 	LICENSE   => 'artistic_2',
-# Next line runs copy.config.pl when user runs 'make'.
-# Warning: '...' => 0 is OK but => '' or undef are ignored.
-	PL_FILES  => {'scripts/copy.config.pl' => 'Copying...'},
+	PL_FILES  => {},
 	PL_FILES  => {},
 	PREREQ_PM =>
 	{

@@ -1251,17 +1251,21 @@ Or see scripts/fixed.length.paths.sh, which hard-codes my test data values.
 
 =head1 DESCRIPTION
 
-GraphViz2::Marpa::PathUtils parses L<Graphviz|http://www.graphviz.org/> dot files and processes the output in various ways.
+GraphViz2::Marpa::PathUtils parses L<Graphviz|http://www.graphviz.org/> dot files and processes
+the output in various ways.
 
-This class is a descendent of L<GraphViz2::Marpa>, and hence inherits all its keys to new(), and all its methods.
+This class is a descendent of L<GraphViz2::Marpa>, and hence inherits all its keys to new(), and
+all its methods.
 
-Currently, the only feature available is to find all paths of a given length starting from a given node.
+Currently, the only feature available is to find all paths of a given length starting from a given
+node.
 
 Sample output: L<http://savage.net.au/Perl-modules/html/graphviz2.marpa.pathutils/index.html>.
 
 =head1 Scripts shipped with this distro
 
-All scripts are in the scripts/ directory. This means they do I<not> get installed along with the package.
+All scripts are in the scripts/ directory. This means they do I<not> get installed along with the
+package.
 
 Data files are in data/, while html and svg files are in html/.
 
@@ -1269,8 +1273,8 @@ Data files are in data/, while html and svg files are in html/.
 
 =item o copy.config.pl
 
-During installation, this copies config/.htgraphviz2.marpa.pathutils.conf to a dir as discussed under
-L</The Configuration File>.
+During installation, this copies config/.htgraphviz2.marpa.pathutils.conf to a dir as discussed
+under L</The Configuration File>.
 
 =item o find.clusters.pl
 
@@ -1288,11 +1292,12 @@ Try shell> perl find.fixed.length.paths.pl -h
 
 =item o find.fixed.length.paths.sh
 
-This runs find.fixed.length.paths.pl with hard-coded parameters, and is what I use for testing new code.
+This runs find.fixed.length.paths.pl with hard-coded parameters, and is what I use for testing new
+code.
 
 =item o generate.demo.pl
 
-This uses the L<Text::Xslate> template file htdocs/assets/templates/graphviz2/marpa/pathutils/pathutils.tx
+Uses the L<Text::Xslate> template htdocs/assets/templates/graphviz2/marpa/pathutils/pathutils.tx
 to generate html/index.html.
 
 =item o generate.demo.sh
@@ -1357,13 +1362,14 @@ C<new()> is called as C<< my($obj) = GraphViz2::Marpa::PathUtils -> new(k1 => v1
 
 It returns a new object of type C<GraphViz2::Marpa::PathUtils>.
 
-This class is a descendent of L<GraphViz2::Marpa>, and hence inherits all its keys to new(), and all its methods.
+This class is a descendent of L<GraphViz2::Marpa>, and hence inherits all its keys to new(), and all
+its methods.
 
-Specifically, see L<GraphViz2::Marpa/Constructor and Initialization> for more options to new(), including
-I<maxlevel>.
+Specifically, see L<GraphViz2::Marpa/Constructor and Initialization> for more options to new(),
+including I<maxlevel>.
 
-Further, these key-value pairs are accepted in the parameter list (see corresponding methods for details
-[e.g. L</path_length($integer)>]):
+Further, these key-value pairs are accepted in the parameter list (see corresponding methods for
+details [e.g. L</path_length($integer)>]):
 
 =over 4
 
@@ -1401,7 +1407,8 @@ Default: 'svg'.
 
 =item o output_dot_file => aDOTInputFileName
 
-Specify the name of a file to write which will contain the DOT description of the image of all solutions.
+Specify the name of a file to write which will contain the DOT description of the image of all
+solutions.
 
 Default: ''.
 
@@ -1543,12 +1550,14 @@ See L</Constructor and Initialization> for details on the parameters accepted by
 
 =head2 output_cluster_image()
 
-This writes the clusters found, as a DOT output file, as long as new(output_image_file => $name) was specified.
+This writes the clusters found, as a DOT output file, as long as new(output_image_file => $name) was
+specified.
 
 =head2 output_fixed_length_image($title)
 
-This writes the paths found, as a DOT output file, as long as new(output_image_file => $name) was specified,
-or if output_image_file($name) was called before L</find_fixed_length_paths()> was called.
+This writes the paths found, as a DOT output file, as long as new(output_image_file => $name) was
+specified, or if output_image_file($name) was called before L</find_fixed_length_paths()> was
+called.
 
 =head2 output_dot_file([$name])
 
@@ -1612,17 +1621,18 @@ Get or set the name of the node from where all paths must start.
 
 =head2 I used a node label of "\N" and now your module doesn't work!
 
-The most likely explanation is that you're calling I<find_fixed_path_lengths()> and you've specified all nodes,
-or at least some, to have a label like "\N".
+The most likely explanation is that you're calling I<find_fixed_path_lengths()> and you've specified
+all nodes, or at least some, to have a label like "\N".
 
-This escape sequence triggers special processing in AT&T's Graphviz to generate labels for nodes, overriding
-the code I use to re-name nodes in the output of I<find_fixed_path_lengths()>.
+This escape sequence triggers special processing in AT&T's Graphviz to generate labels for nodes,
+overriding the code I use to re-name nodes in the output of I<find_fixed_path_lengths()>.
 
 See I<_prepare_fixed_length_output()> for the gory details.
 
-The purpose of my re-numbering code is to allow a node to appear in the output multiple times but to stop
-Graphviz automatically regarding all such references to be the same node. Giving a node different names
-(which are un-seen) but the same label (which is seen) makes Graphviz think they are really different nodes.
+The purpose of my re-numbering code is to allow a node to appear in the output multiple times but to
+stop Graphviz automatically regarding all such references to be the same node. Giving a node
+different names (which are un-seen) but the same label (which is seen) makes Graphviz think they are
+really different nodes.
 
 The 3 samples in part 2 of
 L<the demo page|http://savage.net.au/Perl-modules/html/graphviz2.marpa.pathutils/index.html>
@@ -1632,51 +1642,35 @@ should make this issue clear.
 
 L<http://jeffreykegler.github.com/Marpa-web-site/>.
 
-See also Jeffrey's
-L<the annotated blog|http://jeffreykegler.github.io/Ocean-of-Awareness-blog/metapages/annotated.html>.
+See also Jeffrey's annotated
+L<blog|http://jeffreykegler.github.io/Ocean-of-Awareness-blog/metapages/annotated.html>.
 
 =head2 How are clusters named?
 
-The names of the nodes in each cluster are sorted, and the first is arbitrarily chosen as the name of the cluster.
+They are simply counted in the order discovered in the input file.
 
-Member names per cluster are combined with join(', ', @name) for the report. Then, these combined names are also
-sorted, so the report lists the members of all clusters in alphabetical order.
+But see the next questions.
 
-This second sort is because Marpa::R2 V 2.079_013 returns results in a different order than previous versions.
+=head2 If I run your code multiple times, I get different clusters!
 
-Also, the resultant order is built into t/test.all.t. See lines 58 .. 61 in that script.
+No, the results will be the same, but the output files will be generated in a different order.
 
-=head2 Sometimes the cluster has the wrong shape for a node
+This just means means the arbitrary numbers assigned to the generated clusters are being assigned in
+a  different order from run to run.
 
-Correct. The code does not handle a file such as:
-
-	digraph X
-	{
-	    node [shape = Mdiamond]
-	    node_1
-	    node [shape = Msquare]
-	    node_2
-	}
-
-The output uses the last node shape found by the parser, Msquare, for all nodes which don't have a shape
-specified explicitly.
-
-See data/03.clusters.in.gv for an instance. See also L</TODO>.
-
-=head2 In clusters, edge attributes in the input file are ignored
-
-Correct. The code does not implement the complexity required to handle this yet. See also L</TODO>.
+It's not clear to me why the clusters are not found in the same order each time the program is run.
 
 =head2 How are cycles in fixed path length analysis handled?
 
-This is controlled by the I<allow_cycles> option to new(), or the corresponding method L</allow_cycles($integer)>.
+This is controlled by the I<allow_cycles> option to new(), or the corresponding method
+L</allow_cycles($integer)>.
 
-The code keeps track of the number of times each node is entered. If new(allow_cycles => 0) was called,
-nodes are only considered if they are entered once. If new(allow_cycles => 1) was called, nodes are also
-considered if they are entered a second time.
+The code keeps track of the number of times each node is entered. If new(allow_cycles => 0) was
+called, nodes are only considered if they are entered once. If new(allow_cycles => 1) was called,
+nodes are also considered if they are entered a second time.
 
-Sample code: Using the input file data/90.KW91.lex (see scripts/fixed.length.paths.sh) we can specify
-various combinations of parameters like this:
+Sample code: Using the input file data/90.KW91.lex (see scripts/fixed.length.paths.sh) we can
+specify various combinations of parameters like this:
 
 	allow_cycles  path_length  start node  solutions
 	0             3            Act_1       9
@@ -1701,22 +1695,16 @@ See data/01.non.unique.gv and html/01.non.unique.svg.
 
 =head2 The number of options is confusing!
 
-Agreed. Remember that this code calls L<GraphViz2::Marpa>'s run() method, which expects a large number of
-options because it calls both the lexer and the parser.
-
-=head2 Isn't your code at risk from the 'combinatorial explosion' problem?
-
-Yes. The code does limit the number of possibilies as quickly as possible, but of course there will always be
-graphs which can't be processed by this module.
-
-Such graphs are deemed to be pathological.
+Agreed. Remember that this code calls L<GraphViz2::Marpa>'s run() method, which expects a large
+number of options because it calls both the lexer and the parser.
 
 =head2 Why do I get error messages like the following?
 
 	Error: <stdin>:1: syntax error near line 1
 	context: digraph >>>  Graph <<<  {
 
-Graphviz reserves some words as keywords, meaning they can't be used as an ID, e.g. for the name of the graph.
+Graphviz reserves some words as keywords, meaning they can't be used as an ID, e.g. for the name of
+the graph.
 
 The keywords are: I<digraph>, I<edge>, I<graph>, I<node>, I<strict> and I<subgraph>.
 Compass points are not keywords.
@@ -1731,37 +1719,24 @@ So, don't do this:
 	strict graph strict{...}
 	etc...
 
-Likewise for non-strict graphs, and digraphs. You can however add double-quotes around such reserved words:
+Likewise for non-strict graphs, and digraphs. You can however add double-quotes around such reserved
+words:
 
 	strict graph "graph"{...}
 
 Even better, use a more meaningful name for your graph...
 
-=head2 How does the code handle ports attached to nodes?
-
-So far, the code has not been tested on graphs which use ports.
-
-=head2 This module uses Hash::FieldHash, which has an XS component!
-
-Correct. My policy is that stand-alone modules should use a light-weight object manager (my choice is
-L<Hash::FieldHash>), whereas apps can - and probably should - use L<Moose>.
-
 =head1 Reference
+
+V 1 of this module used code from this book. Since V 2 now properly parses DOT files, the code
+referred to here is no longer needed.
 
 Combinatorial Algorithms for Computers and Calculators, A Nijenhuis and H Wilf, p 240.
 
-This books very clearly explains the backtracking parser I used to process the combinations of nodes found
-at each point along each path. Source code in the book is in Fortran.
+This books very clearly explains the backtracking parser I used to process the combinations of nodes
+found at each point along each path. Source code in the book is in Fortran.
 
-The book is now downloadable as a PDF from L<http://www.math.upenn.edu/~wilf/website/CombAlgDownld.html>.
-
-=head1 TODO
-
-=over 4
-
-=item o High priority - Handle ports
-
-=item o Low priority - Perhaps implement logic to find paths which end on a given node
+It's available as a PDF from L<http://www.math.upenn.edu/~wilf/website/CombAlgDownld.html>.
 
 =back
 
