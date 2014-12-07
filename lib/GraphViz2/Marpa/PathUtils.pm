@@ -1257,9 +1257,7 @@ This class is a descendent of L<GraphViz2::Marpa>, and hence inherits all its ke
 
 Currently, the only feature available is to find all paths of a given length starting from a given node.
 
-Sample output: L<http://savage.net.au/Perl-modules/html/graphviz2.pathutils/index.html>.
-
-Command line options and object attributes: L<http://savage.net.au/Perl-modules/html/graphviz2.pathutils/code.attributes.html>.
+Sample output: L<http://savage.net.au/Perl-modules/html/graphviz2.marpa.pathutils/index.html>.
 
 =head1 Scripts shipped with this distro
 
@@ -1268,10 +1266,6 @@ All scripts are in the scripts/ directory. This means they do I<not> get install
 Data files are in data/, while html and svg files are in html/.
 
 =over 4
-
-=item o code.attributes2html.pl
-
-Generate both data/code.attributes.csv and data/code.attributes.html.
 
 =item o copy.config.pl
 
@@ -1303,9 +1297,10 @@ to generate html/index.html.
 
 =item o generate.demo.sh
 
-Runs generate.demo.pl and code.attributes2html.pl.
+Runs generate.demo.pl.
 
-Then copies html/*.html and html/*.svg to my web server's dir, $DR/Perl-modules/html/graphviz2.pathutils/.
+Then copies html/*.html and html/*.svg to my web server's dir,
+$DR/Perl-modules/html/graphviz2.marpa.pathutils/.
 
 =item o pod2html.sh
 
@@ -1662,7 +1657,8 @@ The purpose of my re-numbering code is to allow a node to appear in the output m
 Graphviz automatically regarding all such references to be the same node. Giving a node different names
 (which are un-seen) but the same label (which is seen) makes Graphviz think they are really different nodes.
 
-The 3 samples in part 2 of L<the demo page|http://savage.net.au/Perl-modules/html/graphviz2.pathutils/index.html>
+The 3 samples in part 2 of
+L<the demo page|http://savage.net.au/Perl-modules/html/graphviz2.marpa.pathutils/index.html>
 should make this issue clear.
 
 =head2 What is the homepage of Marpa?

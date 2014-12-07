@@ -1,11 +1,10 @@
 #!/bin/bash
 
 perl -Ilib scripts/generate.demo.pl
-perl -Ilib scripts/code.attributes2html.pl
 
 # $DR is my web server's doc root.
 
-PM=Perl-modules/html/graphviz2.pathutils
+PM=Perl-modules/html/graphviz2.marpa.pathutils
 
 cp html/*.html html/*.svg $DR/$PM
 
