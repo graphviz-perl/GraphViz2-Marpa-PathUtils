@@ -12,7 +12,15 @@ use Moo;
 
 use Set::Tiny;
 
-use Types::Standard qw/HashRef Int Str/;
+use Types::Standard qw/Bool HashRef Int Str/;
+
+has allow_cycles =>
+(
+	default  => sub{return 0},
+	is       => 'rw',
+	isa      => Bool,
+	required => 0,
+);
 
 has cluster_sets =>
 (
@@ -30,14 +38,6 @@ has cluster_trees =>
 	required => 0,
 );
 
-has format =>
-(
-	default  => sub{return 'svg'},
-	is       => 'rw',
-	isa      => Str,
-	required => 0,
-);
-
 has output_dot_file_prefix =>
 (
 	default  => sub{return ''},
@@ -46,7 +46,7 @@ has output_dot_file_prefix =>
 	required => 0,
 );
 
-has report_clusters =>
+has path_length =>
 (
 	default  => sub{return 0},
 	is       => 'rw',
@@ -54,32 +54,27 @@ has report_clusters =>
 	required => 0,
 );
 
-=pod
+has report_clusters =>
+(
+	default  => sub{return 0},
+	is       => 'rw',
+	isa      => Bool,
+	required => 0,
+);
 
-fieldhash my %allow_cycles     => 'allow_cycles';
-fieldhash my %attributes       => 'attributes';
-fieldhash my %cluster_edge_set => 'cluster_edge_set';
-fieldhash my %cluster_set      => 'cluster_set';
-fieldhash my %config           => 'config';
-fieldhash my %dot_input        => 'dot_input';
-fieldhash my %dot_output       => 'dot_output';
-fieldhash my %driver           => 'driver';
-fieldhash my %fixed_path_set   => 'fixed_path_set';
-fieldhash my %format           => 'format';
-fieldhash my %path_length      => 'path_length';
-fieldhash my %report_clusters  => 'report_clusters';
-fieldhash my %report_paths     => 'report_paths';
-fieldhash my %start_node       => 'start_node';
-fieldhash my %tree_dot_file    => 'tree_dot_file';
-fieldhash my %tree_image_file  => 'tree_image_file';
-
-=cut
+has start_node =>
+(
+	default  => sub{return ''},
+	is       => 'rw',
+	isa      => Str,
+	required => 0,
+);
 
 our $VERSION = '2.00';
 
 # -----------------------------------------------
 
-sub _coelesce_membership
+sub _coelesce_cluster_membership
 {
 	my($self, $count, $node, $clusters, $subgraph) = @_;
 
@@ -92,14 +87,14 @@ sub _coelesce_membership
 		next if ($$subgraph{$count} -> member($member) );
 
 		$$subgraph{$count} -> insert($member);
-		$self -> _coelesce_membership($count, $member, $clusters, $subgraph);
+		$self -> _coelesce_cluster_membership($count, $member, $clusters, $subgraph);
 	}
 
-} # End of _coelesce_membership.
+} # End of _coelesce_cluster_membership.
 
 # -----------------------------------------------
 
-sub _coelesce_sets
+sub _coelesce_cluster_sets
 {
 	my($self, $clusters) = @_;
 
@@ -118,12 +113,12 @@ sub _coelesce_sets
 		$subgraphs{$count} = Set::Tiny -> new;
 
 		$subgraphs{$count} -> insert($node);
-		$self -> _coelesce_membership($count, $node, $clusters, \%subgraphs);
+		$self -> _coelesce_cluster_membership($count, $node, $clusters, \%subgraphs);
 	}
 
 	return \%subgraphs;
 
-} # End of _coelesce_sets.
+} # End of _coelesce_cluster_sets.
 
 # -----------------------------------------------
 # Called by the user.
@@ -139,9 +134,9 @@ sub find_clusters
 	# Find mothers who have edges amongst their daughters.
 	# Then process the daughters of those mothers.
 
-	my($edgy)      = $self -> _find_mothers_with_edges;
-	my($clusters)  = $self -> _find_reachable_nodes($edgy);
-	my($subgraphs) = $self -> _coelesce_sets($clusters);
+	my($edgy)      = $self -> _find_cluster_mothers_with_edges;
+	my($clusters)  = $self -> _find_cluster_reachable_nodes($edgy);
+	my($subgraphs) = $self -> _coelesce_cluster_sets($clusters);
 
 	# Renumber subgraphs by discarding duplicate sets.
 
@@ -170,7 +165,7 @@ sub find_clusters
 	# i.e. there are no edges leading to them or from them.
 	# Such nodes are stand-alone clusters.
 
-	$self -> _find_standalone_nodes(\%subgraph_sets);
+	$self -> _find_cluster_standalone_nodes(\%subgraph_sets);
 	$self -> report_cluster_members if ($self -> report_clusters);
 	$self -> _tree_per_cluster;
 	$self -> output_clusters if ($self -> output_dot_file_prefix);
@@ -275,7 +270,7 @@ sub _find_cluster_members
 
 # -----------------------------------------------
 
-sub _find_mothers_with_edges
+sub _find_cluster_mothers_with_edges
 {
 	my($self) = @_;
 
@@ -313,11 +308,11 @@ sub _find_mothers_with_edges
 
 	return \%seen;
 
-} # End of _find_mothers_with_edges.
+} # End of _find_cluster_mothers_with_edges.
 
 # -----------------------------------------------
 
-sub _find_reachable_nodes
+sub _find_cluster_reachable_nodes
 {
 	my($self, $edgy) = @_;
 
@@ -386,7 +381,7 @@ sub _find_reachable_nodes
 					# From 'c', every node in the subgraph can be reached.
 					# Start at $index + 1, which is the '{'.
 
-					$self -> _find_reachable_subgraph_1(\%clusters, \%node, $daughters[$index + 1]);
+					$self -> _find_cluster_reachable_subgraph_1(\%clusters, \%node, $daughters[$index + 1]);
 				}
 			}
 			else
@@ -397,7 +392,7 @@ sub _find_reachable_nodes
 					# Every node in the subgraph can reach 'h'.
 					# We use $index - 2 ('{') since we know $index - 1 is '}'.
 
-					$self -> _find_reachable_subgraph_2(\%clusters, \%node, $daughters[$index - 2]);
+					$self -> _find_cluster_reachable_subgraph_2(\%clusters, \%node, $daughters[$index - 2]);
 				}
 				else
 				{
@@ -406,7 +401,7 @@ sub _find_reachable_nodes
 					# Start at $index + 1 in order to skip the '{'.
 					# We use $index - 2 ('{') since we know $index - 1 is '}'.
 
-					$self -> _find_reachable_subgraph_3(\%clusters, \%node, $daughters[$index - 2], $daughters[$index + 1]);
+					$self -> _find_cluster_reachable_subgraph_3(\%clusters, \%node, $daughters[$index - 2], $daughters[$index + 1]);
 				}
 			}
 		}
@@ -414,11 +409,11 @@ sub _find_reachable_nodes
 
 	return \%clusters;
 
-} # End of _find_reachable_nodes.
+} # End of _find_cluster_reachable_nodes.
 
 # -----------------------------------------------
 
-sub _find_reachable_subgraph_1
+sub _find_cluster_reachable_subgraph_1
 {
 	my($self, $clusters, $node, $head_subgraph) = @_;
 	my($real_tail) = $$node{tail}{value};
@@ -449,11 +444,11 @@ sub _find_reachable_subgraph_1
 		$$clusters{$real_head} -> insert($real_tail);
 	}
 
-} # End of _find_reachable_subgraph_1.
+} # End of _find_cluster_reachable_subgraph_1.
 
 # -----------------------------------------------
 
-sub _find_reachable_subgraph_2
+sub _find_cluster_reachable_subgraph_2
 {
 	my($self, $clusters, $node, $tail_subgraph) = @_;
 	my($real_head) = $$node{head}{value};
@@ -484,11 +479,11 @@ sub _find_reachable_subgraph_2
 		$$clusters{$real_tail} -> insert($real_head);
 	}
 
-} # End of _find_reachable_subgraph_2.
+} # End of _find_cluster_reachable_subgraph_2.
 
 # -----------------------------------------------
 
-sub _find_reachable_subgraph_3
+sub _find_cluster_reachable_subgraph_3
 {
 	my($self, $clusters, $node, $tail_subgraph, $head_subgraph) = @_;
 	my(@tail_daughters) = $tail_subgraph -> daughters;
@@ -531,11 +526,11 @@ sub _find_reachable_subgraph_3
 		}
 	}
 
-} # End of _find_reachable_subgraph_3.
+} # End of _find_cluster_reachable_subgraph_3.
 
 # -----------------------------------------------
 
-sub _find_standalone_nodes
+sub _find_cluster_standalone_nodes
 {
 	my($self, $subgraphs) = @_;
 
@@ -588,7 +583,7 @@ sub _find_standalone_nodes
 
 	$self -> cluster_sets($subgraphs);
 
-} # End of _find_standalone_nodes.
+} # End of _find_cluster_standalone_nodes.
 
 # -----------------------------------------------
 # Find N candidates for the next node along the path.
@@ -714,26 +709,29 @@ sub _find_fixed_length_path_set
 # -----------------------------------------------
 # Find all paths starting from any copy of the target start_node.
 
-=pod
-
 sub _find_fixed_length_paths
 {
 	my($self) = @_;
 
 	# Phase 1: Find all copies of the start node.
 
+	my($attributes);
+	my($name);
 	my(@start);
 
-	$self -> parser -> edges -> walk_down
+	$self -> tree -> walk_down
 	({
 		callback =>
 		sub
 		{
 			my($node) = @_;
+			$name     = $node -> name;
 
-			return 1 if ($node -> is_root); # Keep walking.
+			return 1 if ($name =~ /(?:graph|prolog|root)/); # Keep walking.
 
-			push @start, $node if ($node -> name eq $self -> start_node);
+			$attributes = $node -> attributes;
+
+			push @start, $node if ($$attributes{value} eq $self -> start_node);
 
 			return 1; # Keep walking.
 		},
@@ -744,18 +742,16 @@ sub _find_fixed_length_paths
 
 	die 'Error: Start node (', $self -> start_node, ") not found\n" if ($#start < 0);
 
+	$self -> log(info => "Found start node: $_") for @start;
+
 	# Phase 2: Process each copy of the start node.
 
-	$self -> _find_fixed_length_path_set(\@start);
+#	$self -> _find_fixed_length_path_set(\@start);
 
-} # End of
-
-=cut
+} # End of _find_fixed_length_paths.
 
 # -----------------------------------------------
 # Called by the user.
-
-=pod
 
 sub find_fixed_length_paths
 {
@@ -764,13 +760,16 @@ sub find_fixed_length_paths
 	die "Error: No start node specified\n"  if (! defined $self -> start_node);
 	die "Error: Path length must be >= 0\n" if ($self -> path_length < 0);
 
-	# Run code common to all algorithms.
+	# Parse the input and create $self -> tree.
 
-	$self -> _set_up_forest;
+	$self -> run;
 
 	# Process the tree.
 
 	$self -> _find_fixed_length_paths;
+
+=pod
+
 	$self -> _winnow_fixed_length_paths;
 
 	my($title) = 'Starting node: ' . $self -> start_node . "\\n" .
@@ -783,44 +782,13 @@ sub find_fixed_length_paths
 	$self -> output_dot_text                   if ($self -> output_dot_file);
 	$self -> output_fixed_length_image         if ($self -> output_image_file);
 
+=cut
+
 	# Return 0 for success and 1 for failure.
 
 	return 0;
 
 } # End of find_fixed_length_paths.
-
-=cut
-
-# -----------------------------------------------
-
-=pod
-
-sub _init
-{
-	my($self, $arg)         = @_;
-	$$arg{allow_cycles}     ||= 0;     # Caller can set.
-	$$arg{attributes}       = {};
-	$$arg{cluster_edge_set} = {};
-	$$arg{cluster_set}      = {};
-	$$arg{config}           = GraphViz2::Marpa::PathUtils::Config -> new -> config;
-	$$arg{dot_input}        = '';
-	$$arg{dot_output}       = '';
-	$$arg{driver}           ||= which('dot'); # Caller can set.
-	$$arg{fixed_path_set}   = [];
-	$$arg{format}           ||= 'svg'; # Caller can set.
-	$$arg{path_length}      ||= 0;     # Caller can set.
-	$$arg{report_clusters}  ||= 0;     # Caller can set.
-	$$arg{report_paths}     ||= 0;     # Caller can set.
-	$$arg{start_node}       = defined($$arg{start_node}) ? $$arg{start_node} : undef; # Caller can set (to 0).
-	$$arg{tree_dot_file}    ||= ''; # Caller can set.
-	$$arg{tree_image_file}  ||= ''; # Caller can set.
-	$self                   = $self -> SUPER::_init($arg);
-
-	return $self;
-
-} # End of _init.
-
-=cut
 
 # -----------------------------------------------
 
@@ -848,50 +816,6 @@ sub output_clusters
 	}
 
 } # End of output_clusters.
-
-# -----------------------------------------------
-
-=pod
-
-sub output_fixed_length_image
-{
-	my($self) = @_;
-
-	if ($self -> input_file eq $self -> output_image_file)
-	{
-		die "Error: Input file and tree image file have the same name. Refusing to overwrite the latter\n";
-	}
-
-	my($driver)     = $self -> driver;
-	my($format)     = $self -> format;
-	my($image_file) = $self -> output_image_file;
-
-	# This line has been copied from GraphViz2's run() method.
-	# Except, that is, for the timeout, which is not used in GraphViz2 anyway.
-
-	$self -> log(debug => "Driver: $driver. Output file: $image_file. Format: $format");
-
-	my($stdout, $stderr);
-
-	run3([$driver, "-T$format"], \$self -> dot_input, \$stdout, \$stderr);
-
-	die "Error: $stderr" if ($stderr);
-
-	$self -> dot_output($stdout);
-
-	if ($image_file)
-	{
-		open(OUT, '>', $image_file) || die "Error: Can't open(> $image_file): $!";
-		binmode OUT;
-		print OUT $stdout;
-		close OUT;
-
-		$self -> log(notice => "Wrote $image_file. Size: " . length($stdout) . ' bytes');
-	}
-
-} # End of output_fixed_length_image.
-
-=cut
 
 # -----------------------------------------------
 # Prepare the dot input, renumbering the nodes so dot does not coalesce the path set.
@@ -1399,26 +1323,10 @@ Specify the OS's path to the I<dot> program, to override the default.
 
 Default: Use which('dot'), via the module L<File::Which>, to find the I<dot> executable.
 
-=item o format => $aDOTOutputImageFormat
-
-Specify the image type to pass to I<dot>, as the value of dot's -T option.
-
-Default: 'svg'.
-
 =item o output_dot_file => aDOTInputFileName
 
 Specify the name of a file to write which will contain the DOT description of the image of all
 solutions.
-
-Default: ''.
-
-This file is not written if the value is ''.
-
-=item o outpit_image_file => aDOTOutputFileName
-
-Specify the name of a file to write which will contain the output of running I<dot>.
-
-The value of the I<format> option determines what sort of image is created.
 
 Default: ''.
 
@@ -1536,14 +1444,6 @@ objects of type L<Tree>.
 
 See the source code of sub L</report_fixed_length_paths()> for sample usage.
 
-=head2 format([$string])
-
-Here the [] indicate an optional parameter.
-
-Get or set the type of image to be output when running I<dot>.
-
-'format' is a parameter to L</new()>. See L</Constructor and Initialization> for details.
-
 =head2 new()
 
 See L</Constructor and Initialization> for details on the parameters accepted by L</new()>.
@@ -1566,16 +1466,6 @@ Here the [] indicate an optional parameter.
 Get or set the name of the I<dot> input file to write.
 
 'output_dot_file' is a parameter to L</new()>. See L</Constructor and Initialization> for details.
-
-=head2 output_image_file([$name])
-
-Here the [] indicate an optional parameter.
-
-Get or set the name of the I<dot> output file to write.
-
-The type of image comes from the I<format> parameter to new().
-
-'output_image_file' is a parameter to L</new()>. See L</Constructor and Initialization> for details.
 
 =head2 path_length([$integer])
 

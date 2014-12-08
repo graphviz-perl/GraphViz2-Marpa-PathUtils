@@ -9,5 +9,5 @@ digraph G
 	D [color = magenta]
 
 	A -> B -> C -> D;
-	A -> B -> C -> D;
+#	A -> B -> C -> D;
 }

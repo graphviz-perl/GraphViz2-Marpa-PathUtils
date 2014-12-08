@@ -1,9 +1,9 @@
 digraph G
 {
-	graph[ rankdir = "LR" nodesep = "0"]
-	node[ shape = "point" label = ""]
-	edge[ fontsize = "10"]
-	_none -> none[ arrowhead = "none" label = "none"]
-	none -> nonenone[ arrowhead = "nonenone" label = "nonenone"]
+	graph[rankdir = "LR" nodesep = "0"]
+	node[shape = "point" label = ""]
+	edge[fontsize = "10"]
+	_none -> none[arrowhead = "none" label = "none"]
+	none -> nonenone[arrowhead = "nonenone" label = "nonenone"]
 
 }

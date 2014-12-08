@@ -1,18 +1,17 @@
 #!/bin/bash
 
-# FILE=01.fixed.paths
+# FILE=fixed.paths.in.01.gv
 # NODE=Act_1
 #
-# FILE=02.fixed.paths
+# FILE=fixed.paths.in.02.gv
 # NODE=5
 #
-# FILE=03.fixed.paths
+# FILE=fixed.paths.in.03.gv
 # NODE=A
 
-FILE=01.fixed.paths
-NODE=Act_1
+FILE=fixed.paths.in.03.gv
+NODE=A
 
 perl -Ilib scripts/find.fixed.length.paths.pl -input data/$FILE.in.gv \
-	-report_paths 1 -allow_cycles 0 -path_length 3 -start_node $NODE \
-	-parsed_file data/$FILE.in.csv -report_forest 0 \
-	-tree_dot_file data/$FILE.out.gv -tree_image html/$FILE.out.svg
+	-allow_cycles 0 -path_length 3 -start_node $NODE \
+	-output_dot_file_prefix out/$FILE.out.gv

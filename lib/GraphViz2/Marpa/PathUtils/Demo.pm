@@ -78,7 +78,7 @@ sub generate_demo
 		$s     =~ s/^/$data_dir/;
 		$s     =~ s/html$/gv/;
 
-		"<a href = '$_'>$s</a>"
+		"<a href = '$_'><span class = 'local_text'>$s</span></a>"
 	} @{$self -> generate_html4clusters};
 
 =pod

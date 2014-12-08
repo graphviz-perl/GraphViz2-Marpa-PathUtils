@@ -1,8 +1,8 @@
 digraph graph_04
 {
- rankdir = "LR"
+	rankdir = "LR"
 
-	node[ color = "magenta"]
+	node[color = "magenta"]
 	A -> B -> C -> D -> A
 	A -> C
 	B -> D

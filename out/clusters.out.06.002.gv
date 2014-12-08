@@ -1,44 +1,39 @@
 strict digraph graph_55
 {
- label = "Complex Syntax Test"
+	label = "Complex Syntax Test"
 
-	A[ color = "blue"]
-	node[ shape = "house"]
-	edge[ color = "purple"]
+	node[shape = "house"]
+	edge[color = "purple"]
 
 	{
- rank = "same"
+		rank = "same"
 
-		C
-		node[ fillcolor = "goldenrod" shape = "circle" style = "filled"]
-		A -> B
-		B[ color = "mediumseagreen"]
-		C[ color = "firebrick1"]
-		B -> C[ color = "orange" penwidth = "5"]
-		node[ fillcolor = "turquoise4"]
-		C -> D[ arrowtail = "obox" arrowhead = "crow" dir = "both" minlen = "2"]
-		D -> E[ arrowtail = "odot" arrowhead = "dot" dir = "both" minlen = "2" penwidth = "5"]
+		node[fillcolor = "goldenrod" shape = "circle" style = "filled"]
+		node[fillcolor = "turquoise4"]
 
 		{
-			node[ fillcolor = "darkorchid" shape = "pentagon"]
+			node[fillcolor = "darkorchid" shape = "pentagon"]
 
 		}
 
 	}
-	B[ shape = "square"]
-	node[ fillcolor = "lightblue" fontsize = "20" style = "filled"]
-	subgraph 
-	{
- label = "Outer"		subgraph 
-		{
- label = "Inner"
+	node[fillcolor = "lightblue" fontsize = "20" style = "filled"]
 
-			node[ fillcolor = "magenta" fontsize = "26" shape = "triangle"]
-			edge[ color = "blue"]
+	subgraph cluster_outer
+	{
+		label = "Outer"
+
+		H -> I
+		subgraph cluster_inner
+		{
+			label = "Inner"
+
+			node[fillcolor = "magenta" fontsize = "26" shape = "triangle"]
+			edge[color = "blue"]
 
 		}
 
 	}
-	graph[ rankdir = "TB"]
+	graph[rankdir = "TB"]
 
 }

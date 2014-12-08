@@ -1,10 +1,10 @@
 digraph graph_51
 {
-	edge[ color = "blue"]
-	node[ shape = "Mdiamond"]
+	edge[color = "blue"]
+	node[shape = "Mdiamond"]
 	A
-	node[ shape = "Msquare"]
+	node[shape = "Msquare"]
 	B
-	graph[ label = "Class Demo" rankdir = "LR"]
+	graph[label = "Class Demo" rankdir = "LR"]
 	A -> B
 }

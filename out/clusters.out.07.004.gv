@@ -1,9 +1,9 @@
 digraph Perl
 {
-	graph[ rankdir = "LR"]
-	node[ shape = "oval"]
-	edge[ color = "slateblue"]
-	node[ style = "filled"]
-	A[ color = "bisque"]
+	graph[rankdir = "LR"]
+	node[shape = "oval"]
+	edge[color = "slateblue"]
+	node[style = "filled"]
+	A[color = "bisque"]
 
 }

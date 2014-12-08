@@ -1,8 +1,8 @@
 digraph graph_03
 {
- rankdir = "TB"
+	rankdir = "TB"
 
-	node[ color = "blue"]
-	A -> B[ color = "green"]
+	node[color = "blue"]
+	C -> D[color = "red"]
 
 }
