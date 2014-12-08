@@ -121,119 +121,30 @@ sub _coelesce_cluster_sets
 } # End of _coelesce_cluster_sets.
 
 # -----------------------------------------------
-# Called by the user.
 
-sub find_clusters
+sub _find_cluster_containing_start_node
 {
-	my($self)          = @_;
-	my($subgraph_sets) = $self -> _preprocess;
+	my($self) = @_;
+	my($sets) = $self -> cluster_sets;
 
-	# Find nodes which do not participate in paths,
-	# i.e. there are no edges leading to them or from them.
-	# Such nodes are stand-alone clusters.
+	my(%new_trees);
 
-	$self -> _find_cluster_standalone_nodes($subgraph_sets);
-	$self -> report_cluster_members if ($self -> report_clusters);
-	$self -> _tree_per_cluster;
-	$self -> output_clusters if ($self -> output_dot_file_prefix);
-
-	# Return 0 for success and 1 for failure.
-
-	return 0;
-
-} # End of find_clusters.
-
-# -----------------------------------------------
-
-sub _find_cluster_members
-{
-	my($self, $members) = @_;
-
-	# We use a copy of the tree so the user of this module can still get access to the whole tree
-	# after each cluster cuts out the unwanted nodes (i.e. those nodes in all other clusters).
-	# Further, this means the copy has all the node and edge attributes for the wanted nodes.
-	#
-	# We will excise all nodes which are not members, and also excise any subgraphs consisting
-	# entirely of unwanted nodes. Also, we'll excise all edges involving the unwanted nodes.
-	# Note: The Tree::DAG_Node docs warn against editing the tree during a walk_down(), so we
-	# stockpile mothers whose daughters need to be processed after walk_down() returns.
-
-	my($cluster) = $self -> tree -> copy_tree;
-
-	my(%wanted);
-
-	@wanted{@$members} = (1) x @$members;
-
-	my($attributes);
-	my($name);
-	my(%seen);
-	my($uid);
-	my($value);
-
-	$cluster -> walk_down
-	({
-		callback => sub
-		{
-			my($node)   = @_;
-			$name       = $node -> name;
-			$attributes = $node -> attributes;
-			$uid        = $$attributes{uid};
-			$value      = $$attributes{value};
-
-			# Check for unwanted nodes.
-
-			if ( ($name eq 'node_id') && ! $wanted{$value})
-			{
-				$seen{$uid} = $node -> mother;
-			}
-
-			return 1; # Keep walking.
-		},
-		_depth => 0,
-	});
-
-	# This loop is outwardly the same as the one in _find_reachable_nodes().
-
-	my($candidate_uid);
-	my(@daughters);
-	my($limit);
-	my($mother);
-
-	for my $unwanted_uid (keys %seen)
+	for my $id (keys %$sets)
 	{
-		$mother    = $seen{$unwanted_uid};
-		@daughters = $mother -> daughters;
-		$limit     = $#daughters;
+		next if (! $$sets{$id} -> member($self -> start_node) );
 
-		# Cases to handle (see data/path.set.01.in.gv):
-		# o Delete the node, and edges in these combinations:
-		# o a -> b.
-		# o c -> { d e }.
-		# o { f g } -> h.
-		# o { i j } -> { k l } (Impossible, given the tree node is a 'node_id').
-
-		for my $i (0 .. $limit)
-		{
-			$candidate_uid = ${$daughters[$i] -> attributes}{uid};
-
-			next if ($unwanted_uid != $candidate_uid);
-
-			$daughters[$i] -> unlink_from_mother;
-
-			for my $offset ($i - 1, $i + 1)
-			{
-				next if ( ($offset < 0) || ($offset > $limit) );
-
-				$name = $daughters[$offset] -> name;
-
-				$daughters[$offset] -> unlink_from_mother if ($name eq 'edge_id');
-			}
-		}
+		$new_trees{$id} = $self -> _find_clusters_trees([$$sets{$id} -> members]);
 	}
 
-	return $cluster;
+	# There should be just 1 tree containing the start node.
 
-} # End of _find_cluster_members.
+	my($count) = scalar keys %new_trees;
+
+	die "Error: $count trees containg the start node. There should be just 1\n" if ($count != 1);
+
+	$self -> cluster_trees(\%new_trees);
+
+} # End of _find_cluster_containing_start_node.
 
 # -----------------------------------------------
 
@@ -288,7 +199,7 @@ sub _find_cluster_reachable_nodes
 	my(%node, $name);
 	my($value);
 
-	# This loop is outwardly the same as the one in _find_cluster_members().
+	# This loop is outwardly the same as the one in _find_clusters_trees().
 
 	for my $mother_uid (sort keys %$edgy)
 	{
@@ -553,6 +464,121 @@ sub _find_cluster_standalone_nodes
 } # End of _find_cluster_standalone_nodes.
 
 # -----------------------------------------------
+# Called by the user.
+
+sub find_clusters
+{
+	my($self)          = @_;
+	my($subgraph_sets) = $self -> _preprocess;
+
+	# Find nodes which do not participate in paths,
+	# i.e. there are no edges leading to them or from them.
+	# Such nodes are stand-alone clusters.
+
+	$self -> _find_cluster_standalone_nodes($subgraph_sets);
+	$self -> report_cluster_members if ($self -> report_clusters);
+	$self -> _tree_per_cluster;
+	$self -> output_clusters if ($self -> output_dot_file_prefix);
+
+	# Return 0 for success and 1 for failure.
+
+	return 0;
+
+} # End of find_clusters.
+
+# -----------------------------------------------
+
+sub _find_clusters_trees
+{
+	my($self, $members) = @_;
+
+	# We use a copy of the tree so the user of this module can still get access to the whole tree
+	# after each cluster cuts out the unwanted nodes (i.e. those nodes in all other clusters).
+	# Further, this means the copy has all the node and edge attributes for the wanted nodes.
+	#
+	# We will excise all nodes which are not members, and also excise any subgraphs consisting
+	# entirely of unwanted nodes. Also, we'll excise all edges involving the unwanted nodes.
+	# Note: The Tree::DAG_Node docs warn against editing the tree during a walk_down(), so we
+	# stockpile mothers whose daughters need to be processed after walk_down() returns.
+
+	my($cluster) = $self -> tree -> copy_tree;
+
+	my(%wanted);
+
+	@wanted{@$members} = (1) x @$members;
+
+	my($attributes);
+	my($name);
+	my(%seen);
+	my($uid);
+	my($value);
+
+	$cluster -> walk_down
+	({
+		callback => sub
+		{
+			my($node)   = @_;
+			$name       = $node -> name;
+			$attributes = $node -> attributes;
+			$uid        = $$attributes{uid};
+			$value      = $$attributes{value};
+
+			# Check for unwanted nodes.
+
+			if ( ($name eq 'node_id') && ! $wanted{$value})
+			{
+				$seen{$uid} = $node -> mother;
+			}
+
+			return 1; # Keep walking.
+		},
+		_depth => 0,
+	});
+
+	# This loop is outwardly the same as the one in _find_reachable_nodes().
+
+	my($candidate_uid);
+	my(@daughters);
+	my($limit);
+	my($mother);
+
+	for my $unwanted_uid (keys %seen)
+	{
+		$mother    = $seen{$unwanted_uid};
+		@daughters = $mother -> daughters;
+		$limit     = $#daughters;
+
+		# Cases to handle (see data/path.set.01.in.gv):
+		# o Delete the node, and edges in these combinations:
+		# o a -> b.
+		# o c -> { d e }.
+		# o { f g } -> h.
+		# o { i j } -> { k l } (Impossible, given the tree node is a 'node_id').
+
+		for my $i (0 .. $limit)
+		{
+			$candidate_uid = ${$daughters[$i] -> attributes}{uid};
+
+			next if ($unwanted_uid != $candidate_uid);
+
+			$daughters[$i] -> unlink_from_mother;
+
+			for my $offset ($i - 1, $i + 1)
+			{
+				next if ( ($offset < 0) || ($offset > $limit) );
+
+				$name = $daughters[$offset] -> name;
+
+				$daughters[$offset] -> unlink_from_mother if ($name eq 'edge_id');
+			}
+		}
+	}
+
+	return $cluster;
+
+} # End of _find_clusters_trees.
+
+# -----------------------------------------------
 # Find N candidates for the next node along the path.
 
 =pod
@@ -738,8 +764,7 @@ sub find_fixed_length_paths
 	die "Error: Path length must be >= 0\n" if ($self -> path_length < 0);
 
 	$self -> cluster_sets($self -> _preprocess);
-
-	$self -> _tree_per_cluster;
+	$self -> _find_cluster_containing_start_node;
 
 #	$self -> _find_fixed_length_paths;
 
@@ -965,7 +990,7 @@ sub _tree_per_cluster
 	{
 		$self -> log(debug => "Tree for cluster $id:");
 
-		$new_clusters{$id} = $self -> _find_cluster_members([$$sets{$id} -> members]);
+		$new_clusters{$id} = $self -> _find_clusters_trees([$$sets{$id} -> members]);
 
 		$self -> log(debug => join("\n", @{$new_clusters{$id} -> tree2string}) );
 
