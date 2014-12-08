@@ -12,7 +12,7 @@ Revision history for Perl extension GraphViz2::Marpa::PathUtils.
 	- Update MANIFEST.
 	- Edit line lengths in docs to be 100 chars, max.
 	- Renumber data/*.gv files, and move output *.gv files into out/.
-	- With clusters, output each cluster into its own *.gv and *.svg file.
+	- With clusters, output each cluster into its own out/*.gv and html/*.svg file.
 	- Add generate.html4cluster.pl, which combines a set of input and output files from one run of
 		find.clusters.pl, into a HTML file. See the docs for details.
 	- Rename parameters to new().

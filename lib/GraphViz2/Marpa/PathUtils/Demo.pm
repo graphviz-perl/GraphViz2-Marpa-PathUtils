@@ -5,6 +5,8 @@ use warnings;
 use warnings qw(FATAL utf8); # Fatalize encoding glitches.
 use open     qw(:std :utf8); # Undeclared streams in UTF-8.
 
+use Capture::Tiny 'capture';
+
 use Config;
 
 use Date::Format; # For time2str().
@@ -21,22 +23,13 @@ use Path::Tiny; # For path().
 
 use Text::Xslate 'mark_raw';
 
-use Types::Standard qw/Str/;
+use Types::Standard qw/HashRef/;
 
-has input_dot_file_prefix =>
+has config =>
 (
-	default  => sub{return ''},
-	is       => 'rw',
-	isa      => Str,
-	required => 0,
-);
-
-has output_html_file_name =>
-(
-	default  => sub{return ''},
-	is       => 'rw',
-	isa      => Str,
-	required => 0,
+	default => sub {return GraphViz2::Marpa::PathUtils::Config -> new -> config},
+	is      => 'ro',
+	isa     => HashRef,
 );
 
 our $VERSION = '2.00';
@@ -49,7 +42,7 @@ sub generate_demo
 	my($data_dir)   = 'data';
 	my($html_dir)   = 'html';
 	my(@demo_file)  = path($data_dir);
-	my(@cluster_in) = grep{/clusters.in.gv/} grep{!/skip/} @demo_file;
+	my(@cluster_in) = grep{/clusters.in.gv/} @demo_file;
 
 	$self -> find_clusters($data_dir, $html_dir, \@cluster_in);
 
@@ -147,19 +140,67 @@ sub generate_demo_environment
 
 sub generate_html4cluster
 {
-	my($self)     = @_;
-	my($prefix)   = $self -> input_dot_file_prefix;
-	my(@file)     = File::Spec -> splitpath($prefix);
-	my($dir_name) = File::Spec -> catpath($file[0], $file[1]);
-	my(@path)     = path($dir_name) -> children(qr/$file[2].+/);
-	my($in)       = grep{/$file[2]\.in\.gv/} @path;
-	my(@out)      = grep{/$file[2]\.out\.\d+\.gv/} sort @path;
+	my($self)      = @_;
+	my($data_dir)  = 'data/';
+	my($html_dir)  = 'html/';
+	my($out_dir)   = 'out/';
+	my($config)    = $self -> config;
+	my($templater) = Text::Xslate -> new
+	(
+	  input_layer => '',
+	  path        => $$config{template_path},
+	);
 
-	print "Input: $in. \n";
+	my($iter);
+	my($html_prefix, $html_file);
+	my($out_prefix, $out_file);
+	my($svg_prefix, $svg_file, $stdout, $stderr);
 
-	for my $path (@out)
+	for my $in_file (sort {"$a" cmp "$b"} path($data_dir) -> children(qr/^clusters/) )
 	{
-		print "Output $path. \n";
+		($stdout, $stderr) = capture{system('dot', '-T', 'svg', $in_file)};
+		$svg_prefix        = $in_file =~ s/^$data_dir/$html_dir/r;
+		$svg_prefix        =~ s/\.gv$//;
+		$svg_file          = path("$svg_prefix.svg");
+		$html_file         = path("$svg_prefix.html");
+
+		$svg_file -> spew_utf8($stdout);
+
+		$out_prefix = $in_file =~ s/\.in\./\.out\./r;
+		$out_prefix =~ s/\.gv$//;
+		$out_prefix =~ s/^$data_dir/$out_dir/;
+
+		$iter = path($out_dir) -> iterator;
+
+		while ($out_file = $iter -> () )
+		{
+			next if ($out_file !~ /^\Q$out_prefix\E/);
+
+			($stdout, $stderr) = capture{system('dot', '-T', 'svg', $in_file)};
+			$svg_prefix        = $out_file =~ s/^$out_dir/$html_dir/r;
+			$svg_prefix        =~ s/\.gv$//;
+			$svg_file          = path("$svg_prefix.svg");
+
+			$svg_file -> spew_utf8($stdout);
+		}
+
+		print "css_url: $$config{css_url}/default.css\n";
+
+		my($index) = $templater -> render
+		(
+			'cluster.report.tx',
+			{
+				border       => 1,
+				default_css  => "$$config{css_url}/default.css",
+				environment  => $self -> generate_demo_environment,
+				input_file   => $in_file,
+				version      => $VERSION,
+			}
+		);
+
+		$html_file -> spew_utf8($index);
+
+		print "Wrote: $html_file\n";
 	}
 
 } # End of generate_html4cluster.

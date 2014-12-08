@@ -7,15 +7,47 @@ use open     qw(:std :utf8); # Undeclared streams in UTF-8.
 
 use Config::Tiny;
 
-=pod
+use File::HomeDir;
+use File::Spec;
 
-fieldhash my %config           => 'config';
-fieldhash my %config_file_path => 'config_file_path';
-fieldhash my %section          => 'section';
+use Moo;
 
-=cut
+has config =>
+(
+	default  => sub{return {} },
+	is       => 'rw',
+#	isa      => 'HashRef',
+	required => 0,
+);
+
+has config_file_path =>
+(
+	default  => sub{return ''},
+	is       => 'rw',
+#	isa      => 'Str',
+	required => 0,
+);
+
+has section =>
+(
+	default  => sub{return ''},
+	is       => 'rw',
+#	isa      => 'Str',
+	required => 0,
+);
 
 our $VERSION = '2.00';
+
+# -----------------------------------------------
+
+sub BUILD
+{
+	my($self) = @_;
+	my($path) = File::Spec -> catfile(File::HomeDir -> my_dist_config('GraphViz2-Marpa-PathUtils'), '.htgraphviz2.marpa.pathutils.conf');
+
+	$self -> read($path);
+
+} # End of BUILD.
 
 # -----------------------------------------------
 
