@@ -154,37 +154,42 @@ sub generate_html4cluster
 	my($iter);
 	my($html_prefix, $html_file);
 	my($out_prefix, $out_file);
-	my($svg_prefix, $svg_file, $stdout, $stderr);
+	my($stdout, $stderr, $svg_in_prefix, $svg_in_file, $svg_out_prefix, $svg_out_file, @svg_out_file);
 
 	for my $in_file (sort {"$a" cmp "$b"} path($data_dir) -> children(qr/^clusters/) )
 	{
 		($stdout, $stderr) = capture{system('dot', '-T', 'svg', $in_file)};
-		$svg_prefix        = $in_file =~ s/^$data_dir/$html_dir/r;
-		$svg_prefix        =~ s/\.gv$//;
-		$svg_file          = path("$svg_prefix.svg");
-		$html_file         = path("$svg_prefix.html");
+		$svg_in_prefix     = $in_file =~ s/^$data_dir/$html_dir/r;
+		$svg_in_prefix     =~ s/\.gv$//;
+		$svg_in_file       = path("$svg_in_prefix.svg");
+		$html_file         = path("$svg_in_prefix.html");
 
-		$svg_file -> spew_utf8($stdout);
+		$svg_in_file -> spew_utf8($stdout);
 
-		$out_prefix = $in_file =~ s/\.in\./\.out\./r;
-		$out_prefix =~ s/\.gv$//;
-		$out_prefix =~ s/^$data_dir/$out_dir/;
+		# We must remove the html/ prefix before $svg_in_file goes into the template.
 
-		$iter = path($out_dir) -> iterator;
+		$svg_in_file  =~ s/^$html_dir//;
+		$out_prefix   = $in_file =~ s/\.in\./\.out\./r;
+		$out_prefix   =~ s/\.gv$//;
+		$out_prefix   =~ s/^$data_dir/$out_dir/;
+		@svg_out_file = ();
+		$iter         = path($out_dir) -> iterator;
 
 		while ($out_file = $iter -> () )
 		{
 			next if ($out_file !~ /^\Q$out_prefix\E/);
 
-			($stdout, $stderr) = capture{system('dot', '-T', 'svg', $in_file)};
-			$svg_prefix        = $out_file =~ s/^$out_dir/$html_dir/r;
-			$svg_prefix        =~ s/\.gv$//;
-			$svg_file          = path("$svg_prefix.svg");
+			($stdout, $stderr) = capture{system('dot', '-T', 'svg', $out_file)};
+			$svg_out_prefix    = $out_file =~ s/^$out_dir/$html_dir/r;
+			$svg_out_prefix    =~ s/\.gv$//;
+			$svg_out_file      = path("$svg_out_prefix.svg");
 
-			$svg_file -> spew_utf8($stdout);
+			$svg_out_file -> spew_utf8($stdout);
+
+			$svg_out_file =~ s/^$html_dir//;
+
+			push @svg_out_file, [$out_file, $svg_out_file];
 		}
-
-		print "css_url: $$config{css_url}/default.css\n";
 
 		my($index) = $templater -> render
 		(
@@ -193,7 +198,24 @@ sub generate_html4cluster
 				border       => 1,
 				default_css  => "$$config{css_url}/default.css",
 				environment  => $self -> generate_demo_environment,
+				input_data   =>
+				[
+					[
+						{td => $in_file},
+						{td => mark_raw("<object data = '$svg_in_file'></object>")},
+					],
+				],
 				input_file   => $in_file,
+				output_data  =>
+				[
+					map
+					{
+						[
+							{td => $$_[0]},
+							{td => mark_raw("<object data = '$$_[1]'></object>")},
+						]
+					} sort{$$a[0] cmp $$b[0]} @svg_out_file,
+				],
 				version      => $VERSION,
 			}
 		);
