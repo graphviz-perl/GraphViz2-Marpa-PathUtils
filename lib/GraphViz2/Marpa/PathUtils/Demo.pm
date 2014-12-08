@@ -9,10 +9,9 @@ use Capture::Tiny 'capture';
 
 use Config;
 
-use Date::Format; # For time2str().
 use Date::Simple;
 
-use File::Spec; # splitpath().
+use File::Spec;
 
 use GraphViz2::Marpa::PathUtils;
 use GraphViz2::Marpa::PathUtils::Config;
@@ -36,15 +35,53 @@ our $VERSION = '2.00';
 
 # -----------------------------------------------
 
+sub find_clusters
+{
+	my($self, $data_dir, $out_dir) = @_;
+
+	my($out_prefix);
+	my($result);
+
+	for my $in_file (sort {"$a" cmp "$b"} path($data_dir) -> children(qr/^clusters/) )
+	{
+		$out_prefix = $in_file =~ s/\.in\./\.out\./r;
+		$out_prefix =~ s/\.gv$//;
+		$out_prefix =~ s/^$data_dir/$out_dir/;
+
+		print "$in_file => $out_prefix\n";
+
+		$result = GraphViz2::Marpa::PathUtils -> new
+					(
+						input_file             => "$in_file",
+						output_dot_file_prefix => "$out_prefix",
+					) -> find_clusters;
+	}
+
+} # End of find_clusters.
+
+# -----------------------------------------------
+
 sub generate_demo
 {
-	my($self)       = @_;
-	my($data_dir)   = 'data';
-	my($html_dir)   = 'html';
-	my(@demo_file)  = path($data_dir);
-	my(@cluster_in) = grep{/clusters.in.gv/} @demo_file;
+	my($self)     = @_;
+	my($data_dir) = 'data/';
+	my($html_dir) = 'html/';
+	my($out_dir)  = 'out/';
 
-	$self -> find_clusters($data_dir, $html_dir, \@cluster_in);
+	$self -> find_clusters($data_dir, $out_dir);
+
+	my(@html4clusters) = map
+	{
+		s/^$html_dir//;
+
+		my($s) = $_;
+		$s     =~ s/^/$data_dir/;
+		$s     =~ s/html$/gv/;
+
+		"<a href = '$_'>$s</a>"
+	} @{$self -> generate_html4clusters};
+
+=pod
 
 	my(@fixed_in) = grep{/fixed.paths.in.gv/}  @demo_file;
 
@@ -86,6 +123,8 @@ sub generate_demo
 		];
 	}
 
+=cut
+
 	my($config)    = $self -> config;
 	my($templater) = Text::Xslate -> new
 	(
@@ -97,12 +136,11 @@ sub generate_demo
 		'pathutils.report.tx',
 		{
 			border          => 1,
-			cluster_data    => [@cluster],
-			date_stamp      => time2str('%Y-%m-%d %T', time),
+			cluster_data    => [map{[{td => mark_raw($_)}]} @html4clusters],
 			default_css     => "$$config{css_url}/default.css",
 			environment     => $self -> generate_demo_environment,
 			fancy_table_css => "$$config{css_url}/fancy.table.css",
-			fixed_data      => [@fixed_path],
+#			fixed_data      => [@fixed_path],
 			version         => $VERSION,
 		}
 	);
@@ -138,7 +176,7 @@ sub generate_demo_environment
 
 # -----------------------------------------------
 
-sub generate_html4cluster
+sub generate_html4clusters
 {
 	my($self)      = @_;
 	my($data_dir)  = 'data/';
@@ -152,7 +190,7 @@ sub generate_html4cluster
 	);
 
 	my($iter);
-	my($html_prefix, $html_file);
+	my($html_prefix, $html_file, @html_file);
 	my($out_prefix, $out_file);
 	my($stdout, $stderr, $svg_in_prefix, $svg_in_file, $svg_out_prefix, $svg_out_file, @svg_out_file);
 
@@ -222,10 +260,14 @@ sub generate_html4cluster
 
 		$html_file -> spew_utf8($index);
 
+		push @html_file, $html_file;
+
 		print "Wrote: $html_file\n";
 	}
 
-} # End of generate_html4cluster.
+	return \@html_file;
+
+} # End of generate_html4clusters.
 
 # -----------------------------------------------
 

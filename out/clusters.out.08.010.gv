@@ -3,11 +3,11 @@ digraph G
 	graph[ rankdir = "LR" nodesep = "0"]
 	node[ shape = "point" label = ""]
 	edge[ fontsize = "10"]
-	_curve -> curve[ arrowhead = "curve" label = "curve"]
-	curve -> curvecurve[ arrowhead = "curvecurve" label = "curvecurve"]
-	_curve -> lcurve[ arrowhead = "lcurve" label = "lcurve"]
-	lcurve -> lcurvelcurve[ arrowhead = "lcurvelcurve" label = "lcurvelcurve"]
-	_curve -> rcurve[ arrowhead = "rcurve" label = "rcurve"]
-	rcurve -> rcurvercurve[ arrowhead = "rcurvercurve" label = "rcurvercurve"]
+	_tee -> tee[ arrowhead = "tee" label = "tee"]
+	tee -> teetee[ arrowhead = "teetee" label = "teetee"]
+	_tee -> ltee[ arrowhead = "ltee" label = "ltee"]
+	ltee -> lteeltee[ arrowhead = "lteeltee" label = "lteeltee"]
+	_tee -> rtee[ arrowhead = "rtee" label = "rtee"]
+	rtee -> rteertee[ arrowhead = "rteertee" label = "rteertee"]
 
 }

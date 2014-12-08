@@ -13,6 +13,9 @@ strict digraph graph_55
 
 		{
 			node[ fillcolor = "darkorchid" shape = "pentagon"]
+			F[ color = "darkorchid" fillcolor = "yellow" penwidth = "5" shape = "hexagon"]
+			G[ color = "crimson" penwidth = "7"]
+			F -> G[ color = "orange"]
 
 		}
 
@@ -20,9 +23,7 @@ strict digraph graph_55
 	node[ fillcolor = "lightblue" fontsize = "20" style = "filled"]
 	subgraph 
 	{
- label = "Outer"
-
-		H -> I		subgraph 
+ label = "Outer"		subgraph 
 		{
  label = "Inner"
 

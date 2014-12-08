@@ -5,10 +5,7 @@ Revision history for Perl extension GraphViz2::Marpa::PathUtils.
 	- Re-write to use GraphViz2::Marpa V 2.02. This involves many changes.
 		One effect is that the original structure and attributes of nodes and edges is now preserved
 		in the output clusters.
-	- Split *::Utils into *::Demo and *::Utils. This means I can refer to *::Config in *::Demo
-		but end users do not need to run scripts/copy.config.pl in order to run tests.
-		This in turn means Build.PL and Makefile.PL no longer run copy.config.pl.
-	- Add use strict and warnings to Build.PL and Makefile.PL.
+	- Rename *::Utils to *::Demo. It's only used by the author.
 	- Update MANIFEST.
 	- Edit line lengths in docs to be 100 chars, max.
 	- Renumber data/*.gv files, and move output *.gv files into out/.
