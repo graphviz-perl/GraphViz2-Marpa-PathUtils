@@ -12,6 +12,6 @@
 FILE=fixed.paths.in.03.gv
 NODE=A
 
-perl -Ilib scripts/find.fixed.length.paths.pl -input data/$FILE.in.gv \
-	-allow_cycles 0 -path_length 3 -start_node $NODE \
+perl -Ilib scripts/find.fixed.length.paths.pl -input data/$FILE \
+	-allow_cycles 0 -path_length 3 -start_node $NODE -max info  \
 	-output_dot_file_prefix out/$FILE.out.gv

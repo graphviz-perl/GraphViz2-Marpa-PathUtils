@@ -125,47 +125,14 @@ sub _coelesce_cluster_sets
 
 sub find_clusters
 {
-	my($self) = @_;
-
-	# Parse the input and create $self -> tree.
-
-	$self -> run;
-
-	# Find mothers who have edges amongst their daughters.
-	# Then process the daughters of those mothers.
-
-	my($edgy)      = $self -> _find_cluster_mothers_with_edges;
-	my($clusters)  = $self -> _find_cluster_reachable_nodes($edgy);
-	my($subgraphs) = $self -> _coelesce_cluster_sets($clusters);
-
-	# Renumber subgraphs by discarding duplicate sets.
-
-	my($count) = 0;
-
-	my(@members, $members);
-	my(%subgraph_sets, %seen);
-
-	for my $id (keys %$subgraphs)
-	{
-		@members = sort $$subgraphs{$id} -> members;
-		$members = join(' ', @members);
-
-		next if ($seen{$members});
-
-		$seen{$members} = 1;
-
-		$count++;
-
-		$subgraph_sets{$count} = Set::Tiny -> new;
-
-		$subgraph_sets{$count} -> insert(@members);
-	}
+	my($self)          = @_;
+	my($subgraph_sets) = $self -> _preprocess;
 
 	# Find nodes which do not participate in paths,
 	# i.e. there are no edges leading to them or from them.
 	# Such nodes are stand-alone clusters.
 
-	$self -> _find_cluster_standalone_nodes(\%subgraph_sets);
+	$self -> _find_cluster_standalone_nodes($subgraph_sets);
 	$self -> report_cluster_members if ($self -> report_clusters);
 	$self -> _tree_per_cluster;
 	$self -> output_clusters if ($self -> output_dot_file_prefix);
@@ -363,9 +330,9 @@ sub _find_cluster_reachable_nodes
 					# So now we add 'b' to the set of all nodes reachable from 'a'.
 					# The point is that, if 'a' appears anywhere else in the graph, then all
 					# nodes connected (via edges) to that other copy of 'a' are also connected to 'b'.
-					# Likewise for 'b'.
+					# Likewise for 'a'.
 					# The reason for doing both 'a' and 'b' is that either one may appear elsewhere
-					# in the graph, but we don't know which one, if either, will.
+					# in the graph, but we don't know which one, if either, does.
 
 					for my $n (qw/tail head/)
 					{
@@ -718,6 +685,7 @@ sub _find_fixed_length_paths
 	my($attributes);
 	my($name);
 	my(@start);
+	my($value);
 
 	$self -> tree -> walk_down
 	({
@@ -727,11 +695,20 @@ sub _find_fixed_length_paths
 			my($node) = @_;
 			$name     = $node -> name;
 
+			# Skip the special tree nodes.
+
 			return 1 if ($name =~ /(?:graph|prolog|root)/); # Keep walking.
 
-			$attributes = $node -> attributes;
+			# Skip the tree nodes with names other than the start node.
 
-			push @start, $node if ($$attributes{value} eq $self -> start_node);
+			$attributes = $node -> attributes;
+			$value      = $$attributes{value};
+
+			return 1 if ($value ne $self -> start_node); # Keep walking.
+
+			# Skip the tree nodes which are not part of a path.
+
+			push @start, $node;
 
 			return 1; # Keep walking.
 		},
@@ -742,7 +719,7 @@ sub _find_fixed_length_paths
 
 	die 'Error: Start node (', $self -> start_node, ") not found\n" if ($#start < 0);
 
-	$self -> log(info => "Found start node: $_") for @start;
+	$self -> log(info => "Found start node: $_") for map{${$_ -> attributes}{value} } @start;
 
 	# Phase 2: Process each copy of the start node.
 
@@ -760,13 +737,11 @@ sub find_fixed_length_paths
 	die "Error: No start node specified\n"  if (! defined $self -> start_node);
 	die "Error: Path length must be >= 0\n" if ($self -> path_length < 0);
 
-	# Parse the input and create $self -> tree.
+	$self -> cluster_sets($self -> _preprocess);
 
-	$self -> run;
+	$self -> _tree_per_cluster;
 
-	# Process the tree.
-
-	$self -> _find_fixed_length_paths;
+#	$self -> _find_fixed_length_paths;
 
 =pod
 
@@ -896,6 +871,50 @@ sub _prepare_fixed_length_output
 } # End of _prepare_fixed_length_output.
 
 =cut
+
+# -----------------------------------------------
+
+sub _preprocess
+{
+	my($self) = @_;
+
+	# Parse the input and create $self -> tree.
+
+	$self -> run;
+
+	# Find mothers who have edges amongst their daughters.
+	# Then process the daughters of those mothers.
+
+	my($edgy)      = $self -> _find_cluster_mothers_with_edges;
+	my($clusters)  = $self -> _find_cluster_reachable_nodes($edgy);
+	my($subgraphs) = $self -> _coelesce_cluster_sets($clusters);
+
+	# Renumber subgraphs by discarding duplicate sets.
+
+	my($count) = 0;
+
+	my(@members, $members);
+	my(%subgraph_sets, %seen);
+
+	for my $id (keys %$subgraphs)
+	{
+		@members = sort $$subgraphs{$id} -> members;
+		$members = join(' ', @members);
+
+		next if ($seen{$members});
+
+		$seen{$members} = 1;
+
+		$count++;
+
+		$subgraph_sets{$count} = Set::Tiny -> new;
+
+		$subgraph_sets{$count} -> insert(@members);
+	}
+
+	return \%subgraph_sets;
+
+} # End of _preprocess.
 
 # -----------------------------------------------
 
