@@ -12,7 +12,7 @@ use Moo;
 
 use Set::Tiny;
 
-use Types::Standard qw/Bool HashRef Int Str/;
+use Types::Standard qw/ArrayRef Bool HashRef Int Str/;
 
 has allow_cycles =>
 (
@@ -27,6 +27,22 @@ has cluster_sets =>
 	default  => sub{return {} },
 	is       => 'rw',
 	isa      => HashRef,
+	required => 0,
+);
+
+has dot_input =>
+(
+	default  => sub{return ''},
+	is       => 'rw',
+	isa      => Str,
+	required => 0,
+);
+
+has fixed_path_set =>
+(
+	default  => sub{return []},
+	is       => 'rw',
+	isa      => ArrayRef,
 	required => 0,
 );
 
@@ -55,6 +71,14 @@ has path_length =>
 );
 
 has report_clusters =>
+(
+	default  => sub{return 0},
+	is       => 'rw',
+	isa      => Bool,
+	required => 0,
+);
+
+has report_paths =>
 (
 	default  => sub{return 0},
 	is       => 'rw',
@@ -581,37 +605,33 @@ sub _find_clusters_trees
 # -----------------------------------------------
 # Find N candidates for the next node along the path.
 
-=pod
-
 sub _find_fixed_length_candidates
 {
-	my($self, $solution, $stack) = @_;
+	my($self, $tree, $solution, $stack) = @_;
 	my($current_node) = $$solution[$#$solution];
 
 	# Add the node's parent, if it's not the root.
 	# Then add the node's children.
 
-	my(@neighbours);
+	my($name, @neighbours);
 
-	$self -> parser -> edges -> walk_down
+	$tree -> walk_down
 	({
 		callback =>
 		sub
 		{
 			my($node) = @_;
+			$name     = $node -> name;
 
 			# We only want neighbours of the current node.
-			# So, skip this node if:
-			# o It is the root node.
-			# o It is not the current node.
 
-			return 1 if ( ($node -> is_root) || ($node -> name ne $current_node -> name) ); # Keep walking.
+			return 1 if ($node -> name ne $current_node -> name); # Keep walking.
 
 			# Now find its neighbours.
 
 			my(@node) = $node -> daughters;
 
-			push @node, $node -> mother if (! $node -> mother -> is_root);
+			push @node, $node -> mother if ($node -> mother -> name eq 'node_id');
 			push @neighbours, @node;
 
 			return 1; # Keep walking.
@@ -627,62 +647,58 @@ sub _find_fixed_length_candidates
 
 } # End of _find_fixed_length_candidates.
 
-=cut
-
 # -----------------------------------------------
 # Find all paths starting from any copy of the target start_node.
 
-=pod
-
 sub _find_fixed_length_path_set
 {
-	my($self, $start) = @_;
-	my($one_solution) = [];
-	my($stack)        = [];
+	my($self, $tree, $start) = @_;
 
 	my(@all_solutions);
 	my($count, $candidate);
+	my(@one_solution);
+	my(@stack);
 
 	# Push the first copy of the start node, and its count (1), onto the stack.
 
-	push @$stack, $$start[0], 1;
+	push @stack, $$start[0], 1;
 
 	# Process these N candidates 1-by-1.
 	# The top-of-stack is a candidate count.
 
-	while ($#$stack >= 0)
+	while ($#stack >= 0)
 	{
-		while ($$stack[$#$stack] > 0)
+		while ($stack[$#stack] > 0)
 		{
-			($count, $candidate) = (pop @$stack, pop @$stack);
+			($count, $candidate) = (pop @stack, pop @stack);
 
-			push @$stack, $count - 1;
-			push @$one_solution, $candidate;
+			push @stack, $count - 1;
+			push @one_solution, $candidate;
 
 			# Does this candidate suit the solution so far?
 
-			if ($#$one_solution == $self -> path_length)
+			if ($#one_solution == $self -> path_length)
 			{
 				# Yes. Save this solution.
 
-				push @all_solutions, [@$one_solution];
+				push @all_solutions, [@one_solution];
 
 				# Discard this candidate, and try another.
 
-				pop @$one_solution;
+				pop @one_solution;
 			}
 			else
 			{
 				# No. The solution is still too short.
 				# Push N more candidates onto the stack.
 
-				$self -> _find_fixed_length_candidates($one_solution, $stack);
+				$self -> _find_fixed_length_candidates($tree, \@one_solution, \@stack);
 			}
 		}
 
 		# Pop the candidate count (0) off the stack.
 
-		pop @$stack;
+		pop @stack;
 
 		# Remaining candidates, if any, must be contending for the 2nd last slot.
 		# So, pop off the node in the last slot, since we've finished
@@ -690,14 +706,12 @@ sub _find_fixed_length_path_set
 		# Then, backtrack to test the next set of candidates for what,
 		# after this pop, will be the new last slot.
 
-		pop @$one_solution;
+		pop @one_solution;
 	}
 
 	$self -> fixed_path_set([@all_solutions]);
 
 } # End of _find_fixed_length_path_set.
-
-=cut
 
 # -----------------------------------------------
 # Find all paths starting from any copy of the target start_node.
@@ -709,8 +723,11 @@ sub _find_fixed_length_paths
 	# Phase 1: Find all copies of the start node.
 
 	my($attributes);
+	my(@daughters);
+	my($index);
 	my($name);
 	my(@start);
+	my($uid);
 	my($value);
 
 	$tree -> walk_down
@@ -732,7 +749,13 @@ sub _find_fixed_length_paths
 
 			return 1 if ($value ne $self -> start_node); # Keep walking.
 
-			# Skip the tree nodes which are not part of a path.
+			# Skip the tree nodes which are not part on a path.
+
+			$uid       = $$attributes{value};
+			$index     = $node -> my_daughter_index;
+			@daughters = $node -> mother -> daughters;
+
+			return 1 if ( ($index == $#daughters) || ($daughters[$index + 1] -> name ne 'edge_id') ); # Keep walking.
 
 			push @start, $node;
 
@@ -745,11 +768,11 @@ sub _find_fixed_length_paths
 
 	die 'Error: Start node (', $self -> start_node, ") not found\n" if ($#start < 0);
 
-	$self -> log(info => "Found start node: $_") for map{${$_ -> attributes}{value} } @start;
+	$self -> log(debug => "Found start node: $_") for map{${$_ -> attributes}{value} } @start;
 
 	# Phase 2: Process each copy of the start node.
 
-#	$self -> _find_fixed_length_path_set(\@start);
+	$self -> _find_fixed_length_path_set($tree, \@start);
 
 } # End of _find_fixed_length_paths.
 
@@ -768,9 +791,6 @@ sub find_fixed_length_paths
 	my($tree) = $self -> _find_cluster_containing_start_node;
 
 	$self -> _find_fixed_length_paths($tree);
-
-=pod
-
 	$self -> _winnow_fixed_length_paths;
 
 	my($title) = 'Starting node: ' . $self -> start_node . "\\n" .
@@ -780,10 +800,8 @@ sub find_fixed_length_paths
 
 	$self -> _prepare_fixed_length_output($title);
 	$self -> report_fixed_length_paths($title) if ($self -> report_paths);
-	$self -> output_dot_text                   if ($self -> output_dot_file);
-	$self -> output_fixed_length_image         if ($self -> output_image_file);
-
-=cut
+#	$self -> output_dot_text                   if ($self -> output_dot_file);
+#	$self -> output_fixed_length_image         if ($self -> output_image_file);
 
 	# Return 0 for success and 1 for failure.
 
@@ -821,8 +839,6 @@ sub output_clusters
 # -----------------------------------------------
 # Prepare the dot input, renumbering the nodes so dot does not coalesce the path set.
 
-=pod
-
 sub _prepare_fixed_length_output
 {
 	my($self, $title) = @_;
@@ -830,11 +846,12 @@ sub _prepare_fixed_length_output
 	# We have to rename all the nodes so they can all be included
 	# in a single DOT file without dot linking them based on their names.
 
-	my($nodes)  = $self -> parser -> nodes;
+	#TODOmy($nodes)  = $self -> parser -> nodes;
 	my($new_id) = 0;
 
-	my($name);
+	my($attributes);
 	my(@set);
+	my($value);
 
 	for my $set (@{$self -> fixed_path_set})
 	{
@@ -842,18 +859,19 @@ sub _prepare_fixed_length_output
 
 		for my $node (@$set)
 		{
-			$name = $node -> name;
+			$attributes = $node -> attributes;
+			$value      = $$attributes{value};
 
 			# Allow for paths with loops, so we don't declare the same node twice.
 			# Actually, I doubt Graphviz would care, since each declaration would be identical.
 			# Also, later, we sort by name (i.e. $new_id) to get the order of nodes in the path.
 
-			if (! defined($node_set{$name}) )
+			if (! defined($node_set{$value}) )
 			{
-				$node_set{$name} = {label => $name, name => ++$new_id, %{$$nodes{$name}{attributes} } };
+				$node_set{$value} = {label => $value, name => ++$new_id}; #TODO, %{$$nodes{$name}{attributes} } };
 			}
 
-			push @node_set, $node_set{$name};
+			push @node_set, $node_set{$value};
 		}
 
 		push @set, [@node_set];
@@ -861,14 +879,14 @@ sub _prepare_fixed_length_output
 
 	# Now output the paths, using the nodes' original names as labels.
 
-	my(%style)       = %{$self -> parser -> style};
-	my($orientation) = $style{rankdir} ? $style{rankdir} : 'LR';
-	my(%type)        = %{$self -> parser -> type};
+	my($orientation) = 'LR'; # TODO.
+	#TODOmy(%type)        = %{$self -> parser -> type};
 	my($graph)       = qq|\tgraph [label = \"$title\" rankdir = $orientation]|;
 
 	my(@dot_text);
 
-	push @dot_text, ($type{strict} ? 'strict ' : '') . ($type{digraph} ? 'digraph ' : 'graph ') . $type{graph_id}, '{', $graph, '';
+#	push @dot_text, ($type{strict} ? 'strict ' : '') . ($type{digraph} ? 'digraph ' : 'graph ') . $type{graph_id}, '{', $graph, '';
+	push @dot_text, "strict digraph $graph";
 
 	# Firstly, declare all nodes.
 
@@ -878,13 +896,13 @@ sub _prepare_fixed_length_output
 	{
 		for my $node (@$set)
 		{
-			push @dot_text, qq|\t\"$$node{name}\" [| . join(' ', map{qq|$_ = \"$$node{$_}\"|} sort keys %$node) . ']';
+			push @dot_text, qq|\t\"$node\"; # TODO [| . join(' ', map{qq|$_ = \"$$node{$_}\"|} sort keys %$node) . ']';
 		}
 	}
 
 	# Secondly, declare all edges.
 
-	my($edge) = $type{digraph} ? ' -> ' : ' -- ';
+	my($edge) = '->'; #TODO $type{digraph} ? ' -> ' : ' -- ';
 
 	for my $set (@set)
 	{
@@ -892,11 +910,10 @@ sub _prepare_fixed_length_output
 	}
 
 	push @dot_text, '}', '';
+
 	$self -> dot_input(join("\n", @dot_text) );
 
 } # End of _prepare_fixed_length_output.
-
-=cut
 
 # -----------------------------------------------
 
@@ -960,8 +977,6 @@ sub report_cluster_members
 
 # -----------------------------------------------
 
-=pod
-
 sub report_fixed_length_paths
 {
 	my($self, $title) = @_;
@@ -971,12 +986,10 @@ sub report_fixed_length_paths
 
 	for my $candidate (@{$self -> fixed_path_set})
 	{
-		$self -> log(notice => join(' -> ', map{$_ -> name} @$candidate) );
+		$self -> log(notice => join(' -> ', map{${$_ -> attributes}{value} } @$candidate) );
 	}
 
 } # End of report_fixed_length_paths.
-
-=cut
 
 # -----------------------------------------------
 
@@ -1046,8 +1059,6 @@ sub _winnow_cluster_tree
 # -----------------------------------------------
 # Eliminate solutions which have (unwanted) cycles.
 
-=pod
-
 sub _winnow_fixed_length_paths
 {
 	my($self)   = @_;
@@ -1082,8 +1093,6 @@ sub _winnow_fixed_length_paths
 	$self -> fixed_path_set([@solutions]);
 
 } # End of _winnow_fixed_length_paths.
-
-=cut
 
 # -----------------------------------------------
 

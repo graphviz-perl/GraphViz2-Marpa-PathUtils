@@ -28,6 +28,7 @@ if ($option_parser -> getoptions
 	'minlevel=s',
 	'output_dot_file_prefix=s',
 	'path_length=i',
+	'report_paths=i',
 	'start_node=s',
 ) )
 {
@@ -53,7 +54,7 @@ find.fixed.length.paths.pl - Run GraphViz2::Marpa::PathUtils.
 find.fixed.length.paths.pl [options]
 
 	Options:
-	-allow_cycles $integer
+	-allow_cycles $Boolean
 	-description graphDescription
 	-help
 	-input_file aDotInputFileName
@@ -61,6 +62,7 @@ find.fixed.length.paths.pl [options]
 	-minlevel logOption2
 	-output_dot_file_prefix aDOTInputFileName
 	-path_length $integer
+	-report_paths $Boolean
 	-start_node aNodeName
 
 Exit value: 0 for success, 1 for failure. Die upon error.
@@ -69,11 +71,11 @@ Exit value: 0 for success, 1 for failure. Die upon error.
 
 =over 4
 
-=item o -allow_cycles $integer
+=item o -allow_cycles $Boolean
 
 Specify whether or not cycles are allowed in the paths found.
 
-Values for $integer:
+Values for $Boolean:
 
 =over 4
 
@@ -144,6 +146,12 @@ The default means the file is not written.
 The path length which all detected trees must have.
 
 Defailt: 0.
+
+=item o -report_paths $Boolean
+
+Specify whether or not to log fixe length paths found.
+
+Default: 0.
 
 =item o -start_node aNodeName
 
