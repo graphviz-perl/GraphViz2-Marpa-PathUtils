@@ -38,14 +38,9 @@ sub check_fixed
 my($count)           = 2;
 my($stdout, $stderr) = capture \&check_fixed;
 my($expected)        = <<'EOS';
-Starting node: Act_1. Path length: 3. Allow cycles: 0. Solutions: 9:
-Act_1 -> Act_23 -> Act_25 -> Act_24
+Starting node: Act_1. Path length: 3. Allow cycles: 0. Solutions: 4:
 Act_1 -> Act_23 -> Act_25 -> Act_3
-Act_1 -> Act_23 -> Act_24 -> Ext_3
 Act_1 -> Act_23 -> Act_24 -> Act_25
-Act_1 -> Act_23 -> Act_24 -> Act_22
-Act_1 -> Act_23 -> Act_22 -> Act_24
-Act_1 -> Act_23 -> Act_22 -> Act_21
 Act_1 -> Act_21 -> Act_22 -> Act_24
 Act_1 -> Act_21 -> Act_22 -> Act_23
 EOS

@@ -88,7 +88,7 @@ sub find_fixed_length_paths
 						allow_cycles           => 0,
 						input_file             => "$in_file",
 						output_dot_file_prefix => "$out_file",
-						path_length            => 1,
+						path_length            => 3,
 						report_paths           => 1,
 						start_node             => $start_node{$in_file},
 					) -> find_fixed_length_paths;

@@ -1013,9 +1013,9 @@ sub report_cluster_members
 
 	$self -> log(notice => 'Input file: ' . $self -> input_file . '. Cluster membership:');
 
-	for my $id (sort keys %$sets)
+	for my $id (sort{0+$a <=> 0+$b} keys %$sets)
 	{
-		$self -> log(notice => "Cluster $id contains " . $$sets{$id} -> as_string);
+		$self -> log(notice => "Cluster: $id. " . $$sets{$id} -> as_string);
 	}
 
 } # End of report_cluster_members.
@@ -1026,12 +1026,15 @@ sub report_fixed_length_paths
 {
 	my($self, $title) = @_;
 	$title            =~ s/\\n/. /g;
+	my($count)        = 0;
 
 	$self -> log(notice => "$title:");
 
 	for my $candidate (@{$self -> fixed_path_set})
 	{
-		$self -> log(notice => join(' -> ', map{${$_ -> attributes}{value} } @$candidate) );
+		$count++;
+
+		$self -> log(notice => "Path: $count. " . join(' -> ', map{${$_ -> attributes}{value} } @$candidate) );
 	}
 
 } # End of report_fixed_length_paths.
