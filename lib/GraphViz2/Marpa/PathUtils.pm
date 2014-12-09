@@ -613,6 +613,8 @@ sub _find_fixed_length_candidates
 	# Add the node's parent, if it's not the root.
 	# Then add the node's children.
 
+	my(@daughters);
+	my($i);
 	my($name, @neighbours);
 
 	$tree -> walk_down
@@ -625,14 +627,19 @@ sub _find_fixed_length_candidates
 
 			# We only want neighbours of the current node.
 
-			return 1 if ($node -> name ne $current_node -> name); # Keep walking.
+			return 1 if (${$node -> attributes}{value} ne ${$current_node -> attributes}{value}); # Keep walking.
 
-			# Now find its neighbours.
+			# Now find its neighbours. These are sisters separated by an edge.
 
-			my(@node) = $node -> daughters;
+			@daughters = $node -> mother -> daughters;
+			$i         = $node -> my_daughter_index;
 
-			push @node, $node -> mother if ($node -> mother -> name eq 'node_id');
-			push @neighbours, @node;
+			# TODO [$i + 2] could be a subgraph.
+
+			if ( ( ($i + 2) <= $#daughters) && ($daughters[$i + 1] -> name eq 'edge_id') )
+			{
+				push @neighbours, $daughters[$i + 2];
+			}
 
 			return 1; # Keep walking.
 		},
@@ -749,13 +756,14 @@ sub _find_fixed_length_paths
 
 			return 1 if ($value ne $self -> start_node); # Keep walking.
 
-			# Skip the tree nodes which are not part on a path.
+			# Skip the tree nodes which are not on a path.
 
-			$uid       = $$attributes{value};
 			$index     = $node -> my_daughter_index;
 			@daughters = $node -> mother -> daughters;
 
 			return 1 if ( ($index == $#daughters) || ($daughters[$index + 1] -> name ne 'edge_id') ); # Keep walking.
+
+			$uid = $$attributes{uid};
 
 			push @start, $node;
 
@@ -767,8 +775,6 @@ sub _find_fixed_length_paths
 	# Give up if the given node was not found.
 
 	die 'Error: Start node (', $self -> start_node, ") not found\n" if ($#start < 0);
-
-	$self -> log(debug => "Found start node: $_") for map{${$_ -> attributes}{value} } @start;
 
 	# Phase 2: Process each copy of the start node.
 
@@ -798,10 +804,8 @@ sub find_fixed_length_paths
 		'Allow cycles: ' . $self -> allow_cycles . "\\n" .
 		'Solutions: ' . scalar @{$self -> fixed_path_set};
 
-	$self -> _prepare_fixed_length_output($title);
-	$self -> report_fixed_length_paths($title) if ($self -> report_paths);
-#	$self -> output_dot_text                   if ($self -> output_dot_file);
-#	$self -> output_fixed_length_image         if ($self -> output_image_file);
+	$self -> report_fixed_length_paths($title)      if ($self -> report_paths);
+	$self -> _output_fixed_length_gv($tree, $title) if ($self -> output_dot_file_prefix);
 
 	# Return 0 for success and 1 for failure.
 
@@ -839,14 +843,13 @@ sub output_clusters
 # -----------------------------------------------
 # Prepare the dot input, renumbering the nodes so dot does not coalesce the path set.
 
-sub _prepare_fixed_length_output
+sub _output_fixed_length_gv
 {
-	my($self, $title) = @_;
+	my($self, $tree, $title) = @_;
 
 	# We have to rename all the nodes so they can all be included
 	# in a single DOT file without dot linking them based on their names.
 
-	#TODOmy($nodes)  = $self -> parser -> nodes;
 	my($new_id) = 0;
 
 	my($attributes);
@@ -868,7 +871,7 @@ sub _prepare_fixed_length_output
 
 			if (! defined($node_set{$value}) )
 			{
-				$node_set{$value} = {label => $value, name => ++$new_id}; #TODO, %{$$nodes{$name}{attributes} } };
+				$node_set{$value} = {label => $value, name => ++$new_id};
 			}
 
 			push @node_set, $node_set{$value};
@@ -877,16 +880,24 @@ sub _prepare_fixed_length_output
 		push @set, [@node_set];
 	}
 
-	# Now output the paths, using the nodes' original names as labels.
+	# Was the original graph strict or not, and a digraph or not?
+	# So we examine the daughters of the prolog tree node.
 
-	my($orientation) = 'LR'; # TODO.
-	#TODOmy(%type)        = %{$self -> parser -> type};
-	my($graph)       = qq|\tgraph [label = \"$title\" rankdir = $orientation]|;
+	my($strict)  = '';
+	my($digraph) = '';
+
+	for my $node ( ($tree -> daughters)[0] -> daughters)
+	{
+		$value   = ${$node -> attributes}{value};
+		$strict  = 'strict ' if ($value eq 'strict');
+		$digraph = 'digraph' if ($value eq 'digraph');
+	}
+
+	# Now output the paths, using the nodes' original names as labels.
 
 	my(@dot_text);
 
-#	push @dot_text, ($type{strict} ? 'strict ' : '') . ($type{digraph} ? 'digraph ' : 'graph ') . $type{graph_id}, '{', $graph, '';
-	push @dot_text, "strict digraph $graph";
+	push @dot_text, "$strict$digraph fixed_length_paths", '{', qq|\tlabel = "$title" rankdir = LR|, '';
 
 	# Firstly, declare all nodes.
 
@@ -896,24 +907,30 @@ sub _prepare_fixed_length_output
 	{
 		for my $node (@$set)
 		{
-			push @dot_text, qq|\t\"$node\"; # TODO [| . join(' ', map{qq|$_ = \"$$node{$_}\"|} sort keys %$node) . ']';
+			push @dot_text, qq|\t"$$node{name}" [label = "$$node{label}"]|; # We don't know the attributes of the node.
 		}
 	}
 
+	push @dot_text, '';
+
 	# Secondly, declare all edges.
 
-	my($edge) = '->'; #TODO $type{digraph} ? ' -> ' : ' -- ';
+	my($edge) = $digraph ? ' -> ' : ' -- ';
 
 	for my $set (@set)
 	{
-			push @dot_text, "\t" . join($edge, map{'"' . $$_{name} . '"'} @$set) . ";";
+		push @dot_text, "\t" . join(" $edge ", map{qq|"$$_{name}"|} @$set);
 	}
 
 	push @dot_text, '}', '';
 
-	$self -> dot_input(join("\n", @dot_text) );
+	my($output_file) = $self -> output_dot_file_prefix;
 
-} # End of _prepare_fixed_length_output.
+	open(my $fh, '> :encoding(utf-8)', $output_file) || die "Can't open(> $output_file): $!";
+	print $fh join("\n", @dot_text);
+	close $fh;
+
+} # End of _output_fixed_length_gv.
 
 # -----------------------------------------------
 
@@ -1072,7 +1089,7 @@ sub _winnow_fixed_length_paths
 
 		my(%seen);
 
-		$seen{$_}++ for map{$_ -> name} @$candidate;
+		$seen{$_}++ for map{${$_ -> attributes}{value} } @$candidate;
 
 		# Exclude nodes depending on the allow_cycles option:
 		# o 0 - Do not allow any cycles.
@@ -1080,11 +1097,11 @@ sub _winnow_fixed_length_paths
 
 		if ($cycles == 0)
 		{
-			@$candidate = grep{$seen{$_ -> name} == 1} @$candidate;
+			@$candidate = grep{$seen{${$_ -> attributes}{value} } == 1} @$candidate;
 		}
 		elsif ($cycles == 1)
 		{
-			@$candidate = grep{$seen{$_ -> name} <= 2} @$candidate;
+			@$candidate = grep{$seen{${$_ -> attributes}{value}} <= 2} @$candidate;
 		}
 
 		push @solutions, [@$candidate] if ($#$candidate == $self -> path_length);
@@ -1506,12 +1523,6 @@ See L</Constructor and Initialization> for details on the parameters accepted by
 
 This writes the clusters found, as a DOT output file, as long as new(output_image_file => $name) was
 specified.
-
-=head2 output_fixed_length_image($title)
-
-This writes the paths found, as a DOT output file, as long as new(output_image_file => $name) was
-specified, or if output_image_file($name) was called before L</find_fixed_length_paths()> was
-called.
 
 =head2 output_dot_file([$name])
 
