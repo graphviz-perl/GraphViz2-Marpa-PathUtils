@@ -9,12 +9,18 @@
 # FILE=03
 # NODE=A
 
-FILE=$1
-NODE=$2
+LENGTH=$1
+FILE=$2
+NODE=$3
 
-perl -Ilib scripts/find.fixed.length.paths.pl -input data/fixed.paths.in.$FILE.gv \
-	-allow_cycles 0 -path_length 1 -start_node $NODE -max info  \
-	-report_paths 1 -output_dot_file out/fixed.paths.out.$FILE.gv
+perl -Ilib scripts/find.fixed.length.paths.pl \
+	-allow_cycles 0 \
+	-input data/fixed.paths.in.$FILE.gv \
+	-max info \
+	-output_dot_file out/fixed.paths.out.$FILE.gv \
+	-path_length $LENGTH \
+	-report_paths 1 \
+	-start_node $NODE
 
 dot -Tsvg data/fixed.paths.in.$FILE.gv > html/fixed.paths.in.$FILE.svg
 dot -Tsvg out/fixed.paths.out.$FILE.gv > html/fixed.paths.out.$FILE.svg

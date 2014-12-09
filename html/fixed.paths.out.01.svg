@@ -12,7 +12,7 @@
 <text text-anchor="middle" x="86.8939" y="-52.8" font-family="Times,serif" font-size="14.00">Starting node: Act_1</text>
 <text text-anchor="middle" x="86.8939" y="-37.8" font-family="Times,serif" font-size="14.00">Path length: 1</text>
 <text text-anchor="middle" x="86.8939" y="-22.8" font-family="Times,serif" font-size="14.00">Allow cycles: 0</text>
-<text text-anchor="middle" x="86.8939" y="-7.8" font-family="Times,serif" font-size="14.00">Solutions: 2</text>
+<text text-anchor="middle" x="86.8939" y="-7.8" font-family="Times,serif" font-size="14.00">Paths: 2</text>
 <!-- 1 -->
 <g id="node1" class="node"><title>1</title>
 <ellipse fill="none" stroke="black" cx="32.4971" cy="-86" rx="32.4942" ry="18"/>

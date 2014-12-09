@@ -78,7 +78,7 @@ sub find_fixed_length_paths
 
 	for my $in_file (sort {"$a" cmp "$b"} path($data_dir) -> children(qr/^fixed.paths/) )
 	{
-		next if ($in_file =~ /(?:02|03)/);
+		next if ("$in_file" =~ /02/);
 
 		$out_file = $in_file =~ s/\.in\./\.out\./r;
 		$out_file =~ s/\.gv$//;

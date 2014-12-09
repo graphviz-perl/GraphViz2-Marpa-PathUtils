@@ -88,7 +88,7 @@ has report_paths =>
 
 has start_node =>
 (
-	default  => sub{return ''},
+	default  => sub{return undef},
 	is       => 'rw',
 	isa      => Str,
 	required => 0,
@@ -436,7 +436,7 @@ sub _find_cluster_standalone_nodes
 {
 	my($self, $subgraphs) = @_;
 
-	# We need to find the # of subgraphs, since any stand-alone clusters
+	# We need to find the # of subgraphs, since stand-alone clusters
 	# will be numbered starting 1 after the highest set # so far.
 
 	my(@keys)  = sort keys %$subgraphs;
@@ -501,7 +501,7 @@ sub find_clusters
 
 	$self -> _find_cluster_standalone_nodes($subgraph_sets);
 	$self -> report_cluster_members if ($self -> report_clusters);
-	$self -> _tree_per_cluster;
+	$self -> _generate_tree_per_cluster;
 	$self -> output_clusters if ($self -> output_dot_file_prefix);
 
 	# Return 0 for success and 1 for failure.
@@ -789,8 +789,11 @@ sub find_fixed_length_paths
 {
 	my($self) = @_;
 
+	print 'start_node:  ', (defined $self -> start_node) ? "defined\n" : "undefined\n";
+	print 'path_length: ', $self -> path_length, "\n";
+
 	die "Error: No start node specified\n"  if (! defined $self -> start_node);
-	die "Error: Path length must be >= 0\n" if ($self -> path_length < 0);
+	die "Error: Path length must be > 0\n" if ($self -> path_length <= 0);
 
 	$self -> cluster_sets($self -> _preprocess);
 
@@ -802,7 +805,7 @@ sub find_fixed_length_paths
 	my($title) = 'Starting node: ' . $self -> start_node . "\\n" .
 		'Path length: ' . $self -> path_length . "\\n" .
 		'Allow cycles: ' . $self -> allow_cycles . "\\n" .
-		'Solutions: ' . scalar @{$self -> fixed_path_set};
+		'Paths: ' . scalar @{$self -> fixed_path_set};
 
 	$self -> report_fixed_length_paths($title)      if ($self -> report_paths);
 	$self -> _output_fixed_length_gv($tree, $title) if ($self -> output_dot_file_prefix);
@@ -812,6 +815,33 @@ sub find_fixed_length_paths
 	return 0;
 
 } # End of find_fixed_length_paths.
+
+# -----------------------------------------------
+
+sub _generate_tree_per_cluster
+{
+	my($self) = @_;
+	my($sets) = $self -> cluster_sets;
+
+	my(%new_clusters);
+
+	for my $id (sort keys %$sets)
+	{
+		$self -> log(debug => "Tree for cluster $id:");
+
+		$new_clusters{$id} = $self -> _find_clusters_trees([$$sets{$id} -> members]);
+
+		$self -> log(debug => join("\n", @{$new_clusters{$id} -> tree2string}) );
+
+		# TODO: This is commented out because I'm not ready to handle nested subgraphs.
+
+		#$self -> _winnow_cluster_tree($new_clusters{$id});
+		#$self -> log(debug => join("\n", @{$new_clusters{$id} -> tree2string}) );
+	}
+
+	$self -> cluster_trees(\%new_clusters);
+
+} # End of _generate_tree_per_cluster.
 
 # -----------------------------------------------
 
@@ -1007,33 +1037,6 @@ sub report_fixed_length_paths
 	}
 
 } # End of report_fixed_length_paths.
-
-# -----------------------------------------------
-
-sub _tree_per_cluster
-{
-	my($self) = @_;
-	my($sets) = $self -> cluster_sets;
-
-	my(%new_clusters);
-
-	for my $id (keys %$sets)
-	{
-		$self -> log(debug => "Tree for cluster $id:");
-
-		$new_clusters{$id} = $self -> _find_clusters_trees([$$sets{$id} -> members]);
-
-		$self -> log(debug => join("\n", @{$new_clusters{$id} -> tree2string}) );
-
-		# This is commented out because I'm not sure how to handle nested subgraphs.
-
-		#$self -> _winnow_cluster_tree($new_clusters{$id});
-		#$self -> log(debug => join("\n", @{$new_clusters{$id} -> tree2string}) );
-	}
-
-	$self -> cluster_trees(\%new_clusters);
-
-} # End of _tree_per_cluster.
 
 # -----------------------------------------------
 
