@@ -48,16 +48,56 @@ sub find_clusters
 		$out_prefix =~ s/\.gv$//;
 		$out_prefix =~ s/^$data_dir/$out_dir/;
 
-		print "$in_file => $out_prefix\n";
+		print "Starting $in_file => $out_prefix\n";
 
 		$result = GraphViz2::Marpa::PathUtils -> new
 					(
 						input_file             => "$in_file",
 						output_dot_file_prefix => "$out_prefix",
 					) -> find_clusters;
+
+		print "Clusters: $in_file => $out_prefix. \n";
 	}
 
 } # End of find_clusters.
+
+# -----------------------------------------------
+
+sub find_fixed_length_paths
+{
+	my($self, $data_dir, $out_dir) = @_;
+	my(%start_node) =
+	(
+		'fixed.paths.in.01.gv' => 'Act_1',
+		'fixed.paths.in.02.gv' => '5',
+		'fixed.paths.in.03.gv' => 'A',
+	);
+
+	my($out_file);
+	my($result);
+
+	for my $in_file (sort {"$a" cmp "$b"} path($data_dir) -> children(qr/^fixed.paths/) )
+	{
+		next if ($in_file =~ /(?:02|03)/);
+
+		$out_file = $in_file =~ s/\.in\./\.out\./r;
+		$out_file =~ s/\.gv$//;
+		$out_file =~ s/^$data_dir/$out_dir/;
+
+		print "Starting $in_file => $out_file\n";
+
+		$result = GraphViz2::Marpa::PathUtils -> new
+					(
+						allow_cycles           => 0,
+						input_file             => "$in_file",
+						output_dot_file_prefix => "$out_file",
+						path_length            => 3,
+					) -> find_fixed_length_paths;
+
+		print "Fixed length paths: $in_file => $out_file. \n";
+	}
+
+} # End of find_fixed_length_paths.
 
 # -----------------------------------------------
 
@@ -81,49 +121,7 @@ sub generate_demo
 		"<a href = '$_'><span class = 'local_text'>$s</span></a>"
 	} @{$self -> generate_html4clusters};
 
-=pod
-
-	my(@fixed_in) = grep{/fixed.paths.in.gv/}  @demo_file;
-
-	$self -> find_fixed_length_paths($data_dir, $html_dir, \@fixed_in);
-
-	@demo_file       = read_dir($html_dir);
-	@cluster_in      = sort grep{/clusters.in.svg/}     @demo_file;
-	my(@cluster_out) = sort grep{/clusters.out.svg/}    @demo_file;
-	@fixed_in        = sort grep{/fixed.paths.in.svg/}  @demo_file;
-	my(@fixed_out)   = sort grep{/fixed.paths.out.svg/} @demo_file;
-
-	my(@cluster);
-
-	for my $i (0 .. $#cluster_in)
-	{
-		push @cluster,
-		[
-			{td => mark_raw qq|<object data="$cluster_in[$i]">|},
-			{td => $cluster_in[$i]},
-		],
-		[
-			{td => mark_raw qq|<object data="$cluster_out[$i]">|},
-			{td => $cluster_out[$i]},
-		];
-	}
-
-	my(@fixed_path);
-
-	for my $i (0 .. $#fixed_in)
-	{
-		push @fixed_path,
-		[
-			{td => mark_raw qq|<object data="$fixed_in[$i]">|},
-			{td => $fixed_in[$i]},
-		],
-		[
-			{td => mark_raw qq|<object data="$fixed_out[$i]">|},
-			{td => $fixed_out[$i]},
-		];
-	}
-
-=cut
+	$self -> find_fixed_length_paths($data_dir, $out_dir);
 
 	my($config)    = $self -> config;
 	my($templater) = Text::Xslate -> new

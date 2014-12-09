@@ -13,9 +13,6 @@ strict digraph graph_55
 
 		{
 			node[fillcolor = "darkorchid" shape = "pentagon"]
-			F[color = "darkorchid" fillcolor = "yellow" penwidth = "5" shape = "hexagon"]
-			G[color = "crimson" penwidth = "7"]
-			F -> G[color = "orange"]
 
 		}
 
@@ -32,7 +29,8 @@ strict digraph graph_55
 
 			node[fillcolor = "magenta" fontsize = "26" shape = "triangle"]
 			edge[color = "blue"]
-
+			J[color = "yellow" shape = "square"]
+			J -> K
 		}
 
 	}

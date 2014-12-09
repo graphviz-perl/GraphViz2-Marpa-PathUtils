@@ -164,7 +164,7 @@ sub _find_cluster_containing_start_node
 
 	my(@ids) = keys %new_trees;
 
-	die "Error: @{[$#ids + 1]} trees containg the start node. There should be just 1\n" if ($#ids != 0);
+	die "Error: @{[$#ids + 1]} trees containg the start node. There should be exactly 1\n" if ($#ids != 0);
 
 	return $new_trees{$ids[0]};
 
