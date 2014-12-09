@@ -15,9 +15,9 @@ NODE=$3
 
 perl -Ilib scripts/find.fixed.length.paths.pl \
 	-allow_cycles 0 \
-	-input data/fixed.paths.in.$FILE.gv \
+	-input_file data/fixed.paths.in.$FILE.gv \
 	-max info \
-	-output_dot_file out/fixed.paths.out.$FILE.gv \
+	-output_dot_file_prefix out/fixed.paths.out.$FILE.gv \
 	-path_length $LENGTH \
 	-report_paths 1 \
 	-start_node $NODE

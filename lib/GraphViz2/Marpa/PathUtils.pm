@@ -88,7 +88,7 @@ has report_paths =>
 
 has start_node =>
 (
-	default  => sub{return undef},
+	default  => sub{return ''},
 	is       => 'rw',
 	isa      => Str,
 	required => 0,
@@ -789,10 +789,7 @@ sub find_fixed_length_paths
 {
 	my($self) = @_;
 
-	print 'start_node:  ', (defined $self -> start_node) ? "defined\n" : "undefined\n";
-	print 'path_length: ', $self -> path_length, "\n";
-
-	die "Error: No start node specified\n"  if (! defined $self -> start_node);
+	die "Error: No start node specified\n" if (length($self -> start_node) == 0);
 	die "Error: Path length must be > 0\n" if ($self -> path_length <= 0);
 
 	$self -> cluster_sets($self -> _preprocess);
@@ -802,7 +799,8 @@ sub find_fixed_length_paths
 	$self -> _find_fixed_length_paths($tree);
 	$self -> _winnow_fixed_length_paths;
 
-	my($title) = 'Starting node: ' . $self -> start_node . "\\n" .
+	my($title) = 'Input file: ' . $self -> input_file . "\\n" .
+		'Starting node: ' . $self -> start_node . "\\n" .
 		'Path length: ' . $self -> path_length . "\\n" .
 		'Allow cycles: ' . $self -> allow_cycles . "\\n" .
 		'Paths: ' . scalar @{$self -> fixed_path_set};
@@ -1013,11 +1011,11 @@ sub report_cluster_members
 	my($self) = @_;
 	my($sets) = $self -> cluster_sets;
 
-	$self -> log(info => 'Cluster membership:');
+	$self -> log(notice => 'Input file: ' . $self -> input_file . '. Cluster membership:');
 
 	for my $id (sort keys %$sets)
 	{
-		$self -> log(info => "Cluster $id contains " . $$sets{$id} -> as_string);
+		$self -> log(notice => "Cluster $id contains " . $$sets{$id} -> as_string);
 	}
 
 } # End of report_cluster_members.

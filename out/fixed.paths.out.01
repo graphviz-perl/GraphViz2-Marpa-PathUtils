@@ -1,0 +1,12 @@
+digraph fixed_length_paths
+{
+	label = "Input file: data/fixed.paths.in.01.gv\nStarting node: Act_1\nPath length: 1\nAllow cycles: 0\nPaths: 2" rankdir = LR
+
+	"1" [label = "Act_1"]
+	"2" [label = "Act_23"]
+	"3" [label = "Act_1"]
+	"4" [label = "Act_21"]
+
+	"1"  ->  "2"
+	"3"  ->  "4"
+}
