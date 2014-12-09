@@ -138,11 +138,11 @@ sub _find_cluster_containing_start_node
 
 	# There should be just 1 tree containing the start node.
 
-	my($count) = scalar keys %new_trees;
+	my(@ids) = keys %new_trees;
 
-	die "Error: $count trees containg the start node. There should be just 1\n" if ($count != 1);
+	die "Error: @{[$#ids + 1]} trees containg the start node. There should be just 1\n" if ($#ids != 0);
 
-	$self -> cluster_trees(\%new_trees);
+	return $new_trees{$ids[0]};
 
 } # End of _find_cluster_containing_start_node.
 
@@ -704,7 +704,7 @@ sub _find_fixed_length_path_set
 
 sub _find_fixed_length_paths
 {
-	my($self) = @_;
+	my($self, $tree) = @_;
 
 	# Phase 1: Find all copies of the start node.
 
@@ -713,7 +713,7 @@ sub _find_fixed_length_paths
 	my(@start);
 	my($value);
 
-	$self -> tree -> walk_down
+	$tree -> walk_down
 	({
 		callback =>
 		sub
@@ -764,9 +764,10 @@ sub find_fixed_length_paths
 	die "Error: Path length must be >= 0\n" if ($self -> path_length < 0);
 
 	$self -> cluster_sets($self -> _preprocess);
-	$self -> _find_cluster_containing_start_node;
 
-#	$self -> _find_fixed_length_paths;
+	my($tree) = $self -> _find_cluster_containing_start_node;
+
+	$self -> _find_fixed_length_paths($tree);
 
 =pod
 
