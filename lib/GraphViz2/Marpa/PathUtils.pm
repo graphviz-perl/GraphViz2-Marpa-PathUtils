@@ -1571,6 +1571,12 @@ Get or set the name of the node from where all paths must start.
 
 =head1 FAQ
 
+=head2 I can't get this module to work with Path::Tiny objects
+
+If your input and output file names are L<Path::Tiny> objects, do this:
+
+	new(input_file => "$input_file", output_file => "$output_file", ...)
+
 =head2 What are the 2 interpretations of C<output_file>?
 
 This section discusses input/output DOT file naming. HTML file names follow the same system.

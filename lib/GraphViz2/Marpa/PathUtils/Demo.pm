@@ -50,9 +50,8 @@ sub _find_clusters
 
 		$result = GraphViz2::Marpa::PathUtils -> new
 					(
-						input_file      => "$in_file",
-						output_file     => "$out_prefix",
-						report_clusters => 1,
+						input_file  => "$in_file",
+						output_file => "$out_prefix",
 					) -> find_clusters;
 
 		print "Clusters: Result: $result ( 0 is success). \n";
@@ -87,7 +86,6 @@ sub _find_fixed_length_paths
 						input_file   => "$in_file",
 						output_file  => "$out_file",
 						path_length  => 3,
-						report_paths => 1,
 						start_node   => $start_node{$in_file},
 					) -> find_fixed_length_paths;
 
@@ -220,7 +218,7 @@ sub _generate_html4clusters
 
 		# We must remove the html/ prefix before $svg_in_file goes into the template.
 
-		$svg_in_file  =~ s/^$html_dir//;
+		$svg_in_file =~ s/^$html_dir//;
 
 		# Phase 2: The input files.
 
@@ -240,6 +238,8 @@ sub _generate_html4clusters
 			$svg_out_file      = path("$svg_out_prefix.svg");
 
 			$svg_out_file -> spew_utf8($stdout);
+
+			# We must remove the html/ prefix before $svg_in_file goes into the template.
 
 			$svg_out_file =~ s/^$html_dir//;
 
@@ -320,7 +320,7 @@ sub _generate_html4fixed_length_paths
 
 		# We must remove the html/ prefix before $svg_in_file goes into the template.
 
-		$svg_in_file       =~ s/^$html_dir//;
+		$svg_in_file =~ s/^$html_dir//;
 
 		# Phase 2: The output file.
 
