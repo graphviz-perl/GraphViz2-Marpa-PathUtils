@@ -1697,8 +1697,6 @@ found at each point along each path. Source code in the book is in Fortran.
 
 It's available as a PDF from L<http://www.math.upenn.edu/~wilf/website/CombAlgDownld.html>.
 
-=back
-
 =head1 Version Numbers
 
 Version numbers < 1.00 represent development versions. From 1.00 up, they are production versions.
