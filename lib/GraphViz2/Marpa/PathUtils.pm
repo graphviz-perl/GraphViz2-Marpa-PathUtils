@@ -56,7 +56,7 @@ has cluster_trees =>
 	required => 0,
 );
 
-has output_dot_file_prefix =>
+has output_dot_file =>
 (
 	default  => sub{return ''},
 	is       => 'rw',
@@ -504,7 +504,7 @@ sub find_clusters
 	$self -> _find_cluster_standalone_nodes($subgraph_sets);
 	$self -> report_cluster_members if ($self -> report_clusters);
 	$self -> _generate_tree_per_cluster;
-	$self -> output_clusters if ($self -> output_dot_file_prefix);
+	$self -> output_clusters if ($self -> output_dot_file);
 
 	# Return 0 for success and 1 for failure.
 
@@ -811,7 +811,7 @@ sub find_fixed_length_paths
 		'Paths: ' . scalar @{$self -> fixed_path_set};
 
 	$self -> report_fixed_length_paths($title)      if ($self -> report_paths);
-	$self -> _output_fixed_length_gv($tree, $title) if ($self -> output_dot_file_prefix);
+	$self -> _output_fixed_length_gv($tree, $title) if ($self -> output_dot_file);
 
 	# Return 0 for success and 1 for failure.
 
@@ -852,7 +852,7 @@ sub output_clusters
 {
 	my($self)   = @_;
 	my($sets)   = $self -> cluster_trees;
-	my($prefix) = $self -> output_dot_file_prefix;
+	my($prefix) = $self -> output_dot_file;
 
 	my($file_name);
 	my($renderer);
@@ -957,7 +957,7 @@ sub _output_fixed_length_gv
 
 	push @dot_text, '}', '';
 
-	my($output_file) = $self -> output_dot_file_prefix;
+	my($output_file) = $self -> output_dot_file;
 
 	open(my $fh, '> :encoding(utf-8)', $output_file) || die "Can't open(> $output_file): $!";
 	print $fh join("\n", @dot_text);

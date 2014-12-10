@@ -15,14 +15,14 @@ NODE=$3
 
 perl -Ilib scripts/find.fixed.length.paths.pl \
 	-allow_cycles 0 \
-	-input_file data/fixed.paths.in.$FILE.gv \
+	-input_file data/fixed.length.paths.in.$FILE.gv \
 	-max info \
-	-output_dot_file_prefix out/fixed.paths.out.$FILE.gv \
+	-output_dot_file out/fixed.length.paths.out.$FILE.gv \
 	-path_length $LENGTH \
 	-report_paths 1 \
 	-start_node $NODE
 
-dot -Tsvg data/fixed.paths.in.$FILE.gv > html/fixed.paths.in.$FILE.svg
-dot -Tsvg out/fixed.paths.out.$FILE.gv > html/fixed.paths.out.$FILE.svg
+dot -Tsvg data/fixed.length.paths.in.$FILE.gv > html/fixed.length.paths.in.$FILE.svg
+dot -Tsvg out/fixed.length.paths.out.$FILE.gv > html/fixed.length.paths.out.$FILE.svg
 
-cp html/fixed.paths.*.$FILE.svg $DR/Perl-modules/html/graphviz2.marpa.pathutils
+cp html/fixed.length.paths.*.$FILE.svg $DR/Perl-modules/html/graphviz2.marpa.pathutils

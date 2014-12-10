@@ -27,7 +27,7 @@ if ($option_parser -> getoptions
 	'input_file=s',
 	'maxlevel=s',
 	'minlevel=s',
-	'output_dot_file_prefix=s',
+	'output_dot_file=s',
 	'report_clusters=i',
 ) )
 {
@@ -60,7 +60,7 @@ find.clusters.pl [options]
 	-input_file aDOTInputFileName
 	-maxlevel logOption1
 	-minlevel logOption2
-	-output_dot_file_prefix aDOTInputFileNamePrefix
+	-output_dot_file aDOTInputFileNamePrefix
 	-report_clusters $Boolean
 
 Exit value: 0 for success, 1 for failure. Die upon error.
@@ -131,7 +131,7 @@ Default: 'error'.
 
 No lower levels are used.
 
-=item o -output_dot_file_prefix aDOTInputFileNamePrefix
+=item o -output_dot_file aDOTInputFileNamePrefix
 
 Specify the prefix of the DOT files to write for each cluster found.
 

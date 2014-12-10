@@ -1,6 +1,6 @@
 digraph fixed_length_paths
 {
-	label = "Input file: fixed.paths.in.01.gv\nStarting node: Act_1\nPath length: 3\nAllow cycles: 0\nPaths: 4" rankdir = LR
+	label = "Input file: fixed.length.paths.in.01.gv\nStarting node: Act_1\nPath length: 3\nAllow cycles: 0\nPaths: 4" rankdir = LR
 
 	"1" [label = "Act_1"]
 	"2" [label = "Act_23"]

@@ -9,7 +9,7 @@
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 123)">
 <title>fixed_length_paths</title>
 <polygon fill="white" stroke="none" points="-4,4 -4,-123 328,-123 328,4 -4,4"/>
-<text text-anchor="middle" x="162" y="-67.8" font-family="Times,serif" font-size="14.00">Input file: fixed.paths.in.02.gv</text>
+<text text-anchor="middle" x="162" y="-67.8" font-family="Times,serif" font-size="14.00">Input file: fixed.length.paths.in.02.gv</text>
 <text text-anchor="middle" x="162" y="-52.8" font-family="Times,serif" font-size="14.00">Starting node: 5</text>
 <text text-anchor="middle" x="162" y="-37.8" font-family="Times,serif" font-size="14.00">Path length: 3</text>
 <text text-anchor="middle" x="162" y="-22.8" font-family="Times,serif" font-size="14.00">Allow cycles: 0</text>
