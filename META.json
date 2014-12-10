@@ -4,9 +4,9 @@
       "Ron Savage <ron@savage.net.au>"
    ],
    "dynamic_config" : 1,
-   "generated_by" : "Module::Build version 0.4204",
+   "generated_by" : "Module::Build version 0.421",
    "license" : [
-      "artistic_2_0"
+      "artistic_2"
    ],
    "meta-spec" : {
       "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
@@ -27,23 +27,24 @@
       "runtime" : {
          "requires" : {
             "Capture::Tiny" : "0.1",
+            "Config" : "0",
             "Config::Tiny" : "2.14",
-            "Date::Format" : "2.24",
             "Date::Simple" : "3.03",
+            "File::Basename" : "2.84",
             "File::Copy" : "2.21",
             "File::HomeDir" : "0.99",
-            "File::Slurp" : "9999.19",
-            "File::Which" : "1.09",
+            "File::Spec" : "0",
+            "File::Temp" : "0",
             "Getopt::Long" : "2.38",
-            "GraphViz2" : "2.05",
             "GraphViz2::Marpa" : "1.06",
-            "Hash::FieldHash" : "0.1",
-            "IPC::Run3" : "0.045",
+            "GraphViz2::Marpa::Renderer::Graphviz" : "2.02",
+            "Moo" : "1.006001",
             "Path::Class" : "0.23",
+            "Path::Tiny" : "0.061",
             "Pod::Usage" : "1.36",
             "Set::Tiny" : "0.01",
             "Text::Xslate" : "1.4001",
-            "feature" : "0",
+            "Types::Standard" : "1.000004",
             "open" : "0",
             "parent" : "0.225",
             "strict" : "0",
@@ -54,22 +55,22 @@
    "provides" : {
       "GraphViz2::Marpa::PathUtils" : {
          "file" : "lib/GraphViz2/Marpa/PathUtils.pm",
-         "version" : "1.05"
+         "version" : "2.00"
       },
       "GraphViz2::Marpa::PathUtils::Config" : {
          "file" : "lib/GraphViz2/Marpa/PathUtils/Config.pm",
-         "version" : "1.05"
+         "version" : "2.00"
       },
-      "GraphViz2::Marpa::PathUtils::Utils" : {
-         "file" : "lib/GraphViz2/Marpa/PathUtils/Utils.pm",
-         "version" : "1.05"
+      "GraphViz2::Marpa::PathUtils::Demo" : {
+         "file" : "lib/GraphViz2/Marpa/PathUtils/Demo.pm",
+         "version" : "2.00"
       }
    },
    "release_status" : "stable",
    "resources" : {
       "license" : [
-         "http://opensource.org/licenses/artistic-license-2.0.php"
+         "http://www.perlfoundation.org/artistic_license_2_0"
       ]
    },
-   "version" : "1.05"
+   "version" : "2.00"
 }
