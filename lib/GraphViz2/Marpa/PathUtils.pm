@@ -801,6 +801,9 @@ sub find_fixed_length_paths
 	$self -> _find_fixed_length_paths($tree);
 	$self -> _winnow_fixed_length_paths;
 
+	$self -> log(notice => 'Raw name:  ' . $self -> input_file);
+	$self -> log(notice => 'Base name: ' . basename($self -> input_file) );
+
 	my($title) = 'Input file: ' . basename($self -> input_file) . "\\n" .
 		'Starting node: ' . $self -> start_node . "\\n" .
 		'Path length: ' . $self -> path_length . "\\n" .
