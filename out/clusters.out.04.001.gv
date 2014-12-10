@@ -3,6 +3,6 @@ digraph graph_03
 	rankdir = "TB"
 
 	node[color = "blue"]
-	C -> D[color = "red"]
+	A -> B[color = "green"]
 
 }

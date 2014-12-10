@@ -1,10 +1,13 @@
 strict digraph path_set_01
 {
-	a[color = "red" style = "filled"]
-	b[color = "green" style = "filled"]
-	a -> b
+	c[color = "blue" style = "filled"]
+	d[color = "orange" style = "filled"]
+	e[color = "goldenrod" style = "filled"]
+	c ->
+	
 	{
-
+		d
+		e
 	}
 
 	{

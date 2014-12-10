@@ -3,9 +3,11 @@ digraph G
 	graph[rankdir = "LR" nodesep = "0"]
 	node[shape = "point" label = ""]
 	edge[fontsize = "10"]
-	_dot -> dot[arrowhead = "dot" label = "dot"]
-	dot -> dotdot[arrowhead = "dotdot" label = "dotdot"]
-	_dot -> odot[arrowhead = "odot" label = "odot"]
-	odot -> odotodot[arrowhead = "odotodot" label = "odotodot"]
+	_curve -> curve[arrowhead = "curve" label = "curve"]
+	curve -> curvecurve[arrowhead = "curvecurve" label = "curvecurve"]
+	_curve -> lcurve[arrowhead = "lcurve" label = "lcurve"]
+	lcurve -> lcurvelcurve[arrowhead = "lcurvelcurve" label = "lcurvelcurve"]
+	_curve -> rcurve[arrowhead = "rcurve" label = "rcurve"]
+	rcurve -> rcurvercurve[arrowhead = "rcurvercurve" label = "rcurvercurve"]
 
 }

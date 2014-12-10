@@ -127,7 +127,7 @@ sub _coelesce_cluster_sets
 	# We take a copy of the keys so that we can delete hash keys
 	# in arbitrary order while processing the sets which are the values.
 
-	my(@nodes) = keys %$clusters;
+	my(@nodes) = sort keys %$clusters;
 	my($count) = 0;
 
 	my(%subgraphs);
@@ -218,7 +218,7 @@ sub _find_cluster_mothers_with_edges
 
 sub _find_cluster_reachable_nodes
 {
-	my($self, $edgy) = @_;
+	my($self, $uids) = @_;
 
 	my(%clusters);
 	my(@daughters);
@@ -227,9 +227,9 @@ sub _find_cluster_reachable_nodes
 
 	# This loop is outwardly the same as the one in _find_clusters_trees().
 
-	for my $mother_uid (sort keys %$edgy)
+	for my $mother_uid (sort keys %$uids)
 	{
-		@daughters = $$edgy{$mother_uid} -> daughters;
+		@daughters = $$uids{$mother_uid} -> daughters;
 
 		for my $index (0 .. $#daughters)
 		{
@@ -801,9 +801,6 @@ sub find_fixed_length_paths
 	$self -> _find_fixed_length_paths($tree);
 	$self -> _winnow_fixed_length_paths;
 
-	$self -> log(notice => 'Raw name:  ' . $self -> input_file);
-	$self -> log(notice => 'Base name: ' . basename($self -> input_file) );
-
 	my($title) = 'Input file: ' . basename($self -> input_file) . "\\n" .
 		'Starting node: ' . $self -> start_node . "\\n" .
 		'Path length: ' . $self -> path_length . "\\n" .
@@ -978,8 +975,8 @@ sub _preprocess
 	# Find mothers who have edges amongst their daughters.
 	# Then process the daughters of those mothers.
 
-	my($edgy)      = $self -> _find_cluster_mothers_with_edges;
-	my($clusters)  = $self -> _find_cluster_reachable_nodes($edgy);
+	my($uids)      = $self -> _find_cluster_mothers_with_edges;
+	my($clusters)  = $self -> _find_cluster_reachable_nodes($uids);
 	my($subgraphs) = $self -> _coelesce_cluster_sets($clusters);
 
 	# Renumber subgraphs by discarding duplicate sets.
@@ -989,7 +986,7 @@ sub _preprocess
 	my(@members, $members);
 	my(%subgraph_sets, %seen);
 
-	for my $id (keys %$subgraphs)
+	for my $id (sort keys %$subgraphs)
 	{
 		@members = sort $$subgraphs{$id} -> members;
 		$members = join(' ', @members);
@@ -1016,9 +1013,9 @@ sub report_cluster_members
 	my($self) = @_;
 	my($sets) = $self -> cluster_sets;
 
-	$self -> log(notice => 'Input file: ' . $self -> input_file . '. Cluster membership:');
+	$self -> log(notice => 'Input file: ' . basename($self -> input_file) . '. Cluster membership:');
 
-	for my $id (sort{0+$a <=> 0+$b} keys %$sets)
+	for my $id (sort keys %$sets)
 	{
 		$self -> log(notice => "Cluster: $id. " . $$sets{$id} -> as_string);
 	}

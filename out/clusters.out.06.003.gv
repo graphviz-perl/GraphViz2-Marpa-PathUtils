@@ -13,6 +13,9 @@ strict digraph graph_55
 
 		{
 			node[fillcolor = "darkorchid" shape = "pentagon"]
+			F[color = "darkorchid" fillcolor = "yellow" penwidth = "5" shape = "hexagon"]
+			G[color = "crimson" penwidth = "7"]
+			F -> G[color = "orange"]
 
 		}
 
@@ -23,7 +26,6 @@ strict digraph graph_55
 	{
 		label = "Outer"
 
-		H -> I
 		subgraph cluster_inner
 		{
 			label = "Inner"
