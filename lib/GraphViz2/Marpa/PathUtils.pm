@@ -791,8 +791,8 @@ sub find_fixed_length_paths
 		'Allow cycles: ' . $self -> allow_cycles . "\\n" .
 		'Paths: ' . scalar @{$self -> fixed_path_set};
 
-	$self -> report_fixed_length_paths($title)      if ($self -> report_paths);
-	$self -> _output_fixed_length_gv($tree, $title) if ($self -> output_file);
+	$self -> report_fixed_length_paths($title)     if ($self -> report_paths);
+	$self -> output_fixed_length_gv($tree, $title) if ($self -> output_file);
 
 	# Return 0 for success and 1 for failure.
 
@@ -857,7 +857,7 @@ sub output_clusters
 # -----------------------------------------------
 # Prepare the dot input, renumbering the nodes so dot does not coalesce the path set.
 
-sub _output_fixed_length_gv
+sub output_fixed_length_gv
 {
 	my($self, $tree, $title) = @_;
 
@@ -944,7 +944,7 @@ sub _output_fixed_length_gv
 	print $fh join("\n", @dot_text);
 	close $fh;
 
-} # End of _output_fixed_length_gv.
+} # End of output_fixed_length_gv.
 
 # -----------------------------------------------
 
@@ -1264,7 +1264,9 @@ under L</The Configuration File>.
 
 =item o find.clusters.pl
 
-This runs the L</find_clusters()> method in GraphViz2::Marpa::PathUtils.
+Try shell> perl find.clusters.pl -h
+
+This runs the L</find_clusters()> method.
 
 =item o find.clusters.sh
 
@@ -1272,7 +1274,7 @@ This runs find.clusters.pl with hard-coded parameters, and is what I use for tes
 
 =item o find.fixed.length.paths.pl
 
-This runs the L</find_fixed_length_paths()> method in GraphViz2::Marpa::PathUtils.
+This runs the L</find_fixed_length_paths()> method.
 
 Try shell> perl find.fixed.length.paths.pl -h
 
@@ -1296,10 +1298,6 @@ $DR/Perl-modules/html/graphviz2.marpa.pathutils/.
 =item o pod2html.sh
 
 Converts all *.pm files to *.html, and copies them in my web server's dir structure.
-
-=item o test.set.tiny.pl
-
-Check that L<Set::Tiny>'s is_subset() and is_proper_subset() behave as expected.
 
 =back
 
@@ -1348,11 +1346,27 @@ C<new()> is called as C<< my($obj) = GraphViz2::Marpa::PathUtils -> new(k1 => v1
 
 It returns a new object of type C<GraphViz2::Marpa::PathUtils>.
 
-This class is a descendent of L<GraphViz2::Marpa>, and hence inherits all its keys to new(), and all
-its methods.
+This class is a descendent of L<GraphViz2::Marpa>, and hence inherits all its parameters.
 
-Specifically, see L<GraphViz2::Marpa/Constructor and Initialization> for more options to new(),
-including I<maxlevel>.
+In particular, see L<GraphViz2::Marpa/Constructor and Initialization> for these parameters:
+
+=over 4
+
+=item o description
+
+=item o input_file
+
+=item o logger
+
+=item o maxlevel
+
+=item o minlevel
+
+=item o output_file
+
+See the L</FAQ> for the 2 interpretations of this parameter.
+
+=back
 
 Further, these key-value pairs are accepted in the parameter list (see corresponding methods for
 details [e.g. L</path_length($integer)>]):
@@ -1378,16 +1392,6 @@ This is the default.
 Default: 0.
 
 This option is only used when calling L</find_fixed_length_paths()>.
-
-=item o output_file => aDOTInputFileName
-
-Specify the name of a file to write which will contain the DOT description output.
-
-This parameter has 2 interpretations. See the L</FAQ> for details.
-
-Default: ''.
-
-This file is not written if the value is ''.
 
 =item o path_length => $integer
 
@@ -1435,6 +1439,26 @@ This option is only used when calling L</find_fixed_length_paths()>.
 
 This class is a descendent of L<GraphViz2::Marpa>, and hence inherits all its methods.
 
+In particular, see L<GraphViz2::Marpa/Methods> for these methods:
+
+=over 4
+
+=item o description
+
+=item o input_file
+
+=item o logger
+
+=item o maxlevel
+
+=item o minlevel
+
+=item o output_file
+
+See the L</FAQ> for the 2 interpretations of this method.
+
+=back
+
 Further, these methods are implemented.
 
 =head2 allow_cycles([$integer])
@@ -1445,7 +1469,7 @@ Get or set the value determining whether or not cycles are allowed in the paths 
 
 'allow_cycles' is a parameter to L</new()>. See L</Constructor and Initialization> for details.
 
-=head2 cluster_edge_set()
+=head2 cluster_set()
 
 Returns an arrayref of clusters, where each element is an arrayref.
 
@@ -1464,7 +1488,7 @@ See the source code of L</report_cluster_members()> for sample usage.
 
 =head2 find_clusters()
 
-This is one of the methods which does all the work, and hence must be called.
+This is one of the 2 methods which does all the work, and hence must be called.
 The other is L</find_fixed_length_paths()>.
 
 See the L</Synopsis> and scripts/find.clusters.pl.
@@ -1473,7 +1497,7 @@ Returns 0 for success and 1 for failure.
 
 =head2 find_fixed_length_paths()
 
-This is one of the methods which does all the work, and hence must be called.
+This is one of the 2 methods which does all the work, and hence must be called.
 The other is L</find_clusters()>.
 
 See the L</Synopsis> and scripts/find.fixed.length.paths.pl.
@@ -1490,6 +1514,15 @@ See the source code of sub L</report_fixed_length_paths()> for sample usage.
 =head2 new()
 
 See L</Constructor and Initialization> for details on the parameters accepted by L</new()>.
+
+=head2 output_clusters()
+
+Output a set of files, one per cluster, if new() was called as new(output_file => '...').
+
+=head2 output_fixed_length_gv($tree, $title)
+
+Output a DOT file for given $tree, with the given $title, if new() was called as
+new(output_file => '...').
 
 =head2 path_length([$integer])
 
@@ -1589,17 +1622,6 @@ L<blog|http://jeffreykegler.github.io/Ocean-of-Awareness-blog/metapages/annotate
 
 They are simply counted in the order discovered in the input file.
 
-But see the next questions.
-
-=head2 If I run your code multiple times, I get different clusters!
-
-No, the results will be the same, but the output files will be generated in a different order.
-
-This just means means the arbitrary numbers assigned to the generated clusters are being assigned in
-a  different order from run to run.
-
-It's not clear to me why the clusters are not found in the same order each time the program is run.
-
 =head2 How are cycles in fixed path length analysis handled?
 
 This is controlled by the I<allow_cycles> option to new(), or the corresponding method
@@ -1633,10 +1655,10 @@ and 2**3 = 8.
 
 See data/01.non.unique.gv and html/01.non.unique.svg.
 
-=head2 The number of options is confusing!
+=head2 The number of options is confusing
 
 Agreed. Remember that this code calls L<GraphViz2::Marpa>'s run() method, which expects a large
-number of options because it calls both the lexer and the parser.
+number of options.
 
 =head2 Why do I get error messages like the following?
 
@@ -1667,9 +1689,6 @@ words:
 Even better, use a more meaningful name for your graph...
 
 =head1 Reference
-
-V 1 of this module used code from this book. Since V 2 now properly parses DOT files, the code
-referred to here is no longer needed.
 
 Combinatorial Algorithms for Computers and Calculators, A Nijenhuis and H Wilf, p 240.
 
