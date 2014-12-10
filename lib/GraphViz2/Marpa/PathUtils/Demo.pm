@@ -77,7 +77,6 @@ sub _find_fixed_length_paths
 	for my $in_file (sort {"$a" cmp "$b"} path($data_dir) -> children(qr/^fixed.length.paths/) )
 	{
 		$out_file = $in_file =~ s/\.in\./\.out\./r;
-		$out_file =~ s/\.gv$//;
 		$out_file =~ s/^$data_dir/$out_dir/;
 
 		$result = GraphViz2::Marpa::PathUtils -> new

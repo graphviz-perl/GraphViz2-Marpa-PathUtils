@@ -24,8 +24,10 @@ do
 	IN="$IN.gv";
 
 	dot -Tsvg out/$IN > html/$OUT
-
-	cp html/$OUT $DR/Perl-modules/html/graphviz2.marpa.pathutils/
 done
 
-#ls -aFl data/$GV2* -aFl html/$GV2* $DR/Perl-modules/html/graphviz2.marpa.pathutils/$GV2*
+# $DR is my web server's doc root.
+
+PM=Perl-modules/html/graphviz2.marpa.pathutils
+
+cp html/clusters.* $DR/$PM

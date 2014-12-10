@@ -24,4 +24,8 @@ perl -Ilib scripts/find.fixed.length.paths.pl \
 dot -Tsvg data/fixed.length.paths.in.$FILE.gv > html/fixed.length.paths.in.$FILE.svg
 dot -Tsvg out/fixed.length.paths.out.$FILE.gv > html/fixed.length.paths.out.$FILE.svg
 
-cp html/fixed.length.paths.*.$FILE.svg $DR/Perl-modules/html/graphviz2.marpa.pathutils
+# $DR is my web server's doc root.
+
+PM=Perl-modules/html/graphviz2.marpa.pathutils
+
+cp html/fixed.length.paths.* $DR/$PM
