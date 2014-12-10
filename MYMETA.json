@@ -6,7 +6,7 @@
    "dynamic_config" : 0,
    "generated_by" : "Module::Build version 0.421",
    "license" : [
-      "unknown"
+      "artistic_2"
    ],
    "meta-spec" : {
       "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
@@ -55,22 +55,22 @@
    "provides" : {
       "GraphViz2::Marpa::PathUtils" : {
          "file" : "lib/GraphViz2/Marpa/PathUtils.pm",
-         "version" : "1.05"
+         "version" : "2.00"
       },
       "GraphViz2::Marpa::PathUtils::Config" : {
          "file" : "lib/GraphViz2/Marpa/PathUtils/Config.pm",
-         "version" : "1.05"
+         "version" : "2.00"
       },
-      "GraphViz2::Marpa::PathUtils::Utils" : {
-         "file" : "lib/GraphViz2/Marpa/PathUtils/Utils.pm",
-         "version" : "1.05"
+      "GraphViz2::Marpa::PathUtils::Demo" : {
+         "file" : "lib/GraphViz2/Marpa/PathUtils/Demo.pm",
+         "version" : "2.00"
       }
    },
    "release_status" : "stable",
    "resources" : {
       "license" : [
-         "http://opensource.org/licenses/artistic-license-2.0.php"
+         "http://www.perlfoundation.org/artistic_license_2_0"
       ]
    },
-   "version" : "1.05"
+   "version" : "2.00"
 }
