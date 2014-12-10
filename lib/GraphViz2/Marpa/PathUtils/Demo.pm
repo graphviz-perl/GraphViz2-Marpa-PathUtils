@@ -51,7 +51,7 @@ sub find_clusters
 		$result = GraphViz2::Marpa::PathUtils -> new
 					(
 						input_file      => "$in_file",
-						output_dot_file => "$out_prefix",
+						output_file     => "$out_prefix",
 						report_clusters => 1,
 					) -> find_clusters;
 
@@ -85,12 +85,12 @@ sub find_fixed_length_paths
 
 		$result = GraphViz2::Marpa::PathUtils -> new
 					(
-						allow_cycles    => 0,
-						input_file      => "$in_file",
-						output_dot_file => "$out_file",
-						path_length     => 3,
-						report_paths    => 1,
-						start_node      => $start_node{$in_file},
+						allow_cycles => 0,
+						input_file   => "$in_file",
+						output_file  => "$out_file",
+						path_length  => 3,
+						report_paths => 1,
+						start_node   => $start_node{$in_file},
 					) -> find_fixed_length_paths;
 
 		print "Fixed length paths: Result: $result ( 0 is success). \n";

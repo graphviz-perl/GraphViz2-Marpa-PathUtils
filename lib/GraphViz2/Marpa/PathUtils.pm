@@ -32,22 +32,6 @@ has cluster_sets =>
 	required => 0,
 );
 
-has dot_input =>
-(
-	default  => sub{return ''},
-	is       => 'rw',
-	isa      => Str,
-	required => 0,
-);
-
-has fixed_path_set =>
-(
-	default  => sub{return []},
-	is       => 'rw',
-	isa      => ArrayRef,
-	required => 0,
-);
-
 has cluster_trees =>
 (
 	default  => sub{return {} },
@@ -56,11 +40,11 @@ has cluster_trees =>
 	required => 0,
 );
 
-has output_dot_file =>
+has fixed_path_set =>
 (
-	default  => sub{return ''},
+	default  => sub{return []},
 	is       => 'rw',
-	isa      => Str,
+	isa      => ArrayRef,
 	required => 0,
 );
 
@@ -504,7 +488,7 @@ sub find_clusters
 	$self -> _find_cluster_standalone_nodes($subgraph_sets);
 	$self -> report_cluster_members if ($self -> report_clusters);
 	$self -> _generate_tree_per_cluster;
-	$self -> output_clusters if ($self -> output_dot_file);
+	$self -> output_clusters if ($self -> output_file);
 
 	# Return 0 for success and 1 for failure.
 
@@ -808,7 +792,7 @@ sub find_fixed_length_paths
 		'Paths: ' . scalar @{$self -> fixed_path_set};
 
 	$self -> report_fixed_length_paths($title)      if ($self -> report_paths);
-	$self -> _output_fixed_length_gv($tree, $title) if ($self -> output_dot_file);
+	$self -> _output_fixed_length_gv($tree, $title) if ($self -> output_file);
 
 	# Return 0 for success and 1 for failure.
 
@@ -849,7 +833,7 @@ sub output_clusters
 {
 	my($self)   = @_;
 	my($sets)   = $self -> cluster_trees;
-	my($prefix) = $self -> output_dot_file;
+	my($prefix) = $self -> output_file;
 
 	my($file_name);
 	my($renderer);
@@ -954,7 +938,7 @@ sub _output_fixed_length_gv
 
 	push @dot_text, '}', '';
 
-	my($output_file) = $self -> output_dot_file;
+	my($output_file) = $self -> output_file;
 
 	open(my $fh, '> :encoding(utf-8)', $output_file) || die "Can't open(> $output_file): $!";
 	print $fh join("\n", @dot_text);
@@ -1188,19 +1172,17 @@ Either pass parameters in to new():
 
 	GraphViz2::Marpa::PathUtils -> new
 	(
-	    input_file        => 'data/jointed.edges.gv',
-	    output_dot_file   => 'data/clusters.gv',
-	    output_image_file => 'html/clusters.svg',
-	    report_clusters   => 1,
+	    input_file      => 'data/clusters.in.09.gv',
+	    output_file     => 'out/clusters.out.09', # Actually a prefix. See FAQ.
+	    report_clusters => 1,
 	);
 
 Or call methods to set parameters;
 
 	my($parser) = GraphViz2::Marpa::PathUtils -> new;
 
-	$parser -> input_file('data/jointed.edges.gv');
-	$parser -> output_dot_file('data/fixed.length.paths.gv');
-	$parser -> output_image_file('html/fixed.length.paths.sgv');
+	$parser -> input_file('data/clusters.in.09.gv');
+	$parser -> output_file('out/clusters.out.09');
 	$parser -> report_clusters(1);
 
 And then:
@@ -1219,24 +1201,22 @@ Either pass parameters in to new():
 
 	GraphViz2::Marpa::PathUtils -> new
 	(
-	    allow_cycles      => 1,
-	    input_file        => 'data/90.KW91.gv',
-	    output_dot_file   => 'data/fixed.length.paths.gv',
-	    output_image_file => 'html/fixed.length.paths.svg',
-	    path_length       => 4,
-	    report_paths      => 1,
-	    start_node        => 'Act_1',
+	    allow_cycles => 0,
+	    input_file   => 'data/fixed.length.paths.in.01.gv',
+	    output_file  => 'out/fixed.length.paths.out.01',
+	    path_length  => 3,
+	    report_paths => 1,
+	    start_node   => 'Act_1',
 	) -> find_fixed_length_paths;
 
 Or call methods to set parameters;
 
 	my($parser) = GraphViz2::Marpa::PathUtils -> new;
 
-	$parser -> allow_cycles(1);
-	$parser -> input_file('data/90.KW91.gv');
-	$parser -> output_dot_file('data/fixed.length.paths.gv');
-	$parser -> output_image_file('html/fixed.length.paths.sgv');
-	$parser -> path_length(4);
+	$parser -> allow_cycles(0);
+	$parser -> input_file('data/fixed.length.paths.in.01.gv');
+	$parser -> output_file('out/fixed.length.paths.in.01');
+	$parser -> path_length(3);
 	$parser -> report_paths(1);
 	$parser -> start_node('Act_1');
 
@@ -1394,7 +1374,7 @@ Default: 0.
 
 This option is only used when calling L</find_fixed_length_paths()>.
 
-=item o output_dot_file => aDOTInputFileName
+=item o output_file => aDOTInputFileName
 
 Specify the name of a file to write which will contain the DOT description output.
 
@@ -1477,10 +1457,6 @@ The members of each set are the stringified I<names> of the members of the clust
 
 See the source code of L</report_cluster_members()> for sample usage.
 
-=head2 dot_input()
-
-Returns the string which will be input to the I<dot> program.
-
 =head2 find_clusters()
 
 This is one of the methods which does all the work, and hence must be called.
@@ -1509,21 +1485,6 @@ See the source code of sub L</report_fixed_length_paths()> for sample usage.
 =head2 new()
 
 See L</Constructor and Initialization> for details on the parameters accepted by L</new()>.
-
-=head2 output_cluster_image()
-
-This writes the clusters found, as a DOT output file, as long as new(output_image_file => $name) was
-specified.
-
-=head2 output_dot_file([$name])
-
-Here the [] indicate an optional parameter.
-
-Get or set the name of the I<dot> input file to write.
-
-This parameter has 2 interpretations. See the L</FAQ> for details.
-
-'output_dot_file' is a parameter to L</new()>. See L</Constructor and Initialization> for details.
 
 =head2 path_length([$integer])
 
@@ -1567,7 +1528,7 @@ Get or set the name of the node from where all paths must start.
 
 =head1 FAQ
 
-=head2 What are the 2 interpretations of C<output_dot_file>?
+=head2 What are the 2 interpretations of C<output_file>?
 
 This section discusses input/output DOT file naming. HTML file names follow the same system.
 
@@ -1575,15 +1536,17 @@ This section discusses input/output DOT file naming. HTML file names follow the 
 
 =item o For clusters
 
-Each cluster's DOT syntax is written to a different file. So C<output_dot_file> must be the prefix
+Each cluster's DOT syntax is written to a different file. So C<output_file> must be the prefix
 of these output files.
 
 Hence, in scripts/find.clusters.sh, C<GV2=clusters.out.$1> (using $1 = '09', say) means output
 clusters' DOT files will be called C<clusters.out.09.001.gv> up to C<clusters.out.09.007.gv>.
 
+So, the prefix has ".$n.gv" attached as a suffix, for clusters 1 .. N.
+
 =item o For fixed length paths
 
-Since there is only ever 1 DOT file output here, C<output_dot_file> is the name of that file.
+Since there is only ever 1 DOT file output here, C<output_file> is the name of that file.
 
 Hence, in scripts/find.fixed.length.path.sh, the value supplied is
 C<out/fixed.length.paths.out.$FILE.gv>, where $FILE will be '01', '02' or '03'. So the output file,

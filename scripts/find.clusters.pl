@@ -21,13 +21,11 @@ if ($option_parser -> getoptions
 (
 	\%option,
 	'description=s',
-	'format=s',
 	'help',
-	'html_page_name=s',
 	'input_file=s',
 	'maxlevel=s',
 	'minlevel=s',
-	'output_dot_file=s',
+	'output_file=s',
 	'report_clusters=i',
 ) )
 {
@@ -54,13 +52,11 @@ find.clusters.pl [options]
 
 	Options:
 	-description graphDescription
-	-format imageFormatType
 	-help
-	-html_page_name aHTMLPageName
 	-input_file aDOTInputFileName
 	-maxlevel logOption1
 	-minlevel logOption2
-	-output_dot_file aDOTInputFileNamePrefix
+	-output_file aDOTInputFileNamePrefix
 	-report_clusters $Boolean
 
 Exit value: 0 for success, 1 for failure. Die upon error.
@@ -80,22 +76,6 @@ See also the -input_file option to read the description from a file.
 The -description option takes precedence over the -input_file option.
 
 Default: ''.
-
-=item o -format anImageFormatType
-
-Specify the type of image output by DOT to the tree_image_file, if any.
-
-Default: 'svg'.
-
-=item o -html_page_name aHTMLPageName
-
-Specify the name of the HTML file to write.
-
-This file contains the SVG versions of the input DOT file and all output DOT files.
-
-Default: ''.
-
-The default means the file is not written.
 
 =item o -help
 
@@ -131,7 +111,7 @@ Default: 'error'.
 
 No lower levels are used.
 
-=item o -output_dot_file aDOTInputFileNamePrefix
+=item o -output_file aDOTInputFileNamePrefix
 
 Specify the prefix of the DOT files to write for each cluster found.
 

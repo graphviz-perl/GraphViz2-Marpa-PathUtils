@@ -26,7 +26,7 @@ if ($option_parser -> getoptions
 	'input_file=s',
 	'maxlevel=s',
 	'minlevel=s',
-	'output_dot_file=s',
+	'output_file=s',
 	'path_length=i',
 	'report_paths=i',
 	'start_node=s',
@@ -60,7 +60,7 @@ find.fixed.length.paths.pl [options]
 	-input_file aDotInputFileName
 	-maxlevel logOption1
 	-minlevel logOption2
-	-output_dot_file aDOTInputFileName
+	-output_file aDOTInputFileName
 	-path_length $integer
 	-report_paths $Boolean
 	-start_node aNodeName
@@ -133,7 +133,7 @@ Default: 'error'.
 
 No lower levels are used.
 
-=item o -output_dot_file aDOTInputFileName
+=item o -output_file aDOTInputFileName
 
 Specify the name of a DOT file to write for the paths found.
 
