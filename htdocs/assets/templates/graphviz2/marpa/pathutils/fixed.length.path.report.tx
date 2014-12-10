@@ -11,7 +11,7 @@
 <body>
 	<h1 align="center">Sample files created with <a href="http://metacpan.org/release/GraphViz2-Marpa-PathUtils">GraphViz2::Marpa::PathUtils</a> V <: $version :>.</h1>
 
-	<p align="center">This page shows the result of calling find_clusters() on the input file <: $input_file :>.</p>
+	<p align="center">This page shows the result of calling find_fixed_length_paths() on the input file <: $input_file :>.</p>
 
 	<p align="center">All scripts, input files and output files required to generate these examples are shipped in the GraphViz2::Marpa::PathUtils distro.</p>
 

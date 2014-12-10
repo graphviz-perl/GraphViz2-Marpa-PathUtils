@@ -35,7 +35,7 @@ our $VERSION = '2.00';
 
 # -----------------------------------------------
 
-sub find_clusters
+sub _find_clusters
 {
 	my($self, $data_dir, $out_dir) = @_;
 
@@ -58,11 +58,11 @@ sub find_clusters
 		print "Clusters: Result: $result ( 0 is success). \n";
 	}
 
-} # End of find_clusters.
+} # End of _find_clusters.
 
 # -----------------------------------------------
 
-sub find_fixed_length_paths
+sub _find_fixed_length_paths
 {
 	my($self, $data_dir, $out_dir) = @_;
 	my(%start_node) =
@@ -77,8 +77,6 @@ sub find_fixed_length_paths
 
 	for my $in_file (sort {"$a" cmp "$b"} path($data_dir) -> children(qr/^fixed.length.paths/) )
 	{
-		next if ("$in_file" =~ /02/);
-
 		$out_file = $in_file =~ s/\.in\./\.out\./r;
 		$out_file =~ s/\.gv$//;
 		$out_file =~ s/^$data_dir/$out_dir/;
@@ -96,7 +94,7 @@ sub find_fixed_length_paths
 		print "Fixed length paths: Result: $result ( 0 is success). \n";
 	}
 
-} # End of find_fixed_length_paths.
+} # End of _find_fixed_length_paths.
 
 # -----------------------------------------------
 
@@ -107,7 +105,9 @@ sub generate_demo
 	my($html_dir) = 'html/';
 	my($out_dir)  = 'out/';
 
-	$self -> find_clusters($data_dir, $out_dir);
+	# Phase 1: Generate demo files, including HTML, using find_clusters().
+
+	$self -> _find_clusters($data_dir, $out_dir);
 
 	my(@html4clusters) = map
 	{
@@ -118,9 +118,24 @@ sub generate_demo
 		$s     =~ s/html$/gv/;
 
 		"<a href = '$_'><span class = 'local_text'>$s</span></a>"
-	} @{$self -> generate_html4clusters};
+	} @{$self -> _generate_html4clusters};
 
-	$self -> find_fixed_length_paths($data_dir, $out_dir);
+	# Phase 2: Generate demo files, including HTML, using find_fixed_length_paths().
+
+	$self -> _find_fixed_length_paths($data_dir, $out_dir);
+
+	my(@html4fixed_length_paths) = map
+	{
+		s/^$html_dir//;
+
+		my($s) = $_;
+		$s     =~ s/^/$data_dir/;
+		$s     =~ s/html$/gv/;
+
+		"<a href = '$_'><span class = 'local_text'>$s</span></a>"
+	} @{$self -> _generate_html4fixed_length_paths};
+
+	# Phase 3: Generate the demo web page.
 
 	my($config)    = $self -> config;
 	my($templater) = Text::Xslate -> new
@@ -137,7 +152,7 @@ sub generate_demo
 			default_css     => "$$config{css_url}/default.css",
 			environment     => $self -> generate_demo_environment,
 			fancy_table_css => "$$config{css_url}/fancy.table.css",
-#			fixed_data      => [@fixed_path],
+			fixed_data      => [map{[{td => mark_raw($_)}]} @html4fixed_length_paths],
 			version         => $VERSION,
 		}
 	);
@@ -173,7 +188,7 @@ sub generate_demo_environment
 
 # -----------------------------------------------
 
-sub generate_html4clusters
+sub _generate_html4clusters
 {
 	my($self)      = @_;
 	my($data_dir)  = 'data/';
@@ -193,6 +208,8 @@ sub generate_html4clusters
 
 	for my $in_file (sort {"$a" cmp "$b"} path($data_dir) -> children(qr/^clusters/) )
 	{
+		# Phase 1: The input file.
+
 		($stdout, $stderr) = capture{system('dot', '-T', 'svg', $in_file)};
 		$svg_in_prefix     = $in_file =~ s/^$data_dir/$html_dir/r;
 		$svg_in_prefix     =~ s/\.gv$//;
@@ -204,6 +221,9 @@ sub generate_html4clusters
 		# We must remove the html/ prefix before $svg_in_file goes into the template.
 
 		$svg_in_file  =~ s/^$html_dir//;
+
+		# Phase 2: The input files.
+
 		$out_prefix   = $in_file =~ s/\.in\./\.out\./r;
 		$out_prefix   =~ s/\.gv$//;
 		$out_prefix   =~ s/^$data_dir/$out_dir/;
@@ -251,7 +271,7 @@ sub generate_html4clusters
 						]
 					} sort{$$a[0] cmp $$b[0]} @svg_out_file,
 				],
-				version      => $VERSION,
+				version => $VERSION,
 			}
 		);
 
@@ -264,7 +284,95 @@ sub generate_html4clusters
 
 	return \@html_file;
 
-} # End of generate_html4clusters.
+} # End of _generate_html4clusters.
+
+# -----------------------------------------------
+
+sub _generate_html4fixed_length_paths
+{
+	my($self)      = @_;
+	my($data_dir)  = 'data/';
+	my($html_dir)  = 'html/';
+	my($out_dir)   = 'out/';
+	my($config)    = $self -> config;
+	my($templater) = Text::Xslate -> new
+	(
+	  input_layer => '',
+	  path        => $$config{template_path},
+	);
+
+	my($iter);
+	my($html_prefix, $html_file, @html_file);
+	my($out_prefix, $out_file);
+	my($stdout, $stderr, $svg_in_prefix, $svg_in_file, $svg_out_prefix, $svg_out_file);
+
+	for my $in_file (sort {"$a" cmp "$b"} path($data_dir) -> children(qr/^fixed/) )
+	{
+		# Phase 1: The input file.
+
+		($stdout, $stderr) = capture{system('dot', '-T', 'svg', $in_file)};
+		$svg_in_prefix     = $in_file =~ s/^$data_dir/$html_dir/r;
+		$svg_in_prefix     =~ s/\.gv$//;
+		$svg_in_file       = path("$svg_in_prefix.svg");
+		$html_file         = path("$svg_in_prefix.html");
+
+		$svg_in_file -> spew_utf8($stdout);
+
+		# We must remove the html/ prefix before $svg_in_file goes into the template.
+
+		$svg_in_file       =~ s/^$html_dir//;
+
+		# Phase 2: The output file.
+
+		$out_file          = $in_file =~ s/\.in\./\.out\./r;
+		$out_file          =~ s/^$data_dir/$out_dir/;
+		($stdout, $stderr) = capture{system('dot', '-T', 'svg', $out_file)};
+		$svg_out_prefix    = $out_file =~ s/^$out_dir/$html_dir/r;
+		$svg_out_prefix    =~ s/\.gv$//;
+		$svg_out_file      = path("$svg_out_prefix.svg");
+
+		$svg_out_file -> spew_utf8($stdout);
+
+		# We must remove the html/ prefix before $svg_in_file goes into the template.
+
+		$svg_out_file =~ s/^$html_dir//;
+
+		my($index) = $templater -> render
+		(
+			'fixed.length.path.report.tx',
+			{
+				border       => 1,
+				default_css  => "$$config{css_url}/default.css",
+				environment  => $self -> generate_demo_environment,
+				input_data   =>
+				[
+					[
+						{td => $in_file},
+						{td => mark_raw("<object data = '$svg_in_file'></object>")},
+					],
+				],
+				input_file   => $in_file,
+				output_data  =>
+				[
+					[
+						{td => $out_file},
+						{td => mark_raw("<object data = '$svg_out_file'></object>")},
+					]
+				],
+				version => $VERSION,
+			}
+		);
+
+		$html_file -> spew_utf8($index);
+
+		push @html_file, $html_file;
+
+		print "Wrote: $html_file\n";
+	}
+
+	return \@html_file;
+
+} # End of _generate_html4fixed_length_paths.
 
 # -----------------------------------------------
 
@@ -318,12 +426,6 @@ See scripts/generate.demo.pl.
 =head2 generate_demo_environment()
 
 Called by generate_demo(). Just adds a footer to the output file html/index.html.
-
-=head2 generate_html4cluster()
-
-Given an input_dot_file_prefix, provided to C<new()> or by calling C<generate_html4cluster($s)>,
-find the input DOT file, and all the output DOT files, and combine their corresponding SVGs into
-a web page.
 
 =head1 Version Numbers
 

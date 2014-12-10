@@ -1469,22 +1469,26 @@ Get or set the value determining whether or not cycles are allowed in the paths 
 
 'allow_cycles' is a parameter to L</new()>. See L</Constructor and Initialization> for details.
 
-=head2 cluster_set()
+=head2 cluster_sets()
 
-Returns an arrayref of clusters, where each element is an arrayref.
+Returns a hashref. The keys are integers and the values a set of type L<Set::Tiny>.
 
-Within the inner arrayrefs, each element is a 2-element arrayref. If the 2nd element is defined,
-the 2 elements are the ends of an edge. If the 2nd element is not defined, the 1st element is the
-name of a node which is the only node in the set.
+Each set contains the nodes of each independent sub-tree within the input file. Here, independent
+means there are no edges joining one sub-tree to another.
 
-See the source code for L</output_cluster_image()> for sample code.
+Both L</find_clusters()> and L</find_fixed_length_paths()> populate this hashref, but the former
+adds stand-alone nodes because they are clusters in their own right.
 
-=head2 cluster_set()
+So why doesn't L</find_fixed_length_paths()> add stand-alone nodes? Because you can't have a path
+of length 0, so stand-alone nodes cannot particiate in the search for fixed length paths.
 
-Returns an arrayref of clusters, where each element is an object of type L<Set::Tiny>.
-The members of each set are the stringified I<names> of the members of the clusters.
+=head2 cluster_trees()
 
-See the source code of L</report_cluster_members()> for sample usage.
+Returns a hashref. The keys are integers and the values are L<Tree::DAG_Node> trees.
+
+This is only called by L</find_clusters()>.
+
+The input comes from calling L</cluster_sets()>, so the output is one tree per cluster.
 
 =head2 find_clusters()
 
@@ -1507,9 +1511,10 @@ Returns 0 for success and 1 for failure.
 =head2 fixed_path_set()
 
 Returns the arrayref of paths found. Each element is 1 path, and paths are stored as an arrayref of
-objects of type L<Tree>.
+objects of type L<Tree::DAG_Node>.
 
-See the source code of sub L</report_fixed_length_paths()> for sample usage.
+See the source code of L</output_fixed_length_gv()>, or L</report_fixed_length_paths()>, for sample
+usage.
 
 =head2 new()
 
