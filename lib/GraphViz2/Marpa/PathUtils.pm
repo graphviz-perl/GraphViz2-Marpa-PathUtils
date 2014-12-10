@@ -164,8 +164,7 @@ sub _find_cluster_mothers_with_edges
 {
 	my($self) = @_;
 
-	my($attributes);
-	my($name);
+	my($name, $node_id);
 	my(%seen);
 	my($uid);
 
@@ -180,8 +179,8 @@ sub _find_cluster_mothers_with_edges
 
 			return 1 if ($name ne 'edge_id'); # Keep walking.
 
-			$attributes = $node -> mother -> attributes;
-			$uid        = $$attributes{uid};
+			$node_id = $self -> decode_node($node -> mother);
+			$uid     = $$node_id{uid};
 
 			# Ignore if this mother has been seen.
 
@@ -208,8 +207,8 @@ sub _find_cluster_reachable_nodes
 
 	my(%clusters);
 	my(@daughters);
-	my(%node, $name);
-	my($value);
+	my($last_node_id);
+	my(%node, $name, $next_node_id);
 
 	# This loop is outwardly the same as the one in _find_clusters_trees().
 
@@ -227,15 +226,17 @@ sub _find_cluster_reachable_nodes
 
 			# These offsets are only valid if the DOT file is valid.
 
-			$node{tail} =
+			$last_node_id = $self -> decode_node($daughters[$index - 1]);
+			$next_node_id = $self -> decode_node($daughters[$index + 1]);
+			$node{tail}   =
 			{
-				name  => $daughters[$index - 1] -> name,
-				value => ${$daughters[$index - 1] -> attributes}{value},
+				id   => $$last_node_id{id},
+				name => $$last_node_id{name},
 			};
 			$node{head} =
 			{
-				name  => $daughters[$index + 1] -> name,
-				value => ${$daughters[$index + 1] -> attributes}{value},
+				id   => $$next_node_id{id},
+				name => $$next_node_id{name},
 			};
 
 			# Cases to handle (see data/path.set.01.in.gv):
@@ -245,9 +246,9 @@ sub _find_cluster_reachable_nodes
 			# o { f g } -> h.
 			# o { i j } -> { k l }.
 
-			if ($node{tail}{name} eq 'node_id')
+			if ($node{tail}{id} eq 'node_id')
 			{
-				if ($node{head}{name} eq 'node_id')
+				if ($node{head}{id} eq 'node_id')
 				{
 					# Case: a -> b.
 					# So now we add 'b' to the set of all nodes reachable from 'a'.
@@ -259,10 +260,10 @@ sub _find_cluster_reachable_nodes
 
 					for my $n (qw/tail head/)
 					{
-						$value            = $node{$n}{value};
-						$clusters{$value} ||= Set::Tiny -> new;
+						$name            = $node{$n}{name};
+						$clusters{$name} ||= Set::Tiny -> new;
 
-						$clusters{$value} -> insert($n eq 'tail' ? $node{head}{value} : $node{tail}{value});
+						$clusters{$name} -> insert($n eq 'tail' ? $node{head}{name} : $node{tail}{name});
 					}
 				}
 				else
@@ -276,7 +277,7 @@ sub _find_cluster_reachable_nodes
 			}
 			else
 			{
-				if ($node{head}{name} eq 'node_id')
+				if ($node{head}{id} eq 'node_id')
 				{
 					# Case: { f g } -> h.
 					# Every node in the subgraph can reach 'h'.
@@ -291,7 +292,7 @@ sub _find_cluster_reachable_nodes
 					# Start at $index + 1 in order to skip the '{'.
 					# We use $index - 2 ('{') since we know $index - 1 is '}'.
 
-					$self -> _find_cluster_reachable_subgraph_3(\%clusters, \%node, $daughters[$index - 2], $daughters[$index + 1]);
+					$self -> _find_cluster_reachable_subgraph_3(\%clusters, $daughters[$index - 2], $daughters[$index + 1]);
 				}
 			}
 		}
@@ -306,25 +307,23 @@ sub _find_cluster_reachable_nodes
 sub _find_cluster_reachable_subgraph_1
 {
 	my($self, $clusters, $node, $head_subgraph) = @_;
-	my($real_tail) = $$node{tail}{value};
+	my($real_tail) = $$node{tail}{name};
 	my(@daughters) = $head_subgraph -> daughters;
 
-	my($attributes);
-	my($node_name);
+	my($node_id);
 	my($real_head);
 
 	for my $i (0 .. $#daughters)
 	{
-		$node_name  = $daughters[$i] -> name;
-		$attributes = $daughters[$i] -> attributes;
+		$node_id = $self -> decode_node($daughters[$i]);
 
 		# Ignore non-nodes within the head subgraph.
 
-		next if ($node_name ne 'node_id');
+		next if ($$node_id{id} ne 'node_id');
 
 		# Stockpile all nodes within the head subgraph.
 
-		$real_head             = $$attributes{value};
+		$real_head             = $$node_id{name};
 		$$clusters{$real_tail} ||= Set::Tiny -> new;
 
 		$$clusters{$real_tail} -> insert($real_head);
@@ -341,25 +340,23 @@ sub _find_cluster_reachable_subgraph_1
 sub _find_cluster_reachable_subgraph_2
 {
 	my($self, $clusters, $node, $tail_subgraph) = @_;
-	my($real_head) = $$node{head}{value};
+	my($real_head) = $$node{head}{name};
 	my(@daughters) = $tail_subgraph -> daughters;
 
-	my($attributes);
-	my($node_name);
+	my($node_id);
 	my($real_tail);
 
 	for my $i (0 .. $#daughters)
 	{
-		$node_name  = $daughters[$i] -> name;
-		$attributes = $daughters[$i] -> attributes;
+		$node_id = $self -> decode_node($daughters[$i]);
 
 		# Ignore non-nodes within tail subgraph.
 
-		next if ($node_name ne 'node_id');
+		next if ($$node_id{id} ne 'node_id');
 
 		# Stockpile all nodes within the tail subgraph.
 
-		$real_tail             = $$attributes{value};
+		$real_tail             = $$node_id{name};
 		$$clusters{$real_head} ||= Set::Tiny -> new;
 
 		$$clusters{$real_head} -> insert($real_tail);
@@ -375,37 +372,34 @@ sub _find_cluster_reachable_subgraph_2
 
 sub _find_cluster_reachable_subgraph_3
 {
-	my($self, $clusters, $node, $tail_subgraph, $head_subgraph) = @_;
+	my($self, $clusters, $tail_subgraph, $head_subgraph) = @_;
 	my(@tail_daughters) = $tail_subgraph -> daughters;
 	my(@head_daughters) = $head_subgraph -> daughters;
 
-	my($attributes);
-	my($node_name);
+	my($node_id);
 	my($real_tail, $real_head);
 
 	for my $i (0 .. $#tail_daughters)
 	{
-		$node_name  = $tail_daughters[$i] -> name;
-		$attributes = $tail_daughters[$i] -> attributes;
+		$node_id = $self -> decode_node($tail_daughters[$i]);
 
 		# Ignore non-nodes within tail subgraph.
 
-		next if ($node_name ne 'node_id');
+		next if ($$node_id{id} ne 'node_id');
 
 		# Stockpile all nodes within the tail subgraph.
 
-		$real_tail = $$attributes{value};
+		$real_tail = $$node_id{name};
 
 		for my $j (0 .. $#head_daughters)
 		{
-			$node_name  = $head_daughters[$j] -> name;
-			$attributes = $head_daughters[$j] -> attributes;
+			$node_id = $self -> decode_node($head_daughters[$j]);
 
 			# Ignore non-nodes within head subgraph.
 
-			next if ($node_name ne 'node_id');
+			next if ($$node_id{id} ne 'node_id');
 
-			$real_head             = $$attributes{value};
+			$real_head             = $$node_id{name};
 			$$clusters{$real_head} ||= Set::Tiny -> new;
 
 			$$clusters{$real_head} -> insert($real_tail);
@@ -443,28 +437,25 @@ sub _find_cluster_standalone_nodes
 		@seen{@members} = (1) x @members;
 	}
 
-	my($attributes);
-	my($name);
+	my($node_id);
 	my($value);
 
 	$self -> tree -> walk_down
 	({
 		callback => sub
 		{
-			my($node)   = @_;
-			$name       = $node -> name;
-			$attributes = $node -> attributes;
-			$value      = $$attributes{value};
+			my($node) = @_;
+			$node_id  = $self -> decode_node($node);
 
 			# Ignore non-nodes and nodes which have been seen.
 
-			return 1 if ( ($name ne 'node_id') || defined $seen{$value}); # Keep walking.
+			return 1 if ( ($$node_id{id} ne 'node_id') || defined $seen{$$node_id{name} }); # Keep walking.
 
 			$count++;
 
 			$$subgraphs{$count} = Set::Tiny -> new;
 
-			$$subgraphs{$count} -> insert($value);
+			$$subgraphs{$count} -> insert($$node_id{name});
 
 			return 1; # Keep walking.
 		},
@@ -644,6 +635,7 @@ sub _find_fixed_length_candidates
 
 # -----------------------------------------------
 # Find all paths starting from any copy of the target start_node.
+# See References in the docs for the book in which I found this algorithm.
 
 sub _find_fixed_length_path_set
 {
@@ -1702,14 +1694,14 @@ words:
 
 Even better, use a more meaningful name for your graph...
 
-=head1 Reference
+=head1 References
 
 Combinatorial Algorithms for Computers and Calculators, A Nijenhuis and H Wilf, p 240.
 
 This books very clearly explains the backtracking parser I used to process the combinations of nodes
 found at each point along each path. Source code in the book is in Fortran.
 
-It's available as a PDF from L<http://www.math.upenn.edu/~wilf/website/CombAlgDownld.html>.
+The book is available as a PDF from L<http://www.math.upenn.edu/~wilf/website/CombAlgDownld.html>.
 
 =head1 Version Numbers
 

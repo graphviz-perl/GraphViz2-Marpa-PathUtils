@@ -58,7 +58,7 @@ my($stdout);
 
 $stdout   = check_clusters('clusters.in.06.gv');
 $expected = <<'EOS';
-Input file: clusters.in.06.gv. Cluster membership:
+Input file: clusters.in.06.gv. Clusters: 4:
 Cluster: 1. (A B C D E)
 Cluster: 2. (J K)
 Cluster: 3. (F G)
@@ -69,7 +69,7 @@ ok($stdout eq $expected);
 
 $stdout   = check_clusters('clusters.in.07.gv');
 $expected = <<'EOS';
-Input file: clusters.in.07.gv. Cluster membership:
+Input file: clusters.in.07.gv. Clusters: 4:
 Cluster: 1. (B C)
 Cluster: 2. (H I J K L M N O)
 Cluster: 3. (D E F G)
@@ -80,7 +80,7 @@ ok($stdout eq $expected);
 
 $stdout   = check_clusters('clusters.in.09.gv');
 $expected = <<'EOS';
-Input file: clusters.in.09.gv. Cluster membership:
+Input file: clusters.in.09.gv. Clusters: 7:
 Cluster: 1. (a b)
 Cluster: 2. (i j k l)
 Cluster: 3. (c d e)
