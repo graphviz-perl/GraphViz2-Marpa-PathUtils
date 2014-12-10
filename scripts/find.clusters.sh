@@ -8,7 +8,7 @@ MAX=$2
 
 if [ -z "$MAX" ]
 then
-	MAX=info
+	MAX=notice
 fi
 
 dot -Tsvg data/$GV > html/$SVG

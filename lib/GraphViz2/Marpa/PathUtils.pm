@@ -953,8 +953,13 @@ sub _preprocess
 	my($self) = @_;
 
 	# Parse the input and create $self -> tree.
+	# But stop GraphViz2::Marpa rendering anything.
 
+	my($output_file) = $self -> output_file;
+
+	$self -> output_file('');
 	$self -> run;
+	$self -> output_file($output_file);
 
 	# Find mothers who have edges amongst their daughters.
 	# Then process the daughters of those mothers.
