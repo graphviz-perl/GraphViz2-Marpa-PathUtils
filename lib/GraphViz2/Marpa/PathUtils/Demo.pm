@@ -39,8 +39,12 @@ sub _find_clusters
 {
 	my($self, $data_dir, $out_dir) = @_;
 
+	my(%count);
+	my($exit);
+	my(@line);
 	my($out_prefix);
 	my($result);
+	my($stdout, $stderr);
 
 	for my $in_file (sort {"$a" cmp "$b"} path($data_dir) -> children(qr/^clusters/) )
 	{
@@ -48,14 +52,20 @@ sub _find_clusters
 		$out_prefix =~ s/\.gv$//;
 		$out_prefix =~ s/^$data_dir/$out_dir/;
 
-		$result = GraphViz2::Marpa::PathUtils -> new
+		($stdout, $stderr, $exit) = capture{GraphViz2::Marpa::PathUtils -> new
 					(
-						input_file  => "$in_file",
-						output_file => "$out_prefix",
-					) -> find_clusters;
+						input_file      => "$in_file",
+						output_file     => "$out_prefix",
+						report_clusters => 1,
+					) -> find_clusters};
 
-		print "Clusters: Result: $result ( 0 is success). \n";
+		@line              = split(/\n/, $stdout);
+		$count{"$in_file"} = ($line[$#line] =~ /Cluster:\s(\d+)\./) ? $1 : 0;
+
+		print "Clusters. File: $in_file. Result: $exit ( 0 is success). \n";
 	}
+
+	return \%count;
 
 } # End of _find_clusters.
 
@@ -88,7 +98,7 @@ sub _find_fixed_length_paths
 						start_node   => $start_node{$in_file},
 					) -> find_fixed_length_paths;
 
-		print "Fixed length paths: Result: $result ( 0 is success). \n";
+		print "Fixed length paths. File: $in_file. Result: $result ( 0 is success). \n";
 	}
 
 } # End of _find_fixed_length_paths.
@@ -104,18 +114,19 @@ sub generate_demo
 
 	# Phase 1: Generate demo files, including HTML, using find_clusters().
 
-	$self -> _find_clusters($data_dir, $out_dir);
+	my($count) = $self -> _find_clusters($data_dir, $out_dir);
 
 	my(@html4clusters) = map
 	{
-		s/^$html_dir//;
+		my($html_file) = $$_[0]     =~ s/^$html_dir//r;
+		my($s)         = $html_file =~ s/^/$data_dir/r;
+		$s             =~ s/html$/gv/;
+		my($count)     = $$_[1];
 
-		my($s) = $_;
-		$s     =~ s/^/$data_dir/;
-		$s     =~ s/html$/gv/;
+		["<a href = '$html_file'><span class = 'local_text'>$s</span></a>", "&nbsp;&nbsp;$count"]
+	} @{$self -> _generate_html4clusters($count)};
 
-		"<a href = '$_'><span class = 'local_text'>$s</span></a>"
-	} @{$self -> _generate_html4clusters};
+	unshift @html4clusters, ['SVGs', 'Cluster count'];
 
 	# Phase 2: Generate demo files, including HTML, using find_fixed_length_paths().
 
@@ -145,7 +156,7 @@ sub generate_demo
 		'pathutils.report.tx',
 		{
 			border          => 1,
-			cluster_data    => [map{[{td => mark_raw($_)}]} @html4clusters],
+			cluster_data    => [map{[{td => mark_raw($$_[0])}, {td => mark_raw($$_[1])}]} @html4clusters],
 			default_css     => "$$config{css_url}/default.css",
 			environment     => $self -> generate_demo_environment,
 			fancy_table_css => "$$config{css_url}/fancy.table.css",
@@ -187,7 +198,7 @@ sub generate_demo_environment
 
 sub _generate_html4clusters
 {
-	my($self)      = @_;
+	my($self, $count) = @_;
 	my($data_dir)  = 'data/';
 	my($html_dir)  = 'html/';
 	my($out_dir)   = 'out/';
@@ -276,7 +287,7 @@ sub _generate_html4clusters
 
 		$html_file -> spew_utf8($index);
 
-		push @html_file, $html_file;
+		push @html_file, [$html_file, $$count{$in_file}];
 
 		print "Wrote: $html_file\n";
 	}

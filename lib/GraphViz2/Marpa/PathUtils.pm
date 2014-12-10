@@ -14,6 +14,8 @@ use Moo;
 
 use Set::Tiny;
 
+use Sort::Key 'nkeysort';
+
 use Types::Standard qw/ArrayRef Bool HashRef Int Str/;
 
 has allow_cycles =>
@@ -1001,10 +1003,11 @@ sub report_cluster_members
 {
 	my($self) = @_;
 	my($sets) = $self -> cluster_sets;
+	my(@keys) = nkeysort{$_} keys %$sets;
 
-	$self -> log(notice => 'Input file: ' . basename($self -> input_file) . '. Cluster membership:');
+	$self -> log(notice => 'Input file: ' . basename($self -> input_file) . '. Clusters: ' . scalar(@keys) . ':');
 
-	for my $id (sort keys %$sets)
+	for my $id (@keys)
 	{
 		$self -> log(notice => "Cluster: $id. " . $$sets{$id} -> as_string);
 	}

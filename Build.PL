@@ -90,6 +90,7 @@ Module::Build -> new
 		'Path::Tiny'       => 0.061,
 		'Pod::Usage'       => 1.36,
 		'Set::Tiny'        => 0.01,
+		'Sort::Key'        => 1.33,
 		'strict'           => 0,
 		'Text::Xslate'     => 1.4001,
 		'Types::Standard'  => 1.000004,
