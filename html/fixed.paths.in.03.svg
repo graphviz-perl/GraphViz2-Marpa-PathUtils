@@ -21,8 +21,13 @@
 </g>
 <!-- A&#45;&gt;B -->
 <g id="edge1" class="edge"><title>A&#45;&gt;B</title>
-<path fill="none" stroke="black" d="M54.4029,-18C62.3932,-18 71.3106,-18 79.8241,-18"/>
-<polygon fill="black" stroke="black" points="79.919,-21.5001 89.919,-18 79.919,-14.5001 79.919,-21.5001"/>
+<path fill="none" stroke="black" d="M52.5129,-11.8766C61.4017,-11.266 71.6201,-11.1016 81.2245,-11.3836"/>
+<polygon fill="black" stroke="black" points="81.1579,-14.8843 91.3133,-11.8648 81.4915,-7.89227 81.1579,-14.8843"/>
+</g>
+<!-- A&#45;&gt;B -->
+<g id="edge4" class="edge"><title>A&#45;&gt;B</title>
+<path fill="none" stroke="black" d="M52.5129,-24.1234C61.4017,-24.734 71.6201,-24.8984 81.2245,-24.6164"/>
+<polygon fill="black" stroke="black" points="81.4915,-28.1077 91.3133,-24.1352 81.1579,-21.1157 81.4915,-28.1077"/>
 </g>
 <!-- C -->
 <g id="node3" class="node"><title>C</title>
@@ -31,8 +36,13 @@
 </g>
 <!-- B&#45;&gt;C -->
 <g id="edge2" class="edge"><title>B&#45;&gt;C</title>
-<path fill="none" stroke="black" d="M144.403,-18C152.393,-18 161.311,-18 169.824,-18"/>
-<polygon fill="black" stroke="black" points="169.919,-21.5001 179.919,-18 169.919,-14.5001 169.919,-21.5001"/>
+<path fill="none" stroke="black" d="M142.513,-11.8766C151.402,-11.266 161.62,-11.1016 171.224,-11.3836"/>
+<polygon fill="black" stroke="black" points="171.158,-14.8843 181.313,-11.8648 171.491,-7.89227 171.158,-14.8843"/>
+</g>
+<!-- B&#45;&gt;C -->
+<g id="edge5" class="edge"><title>B&#45;&gt;C</title>
+<path fill="none" stroke="black" d="M142.513,-24.1234C151.402,-24.734 161.62,-24.8984 171.224,-24.6164"/>
+<polygon fill="black" stroke="black" points="171.491,-28.1077 181.313,-24.1352 171.158,-21.1157 171.491,-28.1077"/>
 </g>
 <!-- D -->
 <g id="node4" class="node"><title>D</title>
@@ -41,8 +51,13 @@
 </g>
 <!-- C&#45;&gt;D -->
 <g id="edge3" class="edge"><title>C&#45;&gt;D</title>
-<path fill="none" stroke="black" d="M234.403,-18C242.393,-18 251.311,-18 259.824,-18"/>
-<polygon fill="black" stroke="black" points="259.919,-21.5001 269.919,-18 259.919,-14.5001 259.919,-21.5001"/>
+<path fill="none" stroke="black" d="M232.513,-11.8766C241.402,-11.266 251.62,-11.1016 261.224,-11.3836"/>
+<polygon fill="black" stroke="black" points="261.158,-14.8843 271.313,-11.8648 261.491,-7.89227 261.158,-14.8843"/>
+</g>
+<!-- C&#45;&gt;D -->
+<g id="edge6" class="edge"><title>C&#45;&gt;D</title>
+<path fill="none" stroke="black" d="M232.513,-24.1234C241.402,-24.734 251.62,-24.8984 261.224,-24.6164"/>
+<polygon fill="black" stroke="black" points="261.491,-28.1077 271.313,-24.1352 261.158,-21.1157 261.491,-28.1077"/>
 </g>
 </g>
 </svg>

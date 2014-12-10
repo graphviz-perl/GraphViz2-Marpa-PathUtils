@@ -6,6 +6,8 @@ use warnings;
 use warnings qw(FATAL utf8);    # Fatalize encoding glitches.
 use open     qw(:std :utf8);    # Undeclared streams in UTF-8.
 
+use File::Basename; # For basename().
+
 use GraphViz2::Marpa::Renderer::Graphviz;
 
 use Moo;
@@ -799,7 +801,7 @@ sub find_fixed_length_paths
 	$self -> _find_fixed_length_paths($tree);
 	$self -> _winnow_fixed_length_paths;
 
-	my($title) = 'Input file: ' . $self -> input_file . "\\n" .
+	my($title) = 'Input file: ' . basename($self -> input_file) . "\\n" .
 		'Starting node: ' . $self -> start_node . "\\n" .
 		'Path length: ' . $self -> path_length . "\\n" .
 		'Allow cycles: ' . $self -> allow_cycles . "\\n" .
@@ -912,7 +914,7 @@ sub _output_fixed_length_gv
 	# So we examine the daughters of the prolog tree node.
 
 	my($strict)  = '';
-	my($digraph) = '';
+	my($digraph) = 'graph';
 
 	for my $node ( ($tree -> daughters)[0] -> daughters)
 	{
@@ -943,7 +945,7 @@ sub _output_fixed_length_gv
 
 	# Secondly, declare all edges.
 
-	my($edge) = $digraph ? ' -> ' : ' -- ';
+	my($edge) = ($digraph eq 'digraph') ? ' -> ' : ' -- ';
 
 	for my $set (@set)
 	{
