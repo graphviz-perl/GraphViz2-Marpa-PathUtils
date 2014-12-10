@@ -1397,16 +1397,11 @@ Default: 0.
 
 This option is only used when calling L</find_fixed_length_paths()>.
 
-=item o driver => thePathToDot
-
-Specify the OS's path to the I<dot> program, to override the default.
-
-Default: Use which('dot'), via the module L<File::Which>, to find the I<dot> executable.
-
 =item o output_dot_file => aDOTInputFileName
 
-Specify the name of a file to write which will contain the DOT description of the image of all
-solutions.
+Specify the name of a file to write which will contain the DOT description output.
+
+This parameter has 2 interpretations. See the L</FAQ> for details.
 
 Default: ''.
 
@@ -1489,16 +1484,6 @@ See the source code of L</report_cluster_members()> for sample usage.
 
 Returns the string which will be input to the I<dot> program.
 
-=head2 dot_output()
-
-Returns the string which has been output by the I<dot> program.
-
-=head2 driver([$pathToDot])
-
-Here the [] indicate an optional parameter.
-
-Get or set the OS's path to the I<dot> program.
-
 =head2 find_clusters()
 
 This is one of the methods which does all the work, and hence must be called.
@@ -1538,6 +1523,8 @@ specified.
 Here the [] indicate an optional parameter.
 
 Get or set the name of the I<dot> input file to write.
+
+This parameter has 2 interpretations. See the L</FAQ> for details.
 
 'output_dot_file' is a parameter to L</new()>. See L</Constructor and Initialization> for details.
 
@@ -1582,6 +1569,30 @@ Get or set the name of the node from where all paths must start.
 'start_node' is a parameter to L</new()>. See L</Constructor and Initialization> for details.
 
 =head1 FAQ
+
+=head2 What are the 2 interpretations of C<output_dot_file>?
+
+This section discusses input/output DOT file naming. HTML file names follow the same system.
+
+=over 4
+
+=item o For clusters
+
+Each cluster's DOT syntax is written to a different file. So C<output_dot_file> must be the prefix
+of these output files.
+
+Hence, in scripts/find.clusters.sh, C<GV2=clusters.out.$1> (using $1 = '09', say) means output
+clusters' DOT files will be called C<clusters.out.09.001.gv> up to C<clusters.out.09.007.gv>.
+
+=item o For fixed length paths
+
+Since there is only ever 1 DOT file output here, C<output_dot_file> is the name of that file.
+
+Hence, in scripts/find.fixed.length.path.sh, the value supplied is
+C<out/fixed.length.paths.out.$FILE.gv>, where $FILE will be '01', '02' or '03'. So the output file,
+using $FILE='01', will be C<out/fixed.length.paths.out.01.gv>.
+
+=back
 
 =head2 I used a node label of "\N" and now your module doesn't work!
 
