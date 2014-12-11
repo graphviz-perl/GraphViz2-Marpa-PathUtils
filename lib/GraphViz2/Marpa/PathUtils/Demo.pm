@@ -31,7 +31,7 @@ has config =>
 	isa     => HashRef,
 );
 
-our $VERSION = '2.00';
+our $VERSION = '2.03';
 
 # -----------------------------------------------
 

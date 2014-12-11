@@ -82,7 +82,7 @@ has start_node =>
 	required => 0,
 );
 
-our $VERSION = '2.00';
+our $VERSION = '2.03';
 
 # -----------------------------------------------
 
@@ -1271,11 +1271,14 @@ Features:
 Nodes within such groups are connected to each other, but have no links to nodes outside the
 cluster.
 
+Graphviz uses 'cluster' is a slightly-different sense. Here, you could say 'sub-tree' instead of
+'cluster'.
+
 See L</find_clusters()>.
 
 =item o Find all fixed length paths, starting from a given node
 
-This algorithm does not handle edges into or out of subgraph.
+This algorithm does not handle edges into or out of subgraphs.
 
 See L</find_fixed_length_paths()>.
 
@@ -1291,14 +1294,13 @@ all its methods.
 All scripts are in the scripts/ directory. This means they do I<not> get installed along with the
 package.
 
-Data files are in data/, while html and svg files are in html/.
+Input data files are in data/, output data files are in out/, and html and svg files are in html/.
 
 =over 4
 
 =item o copy.config.pl
 
-During installation, this copies config/.htgraphviz2.marpa.pathutils.conf to a dir as discussed
-under L</The Configuration File>.
+This is only for use by the author.
 
 =item o find.clusters.pl
 
@@ -1339,7 +1341,7 @@ Converts all *.pm files to *.html, and copies them in my web server's dir struct
 
 =back
 
-See also t/test.all.t.
+See also t/test.t.
 
 =head1 Distributions
 
@@ -1349,8 +1351,6 @@ See L<http://savage.net.au/Perl-modules/html/installing-a-module.html>
 for help on unpacking and installing distros.
 
 =head1 Installation
-
-=head2 The Module Itself
 
 Install L<GraphViz2::Marpa::PathUtils> as you would for any C<Perl> module:
 
@@ -1425,6 +1425,8 @@ This is the default.
 
 =item o 1 - Allow any node to be included once or twice.
 
+Note: allow_cycles => 1 is not implemented yet in V 2.
+
 =back
 
 Default: 0.
@@ -1481,17 +1483,17 @@ In particular, see L<GraphViz2::Marpa/Methods> for these methods:
 
 =over 4
 
-=item o description
+=item o description()
 
-=item o input_file
+=item o input_file()
 
-=item o logger
+=item o logger()
 
-=item o maxlevel
+=item o maxlevel()
 
-=item o minlevel
+=item o minlevel()
 
-=item o output_file
+=item o output_file()
 
 See the L</FAQ> for the 2 interpretations of this method.
 
@@ -1507,30 +1509,36 @@ Get or set the value determining whether or not cycles are allowed in the paths 
 
 'allow_cycles' is a parameter to L</new()>. See L</Constructor and Initialization> for details.
 
+Note: allow_cycles => 1 is not implemented yet in V 2.
+
 =head2 cluster_sets()
 
-Returns a hashref. The keys are integers and the values a set of type L<Set::Tiny>.
+Returns a hashref. The keys are integers and the values are sets of type L<Set::Tiny>.
 
-Each set contains the nodes of each independent sub-tree within the input file. Here, independent
-means there are no edges joining one sub-tree to another.
+Each set contains the nodes of each independent cluster within the input file. Here, independent
+means there are no edges joining one cluster to another.
+
+Each set is turned into a tree during a call to L</find_clusters()>. You can retrieve these trees
+by calling L</cluster_trees()>.
 
 Both L</find_clusters()> and L</find_fixed_length_paths()> populate this hashref, but the former
 adds stand-alone nodes because they are clusters in their own right.
 
 So why doesn't L</find_fixed_length_paths()> add stand-alone nodes? Because you can't have a path
-of length 0, so stand-alone nodes cannot particiate in the search for fixed length paths.
+of length 0, so stand-alone nodes cannot participate in the search for fixed length paths.
 
 =head2 cluster_trees()
 
 Returns a hashref. The keys are integers and the values are L<Tree::DAG_Node> trees.
 
-This is only called by L</find_clusters()>.
+This is only populated by L</find_clusters()>.
 
-The input comes from calling L</cluster_sets()>, so the output is one tree per cluster.
+The input comes from calling L</cluster_sets()>, so the output is one tree per cluster. This means
+there is 1 tree per set returned by L</cluster_sets()>.
 
 =head2 find_clusters()
 
-This is one of the 2 methods which does all the work, and hence must be called.
+This is one of the 2 methods which do all the work, and hence must be called.
 The other is L</find_fixed_length_paths()>.
 
 See the L</Synopsis> and scripts/find.clusters.pl.
@@ -1539,7 +1547,7 @@ Returns 0 for success and 1 for failure.
 
 =head2 find_fixed_length_paths()
 
-This is one of the 2 methods which does all the work, and hence must be called.
+This is one of the 2 methods which do all the work, and hence must be called.
 The other is L</find_clusters()>.
 
 Note: The code does not handle edges pointing to or from subgraphs. That I<will> be difficult to
@@ -1663,9 +1671,9 @@ The 3 samples in part 2 of
 L<the demo page|http://savage.net.au/Perl-modules/html/graphviz2.marpa.pathutils/index.html>
 should make this issue clear.
 
-=head2 What is the homepage of Marpa?
+=head2 What is the homepages of Graphviz and Marpa?
 
-L<http://jeffreykegler.github.com/Marpa-web-site/>.
+L<Graphviz|http://www.graphviz.org/>. L<Marpa|http://savage.net.au/Marpa.html>.
 
 See also Jeffrey's annotated
 L<blog|http://jeffreykegler.github.io/Ocean-of-Awareness-blog/metapages/annotated.html>.
@@ -1676,6 +1684,8 @@ They are simply counted in the order discovered in the input file.
 
 =head2 How are cycles in fixed path length analysis handled?
 
+Note: allow_cycles => 1 is not implemented yet in V 2.
+
 This is controlled by the I<allow_cycles> option to new(), or the corresponding method
 L</allow_cycles($integer)>.
 
@@ -1683,15 +1693,15 @@ The code keeps track of the number of times each node is entered. If new(allow_c
 called, nodes are only considered if they are entered once. If new(allow_cycles => 1) was called,
 nodes are also considered if they are entered a second time.
 
-Sample code: Using the input file data/90.KW91.lex (see scripts/fixed.length.paths.sh) we can
-specify various combinations of parameters like this:
+Sample code: Using the input file data/fixed.length.paths.in.01.gv we can specify various
+combinations of parameters like this:
 
 	allow_cycles  path_length  start node  solutions
-	0             3            Act_1       9
-	1             3            Act_1       22
+	0             3            Act_1       4
+	1             3            Act_1       ?
 
-	0             4            Act_1       12
-	1             4            Act_1       53
+	0             4            Act_1       5
+	1             4            Act_1       ?
 
 =head2 Are all (fixed length) paths found unique?
 
@@ -1705,7 +1715,7 @@ and 2**3 = 8.
 	    A -> B -> C -> D;
 	}
 
-See data/01.non.unique.gv and html/01.non.unique.svg.
+See data/fixed.length.paths.in.03.gv and html/fixed.length.paths.out.03.svg.
 
 =head2 The number of options is confusing
 
