@@ -1204,7 +1204,7 @@ Either pass parameters in to new():
 	    report_clusters => 1,
 	);
 
-Or call methods to set parameters;
+Or call methods to set parameters:
 
 	my($parser) = GraphViz2::Marpa::PathUtils -> new;
 
@@ -1230,7 +1230,7 @@ Either pass parameters in to new():
 	(
 	    allow_cycles => 0,
 	    input_file   => 'data/fixed.length.paths.in.01.gv',
-	    output_file  => 'out/fixed.length.paths.out.01',
+	    output_file  => 'out/fixed.length.paths.out.01.gv',
 	    path_length  => 3,
 	    report_paths => 1,
 	    start_node   => 'Act_1',
@@ -1242,7 +1242,7 @@ Or call methods to set parameters;
 
 	$parser -> allow_cycles(0);
 	$parser -> input_file('data/fixed.length.paths.in.01.gv');
-	$parser -> output_file('out/fixed.length.paths.in.01');
+	$parser -> output_file('out/fixed.length.paths.in.01.gv');
 	$parser -> path_length(3);
 	$parser -> report_paths(1);
 	$parser -> start_node('Act_1');
@@ -1262,13 +1262,29 @@ Or see scripts/fixed.length.paths.sh, which hard-codes my test data values.
 GraphViz2::Marpa::PathUtils parses L<Graphviz|http://www.graphviz.org/> dot files and processes
 the output in various ways.
 
-This class is a descendent of L<GraphViz2::Marpa>, and hence inherits all its keys to new(), and
-all its methods.
+Features:
 
-Currently, the only feature available is to find all paths of a given length starting from a given
-node.
+=over 4
+
+=item o Find all groups of nodes, called clusters
+
+Nodes within such groups are connected to each other, but have no links to nodes outside the
+cluster.
+
+See L</find_clusters()>.
+
+=item o Find all fixed length paths, starting from a given node
+
+This algorithm does not handle edges into or out of subgraph.
+
+See L</find_fixed_length_paths()>.
+
+=back
 
 Sample output: L<http://savage.net.au/Perl-modules/html/graphviz2.marpa.pathutils/index.html>.
+
+This class is a descendent of L<GraphViz2::Marpa>, and hence inherits all its keys to new(), and
+all its methods.
 
 =head1 Scripts shipped with this distro
 
