@@ -610,7 +610,7 @@ sub _find_fixed_length_candidates
 
 			if ( ( ($i + 2) <= $#daughters) && ($daughters[$i + 1] -> name eq 'edge_id') )
 			{
-				push @neighbours, $daughters[$i + 2];
+				push @neighbours, $daughters[$i + 2] if ($daughters[$i + 2] -> name eq 'node_id');
 			}
 
 			return 1; # Keep walking.
@@ -841,36 +841,8 @@ sub output_fixed_length_gv
 {
 	my($self, $tree, $title) = @_;
 
-	# We have to rename all the nodes so they can all be included
-	# in a single DOT file without dot linking them based on their names.
-
-	my($new_id) = 0;
-
-	my(@set);
-
-	for my $set (@{$self -> fixed_path_set})
-	{
-		my(%node_set, @node_set);
-
-		for my $node_id (@$set)
-		{
-			# Allow for paths with loops, so we don't declare the same node twice.
-			# Actually, I doubt Graphviz would care, since each declaration would be identical.
-			# Also, later, we sort by name (i.e. $new_id) to get the order of nodes in the path.
-
-			if (! defined($node_set{$$node_id{name}}) )
-			{
-				$node_set{$$node_id{name} } = {label => $$node_id{name}, name => ++$new_id};
-			}
-
-			push @node_set, $node_set{$$node_id{node}};
-		}
-
-		push @set, [@node_set];
-	}
-
 	# Was the original graph strict or not, and a digraph or not?
-	# So we examine the daughters of the prolog tree node.
+	# We examine the daughters of the prolog tree node.
 
 	my($strict)  = '';
 	my($digraph) = 'graph';
@@ -890,15 +862,44 @@ sub output_fixed_length_gv
 
 	push @dot_text, "$strict$digraph fixed_length_paths", '{', qq|\tlabel = "$title" rankdir = LR|, '';
 
+	# We have to rename all the nodes so they can all be included
+	# in a single DOT file without dot linking them based on their names.
+
+	my($new_id) = 0;
+
+	my(@set);
+
+	for my $set (@{$self -> fixed_path_set})
+	{
+		my(%node_set, @node_set);
+
+		for my $node_id (@$set)
+		{
+			# Allow for paths with loops, so we don't declare the same node twice.
+			# Actually, I doubt Graphviz would care, since each declaration would be identical.
+			# Also, later, we sort by name (i.e. $new_id) to get the order of nodes in the path.
+
+			if (! defined($node_set{$$node_id{name}}) )
+			{
+				$node_set{$$node_id{name} } = 1;
+				$$node_id{label}            = {label => $$node_id{name}, name => ++$new_id};
+			}
+
+			push @node_set, $node_id;
+		}
+
+		push @set, [@node_set];
+	}
+
 	# Firstly, declare all nodes.
 
 	my($s);
 
 	for my $set (@set)
 	{
-		for my $node (@$set)
+		for my $node_id (@$set)
 		{
-			push @dot_text, qq|\t"$$node{name}" [label = "$$node{label}"]|; # We don't know the attributes of the node.
+			push @dot_text, qq|\t"$$node_id{name}" [label = "$$node_id{label}"]|; # We don't know the attributes of the node.
 		}
 	}
 

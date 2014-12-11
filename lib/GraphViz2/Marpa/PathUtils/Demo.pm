@@ -79,6 +79,7 @@ sub _find_fixed_length_paths
 		'data/fixed.length.paths.in.01.gv' => 'Act_1',
 		'data/fixed.length.paths.in.02.gv' => '5',
 		'data/fixed.length.paths.in.03.gv' => 'A',
+		'data/fixed.length.paths.in.04.gv' => 'A',
 	);
 
 	my($out_file);

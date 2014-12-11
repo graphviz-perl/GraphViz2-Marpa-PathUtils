@@ -2,10 +2,10 @@ graph fixed_length_paths
 {
 	label = "Input file: fixed.length.paths.in.02.gv\nStarting node: 5\nPath length: 3\nAllow cycles: 0\nPaths: 1" rankdir = LR
 
-	"1" [label = "5"]
-	"2" [label = "7"]
-	"3" [label = "9"]
-	"4" [label = "6"]
+	"5" [label = "HASH(0x4223ff0)"]
+	"7" [label = "HASH(0x4224308)"]
+	"9" [label = "HASH(0x4220770)"]
+	"6" [label = "HASH(0x4034d98)"]
 
-	"1"  --  "2"  --  "3"  --  "4"
+	"5"  --  "7"  --  "9"  --  "6"
 }
