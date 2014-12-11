@@ -122,8 +122,9 @@ sub generate_demo
 		my($s)         = $html_file =~ s/^/$data_dir/r;
 		$s             =~ s/html$/gv/;
 		my($count)     = $$_[1];
+		my($prefix)    = ($count < 10) ? 9 : 8;
 
-		["<a href = '$html_file'><span class = 'local_text'>$s</span></a>", "&nbsp;&nbsp;$count"]
+		["<a href = '$html_file'><span class = 'local_text'>$s</span></a>", ('&nbsp;' x $prefix) . $count]
 	} @{$self -> _generate_html4clusters($count)};
 
 	unshift @html4clusters, ['SVGs', 'Cluster count'];

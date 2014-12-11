@@ -579,7 +579,7 @@ sub _find_clusters_trees
 
 sub _find_fixed_length_candidates
 {
-	my($self, $tree, $solution, $stack) = @_;
+	my($self, $tree, $prolog, $solution, $stack) = @_;
 	my($current_name_id) = $self -> decode_node($$solution[$#$solution]);
 
 	# Add the node's parent, if it's not the root.
@@ -607,7 +607,7 @@ sub _find_fixed_length_candidates
 			@daughters = $node -> mother -> daughters;
 			$index     = $node -> my_daughter_index;
 
-			$self -> _find_fixed_length_edges(\@daughters, $index, \@neighbours);
+			$self -> _find_fixed_length_edges($prolog, \@daughters, $index, \@neighbours);
 
 			return 1; # Keep walking.
 		},
@@ -626,16 +626,15 @@ sub _find_fixed_length_candidates
 
 sub _find_fixed_length_edges
 {
-	my($self, $daughters, $index, $neighbours) = @_;
+	my($self, $prolog, $daughters, $index, $neighbours) = @_;
 
-	# TODO [$i + 2] could be a subgraph.
-	# And if the graph is not a digraph, we must traverse the edges backwards.
+	# TODO: [$i + 2] could be a subgraph.
 	# And what if the start node is inside a subgraph?
 
 	my($node_id);
 
 	# $index points to the daughter holding 'a'. Handle:
-	# o a -> b.
+	# o a -> b and a - b.
 	# o But not subgraphs.
 
 	if ( ($index + 2) <= $#$daughters)
@@ -648,9 +647,31 @@ sub _find_fixed_length_edges
 
 			if ($$node_id{id} eq 'node_id')
 			{
-				# Handle a -> b.
+				# Handle a -> b and a - b.
 
 				push @$neighbours, $$daughters[$index + 2];
+			}
+		}
+	}
+
+	# $index points to the daughter holding 'a'. Handle:
+	# o b - a.
+
+	return if ($$prolog{digraph} eq 'digraph');
+
+	if ( ($index - 2) >= 0)
+	{
+		$node_id = $self -> decode_node($$daughters[$index - 1]);
+
+		if ($$node_id{id} eq 'edge_id')
+		{
+			$node_id = $self -> decode_node($$daughters[$index - 2]);
+
+			if ($$node_id{id} eq 'node_id')
+			{
+				# Handle b - a.
+
+				push @$neighbours, $$daughters[$index - 2];
 			}
 		}
 	}
@@ -663,7 +684,7 @@ sub _find_fixed_length_edges
 
 sub _find_fixed_length_path_set
 {
-	my($self, $tree, $start) = @_;
+	my($self, $tree, $prolog, $start) = @_;
 
 	my(@all_solutions);
 	my($count, $candidate);
@@ -703,7 +724,7 @@ sub _find_fixed_length_path_set
 				# No. The solution is still too short.
 				# Push N more candidates onto the stack.
 
-				$self -> _find_fixed_length_candidates($tree, \@one_solution, \@stack);
+				$self -> _find_fixed_length_candidates($tree, $prolog, \@one_solution, \@stack);
 			}
 		}
 
@@ -729,7 +750,7 @@ sub _find_fixed_length_path_set
 
 sub _find_fixed_length_paths
 {
-	my($self, $tree) = @_;
+	my($self, $tree, $prolog) = @_;
 
 	# Phase 1: Find all copies of the start node.
 
@@ -775,7 +796,7 @@ sub _find_fixed_length_paths
 
 	# Phase 2: Process each copy of the start node.
 
-	$self -> _find_fixed_length_path_set($tree, \@start);
+	$self -> _find_fixed_length_path_set($tree, $prolog, \@start);
 
 } # End of _find_fixed_length_paths.
 
@@ -791,9 +812,10 @@ sub find_fixed_length_paths
 
 	$self -> cluster_sets($self -> _preprocess);
 
-	my($tree) = $self -> _find_cluster_containing_start_node;
+	my($tree)   = $self -> _find_cluster_containing_start_node;
+	my($prolog) = $self -> decode_tree($self -> tree);
 
-	$self -> _find_fixed_length_paths($tree);
+	$self -> _find_fixed_length_paths($tree, $prolog);
 	$self -> _winnow_fixed_length_paths;
 
 	my($title) = 'Input file: ' . basename($self -> input_file) . "\\n" .
@@ -1504,6 +1526,9 @@ Returns 0 for success and 1 for failure.
 This is one of the 2 methods which does all the work, and hence must be called.
 The other is L</find_clusters()>.
 
+Note: The code does not handle edges pointing to or from subgraphs. That I<will> be difficult to
+implement.
+
 See the L</Synopsis> and scripts/find.fixed.length.paths.pl.
 
 Returns 0 for success and 1 for failure.
@@ -1710,8 +1735,6 @@ Problems:
 If the edge is pointing to a subgraph, all nodes in that subgraph are heads of the edge.
 
 Likewise, if the start node is inside a subgraph, the edge can be outside the subgraph.
-
-=item o Graph-type (i.e. non-digraph-type) graphs have more paths per edge
 
 =item o Re-implement allow_cycles()
 
