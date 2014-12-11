@@ -14,6 +14,7 @@ data/clusters.in.09.gv
 data/fixed.length.paths.in.01.gv
 data/fixed.length.paths.in.02.gv
 data/fixed.length.paths.in.03.gv
+data/fixed.length.paths.in.04.gv
 htdocs/assets/css/graphviz2/marpa/pathutils/default.css
 htdocs/assets/css/graphviz2/marpa/pathutils/fancy.table.css
 htdocs/assets/css/graphviz2/marpa/pathutils/web.page.css
@@ -81,9 +82,12 @@ html/fixed.length.paths.in.02.html
 html/fixed.length.paths.in.02.svg
 html/fixed.length.paths.in.03.html
 html/fixed.length.paths.in.03.svg
+html/fixed.length.paths.in.04.html
+html/fixed.length.paths.in.04.svg
 html/fixed.length.paths.out.01.svg
 html/fixed.length.paths.out.02.svg
 html/fixed.length.paths.out.03.svg
+html/fixed.length.paths.out.04.svg
 html/index.html
 lib/GraphViz2/Marpa/PathUtils.pm
 lib/GraphViz2/Marpa/PathUtils/Config.pm
@@ -129,6 +133,7 @@ out/clusters.out.09.007.gv
 out/fixed.length.paths.out.01.gv
 out/fixed.length.paths.out.02.gv
 out/fixed.length.paths.out.03.gv
+out/fixed.length.paths.out.04.gv
 README
 scripts/copy.config.pl
 scripts/find.clusters.pl
