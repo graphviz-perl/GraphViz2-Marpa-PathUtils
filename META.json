@@ -26,9 +26,9 @@
       },
       "runtime" : {
          "requires" : {
-            "Capture::Tiny" : "0.1",
+            "Capture::Tiny" : "0.27",
             "Config" : "0",
-            "Config::Tiny" : "2.14",
+            "Config::Tiny" : "2.2",
             "Date::Simple" : "3.03",
             "File::Basename" : "2.84",
             "File::Copy" : "2.21",
@@ -36,16 +36,15 @@
             "File::Spec" : "0",
             "File::Temp" : "0",
             "Getopt::Long" : "2.38",
-            "GraphViz2::Marpa" : "1.06",
-            "GraphViz2::Marpa::Renderer::Graphviz" : "2.02",
+            "GraphViz2::Marpa" : "2.03",
+            "GraphViz2::Marpa::Renderer::Graphviz" : "2.03",
             "Moo" : "1.006001",
-            "Path::Class" : "0.23",
             "Path::Tiny" : "0.061",
             "Pod::Usage" : "1.36",
-            "Set::Tiny" : "0.01",
+            "Set::Tiny" : "0.02",
             "Sort::Key" : "1.33",
-            "Text::Xslate" : "1.4001",
-            "Types::Standard" : "1.000004",
+            "Text::Xslate" : "v3.3.3",
+            "Types::Standard" : "1.000005",
             "open" : "0",
             "parent" : "0.225",
             "strict" : "0",
@@ -56,15 +55,15 @@
    "provides" : {
       "GraphViz2::Marpa::PathUtils" : {
          "file" : "lib/GraphViz2/Marpa/PathUtils.pm",
-         "version" : "2.00"
+         "version" : "2.03"
       },
       "GraphViz2::Marpa::PathUtils::Config" : {
          "file" : "lib/GraphViz2/Marpa/PathUtils/Config.pm",
-         "version" : "2.00"
+         "version" : "2.03"
       },
       "GraphViz2::Marpa::PathUtils::Demo" : {
          "file" : "lib/GraphViz2/Marpa/PathUtils/Demo.pm",
-         "version" : "2.00"
+         "version" : "2.03"
       }
    },
    "release_status" : "stable",
@@ -76,5 +75,5 @@
          "url" : "https://github.com/ronsavage/GraphViz2-Marpa-PathUtils"
       }
    },
-   "version" : "2.00"
+   "version" : "2.03"
 }
