@@ -13,6 +13,7 @@ Revision history for Perl extension GraphViz2::Marpa::PathUtils.
 	- Add generate.html4cluster.pl, which combines a set of input and output files from one run of
 		find.clusters.pl, into a HTML file. See the docs for details.
 	- Rename parameters to new().
+	- Add github repo to docs, Build.PL and Makefile.PL.
 
 1.05  Wed Jan 29 10:27:00 2014
 	- After calling find_clusters(), sort the result twice: Once for elements within a set and once

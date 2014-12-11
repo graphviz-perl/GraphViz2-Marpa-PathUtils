@@ -1698,6 +1698,10 @@ Version numbers < 1.00 represent development versions. From 1.00 up, they are pr
 
 The file CHANGES was converted into Changelog.ini by L<Module::Metadata::Changes>.
 
+=head1 Repository
+
+L<https://github.com/ronsavage/GraphViz2-Marpa-PathUtils>
+
 =head1 Support
 
 Email the author, or log a bug on RT:

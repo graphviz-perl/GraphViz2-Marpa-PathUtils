@@ -69,6 +69,13 @@ Module::Build -> new
 	{
 		'Module::Build' => 0.3800,
 	},
+	meta_merge =>
+	{
+		resources =>
+		{
+			repository => 'https://github.com/ronsavage/GraphViz2-Marpa-PathUtils',
+		},
+	},
 	requires =>
 	{
 		'Capture::Tiny'    => 0.10,
