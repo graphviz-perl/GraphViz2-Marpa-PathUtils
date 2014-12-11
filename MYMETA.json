@@ -55,15 +55,15 @@
    "provides" : {
       "GraphViz2::Marpa::PathUtils" : {
          "file" : "lib/GraphViz2/Marpa/PathUtils.pm",
-         "version" : "2.00"
+         "version" : "2.03"
       },
       "GraphViz2::Marpa::PathUtils::Config" : {
          "file" : "lib/GraphViz2/Marpa/PathUtils/Config.pm",
-         "version" : "2.00"
+         "version" : "2.03"
       },
       "GraphViz2::Marpa::PathUtils::Demo" : {
          "file" : "lib/GraphViz2/Marpa/PathUtils/Demo.pm",
-         "version" : "2.00"
+         "version" : "2.03"
       }
    },
    "release_status" : "stable",
@@ -75,5 +75,5 @@
          "url" : "https://github.com/ronsavage/GraphViz2-Marpa-PathUtils"
       }
    },
-   "version" : "2.00"
+   "version" : "2.03"
 }
