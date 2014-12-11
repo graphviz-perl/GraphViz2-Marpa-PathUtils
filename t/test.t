@@ -56,6 +56,8 @@ my($count) = 6;
 my($expected);
 my($stdout);
 
+# Test 1.
+
 $stdout   = check_clusters('clusters.in.06.gv');
 $expected = <<'EOS';
 Input file: clusters.in.06.gv. Clusters: 4:
@@ -67,6 +69,8 @@ EOS
 
 ok($stdout eq $expected);
 
+# Test 2.
+
 $stdout   = check_clusters('clusters.in.07.gv');
 $expected = <<'EOS';
 Input file: clusters.in.07.gv. Clusters: 4:
@@ -77,6 +81,8 @@ Cluster: 4. (A)
 EOS
 
 ok($stdout eq $expected);
+
+# Test 3.
 
 $stdout   = check_clusters('clusters.in.09.gv');
 $expected = <<'EOS';
@@ -92,6 +98,8 @@ EOS
 
 ok($stdout eq $expected);
 
+# Test 4.
+
 $stdout   = check_fixed('fixed.length.paths.in.01.gv', 'Act_1');
 $expected = <<'EOS';
 Input file: fixed.length.paths.in.01.gv. Starting node: Act_1. Path length: 3. Allow cycles: 0. Paths: 4:
@@ -103,13 +111,28 @@ EOS
 
 ok($stdout eq $expected);
 
+# Test 5.
+
 $stdout   = check_fixed('fixed.length.paths.in.02.gv', '5');
 $expected = <<'EOS';
-Input file: fixed.length.paths.in.02.gv. Starting node: 5. Path length: 3. Allow cycles: 0. Paths: 1:
-Path: 1. 5 -> 7 -> 9 -> 6
+Input file: fixed.length.paths.in.02.gv. Starting node: 5. Path length: 3. Allow cycles: 0. Paths: 12:
+Path: 1. 5 -> 8 -> 6 -> 9
+Path: 2. 5 -> 8 -> 6 -> 1
+Path: 3. 5 -> 8 -> 3 -> 2
+Path: 4. 5 -> 8 -> 3 -> 4
+Path: 5. 5 -> 7 -> 9 -> 6
+Path: 6. 5 -> 7 -> 9 -> 4
+Path: 7. 5 -> 7 -> 2 -> 1
+Path: 8. 5 -> 7 -> 2 -> 3
+Path: 9. 5 -> 0 -> 4 -> 9
+Path: 10. 5 -> 0 -> 4 -> 3
+Path: 11. 5 -> 0 -> 1 -> 6
+Path: 12. 5 -> 0 -> 1 -> 2
 EOS
 
 ok($stdout eq $expected);
+
+# Test 6.
 
 $stdout   = check_fixed('fixed.length.paths.in.03.gv', 'A');
 $expected = <<'EOS';
