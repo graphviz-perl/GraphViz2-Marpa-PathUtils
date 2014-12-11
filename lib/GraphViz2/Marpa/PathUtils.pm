@@ -607,6 +607,7 @@ sub _find_fixed_length_candidates
 			$i         = $node -> my_daughter_index;
 
 			# TODO [$i + 2] could be a subgraph.
+			# And if the graph is not a digraph, we must traverse the edges backwards.
 
 			if ( ( ($i + 2) <= $#daughters) && ($daughters[$i + 1] -> name eq 'edge_id') )
 			{
@@ -1680,6 +1681,26 @@ words:
 	strict graph "graph"{...}
 
 Even better, use a more meaningful name for your graph...
+
+=head1 TODO
+
+Problems:
+
+=over 4
+
+=item o Fixed length paths and subgraphs
+
+If the edge is pointing to a subgraph, all nodes in that subgraph are heads of the edge.
+
+=item o Graph-type (i.e. non-digraph-type) graphs have more paths per edge
+
+=item o Re-implement allow_cycles
+
+This has been ignored in the re-write for V 2.
+
+=back
+
+For the first 2 of these, see sub _find_fixed_length_candidates() for where patches must be made.
 
 =head1 References
 
