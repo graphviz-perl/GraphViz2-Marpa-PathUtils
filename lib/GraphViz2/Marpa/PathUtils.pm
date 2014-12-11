@@ -1680,15 +1680,17 @@ Problems:
 
 If the edge is pointing to a subgraph, all nodes in that subgraph are heads of the edge.
 
+Likewise, if the start node is inside a subgraph, the edge can be outside the subgraph.
+
 =item o Graph-type (i.e. non-digraph-type) graphs have more paths per edge
 
-=item o Re-implement allow_cycles
+=item o Re-implement allow_cycles()
 
 This has been ignored in the re-write for V 2.
 
 =back
 
-For the first 2 of these, see sub _find_fixed_length_candidates() for where patches must be made.
+Search the source for 'TODO' and 'allow_cycles' to find where patches must be made.
 
 =head1 References
 
