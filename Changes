@@ -6,10 +6,15 @@ Revision history for Perl extension GraphViz2::Marpa::PathUtils.
 		One effect is that the original structure and attributes of nodes and edges is now preserved
 		in the output clusters.
 	- Rename *::Utils to *::Demo. It's only used by the author.
-	- Update MANIFEST.
+		Rewrite the html generating code, so each cluster test and each fixed length path test has
+		own web page.
+	- Update the docs.
 	- Edit line lengths in docs to be 100 chars, max.
 	- Rename data/*.gv files, and move output *.gv files into out/.
 	- With clusters, output each cluster into its own out/*.gv and html/*.svg file.
+	- Update MANIFEST.
+	- Update the pre-reqs.
+	- Replace Path::Class with File::Spec.
 	- Rename parameters to new().
 	- Add github repo to docs, Build.PL and Makefile.PL.
 	- Move t/pod.t to xt/author/.

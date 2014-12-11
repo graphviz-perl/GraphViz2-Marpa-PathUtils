@@ -1202,14 +1202,14 @@ Either pass parameters in to new():
 	    input_file      => 'data/clusters.in.09.gv',
 	    output_file     => 'out/clusters.out.09', # Actually a prefix. See FAQ.
 	    report_clusters => 1,
-	);
+	) -> find_clusters;
 
 Or call methods to set parameters:
 
 	my($parser) = GraphViz2::Marpa::PathUtils -> new;
 
 	$parser -> input_file('data/clusters.in.09.gv');
-	$parser -> output_file('out/clusters.out.09');
+	$parser -> output_file('out/clusters.out.09'); # Actually a prefix. See FAQ.
 	$parser -> report_clusters(1);
 
 And then:
