@@ -14,6 +14,7 @@ Revision history for Perl extension GraphViz2::Marpa::PathUtils.
 		find.clusters.pl, into a HTML file. See the docs for details.
 	- Rename parameters to new().
 	- Add github repo to docs, Build.PL and Makefile.PL.
+	- Move t/pod.t to xt/author/.
 	- TODO: Things which are not yet implemented:
 		o Paths into or out of subgraphs.
 		o Paths with a graph (not a digraph) can lead backwards.

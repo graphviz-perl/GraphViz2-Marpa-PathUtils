@@ -586,7 +586,7 @@ sub _find_fixed_length_candidates
 	# Then add the node's children.
 
 	my(@daughters);
-	my($i);
+	my($index);
 	my($name_id, @neighbours);
 
 	$tree -> walk_down
@@ -602,18 +602,12 @@ sub _find_fixed_length_candidates
 			return 1 if ($$name_id{name} ne $$current_name_id{name}); # Keep walking.
 
 			# Now find its neighbours. These are sisters separated by an edge.
+			# But beware of subgraphs.
 
 			@daughters = $node -> mother -> daughters;
-			$i         = $node -> my_daughter_index;
+			$index     = $node -> my_daughter_index;
 
-			# TODO [$i + 2] could be a subgraph.
-			# And if the graph is not a digraph, we must traverse the edges backwards.
-			# And what if the start node is inside a subgraph?
-
-			if ( ( ($i + 2) <= $#daughters) && ($daughters[$i + 1] -> name eq 'edge_id') )
-			{
-				push @neighbours, $daughters[$i + 2] if ($daughters[$i + 2] -> name eq 'node_id');
-			}
+			$self -> _find_fixed_length_edges(\@daughters, $index, \@neighbours);
 
 			return 1; # Keep walking.
 		},
@@ -627,6 +621,41 @@ sub _find_fixed_length_candidates
 	push @$stack, @neighbours, $#neighbours + 1;
 
 } # End of _find_fixed_length_candidates.
+
+# -----------------------------------------------
+
+sub _find_fixed_length_edges
+{
+	my($self, $daughters, $index, $neighbours) = @_;
+
+	# TODO [$i + 2] could be a subgraph.
+	# And if the graph is not a digraph, we must traverse the edges backwards.
+	# And what if the start node is inside a subgraph?
+
+	my($node_id);
+
+	# $index points to the daughter holding 'a'. Handle:
+	# o a -> b.
+	# o But not subgraphs.
+
+	if ( ($index + 2) <= $#$daughters)
+	{
+		$node_id = $self -> decode_node($$daughters[$index + 1]);
+
+		if ($$node_id{id} eq 'edge_id')
+		{
+			$node_id = $self -> decode_node($$daughters[$index + 2]);
+
+			if ($$node_id{id} eq 'node_id')
+			{
+				# Handle a -> b.
+
+				push @$neighbours, $$daughters[$index + 2];
+			}
+		}
+	}
+
+} # End of _find_fixed_length_edges.
 
 # -----------------------------------------------
 # Find all paths starting from any copy of the target start_node.

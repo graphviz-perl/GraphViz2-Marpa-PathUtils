@@ -1,6 +1,0 @@
-digraph fixed_length_paths
-{
-	label = "Input file: fixed.length.paths.in.04.gv\nStarting node: A\nPath length: 3\nAllow cycles: 0\nPaths: 0" rankdir = LR
-
-
-}
