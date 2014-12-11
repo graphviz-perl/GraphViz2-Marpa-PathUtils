@@ -882,7 +882,8 @@ sub output_fixed_length_gv
 			if (! defined($node_set{$$node_id{name}}) )
 			{
 				$node_set{$$node_id{name} } = 1;
-				$$node_id{label}            = {label => $$node_id{name}, name => ++$new_id};
+				$$node_id{label}            = $$node_id{name};
+				$$node_id{name}             = ++$new_id;
 			}
 
 			push @node_set, $node_id;
