@@ -82,7 +82,7 @@ has start_node =>
 	required => 0,
 );
 
-our $VERSION = '2.03';
+our $VERSION = '2.00';
 
 # -----------------------------------------------
 
