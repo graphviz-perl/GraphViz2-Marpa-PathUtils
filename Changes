@@ -2,7 +2,7 @@ Revision history for Perl extension GraphViz2::Marpa::PathUtils.
 
 2.00  Fri Nov 28 11:14:00 2014
 	- Switch from Hash::FieldHash to Moo.
-	- Re-write to use GraphViz2::Marpa V 2.02. This involves many changes.
+	- Re-write to use GraphViz2::Marpa V 2.03. This involves many changes.
 		One effect is that the original structure and attributes of nodes and edges is now preserved
 		in the output clusters.
 	- Rename *::Utils to *::Demo. It's only used by the author.
@@ -10,14 +10,11 @@ Revision history for Perl extension GraphViz2::Marpa::PathUtils.
 	- Edit line lengths in docs to be 100 chars, max.
 	- Rename data/*.gv files, and move output *.gv files into out/.
 	- With clusters, output each cluster into its own out/*.gv and html/*.svg file.
-	- Add generate.html4cluster.pl, which combines a set of input and output files from one run of
-		find.clusters.pl, into a HTML file. See the docs for details.
 	- Rename parameters to new().
 	- Add github repo to docs, Build.PL and Makefile.PL.
 	- Move t/pod.t to xt/author/.
 	- TODO: Things which are not yet implemented:
 		o Paths into or out of subgraphs.
-		o Paths with a graph (not a digraph) can lead backwards.
 		o allow_cycle logic.
 
 1.05  Wed Jan 29 10:27:00 2014
