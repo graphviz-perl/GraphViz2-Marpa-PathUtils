@@ -102,7 +102,7 @@ my(%params) =
 		'strict'           => 0,
 		'Test::More'       => 0.98,
 #		'Test::Pod'        => 1.45, # Make it optional. See t/pod.t
-		'Text::Xslate'     => 3.3.3,
+		'Text::Xslate'     => '3.3.3',
 		'Types::Standard'  => 1.000005,
 		'warnings'         => 0,
 	},

@@ -98,7 +98,7 @@ Module::Build -> new
 		'Set::Tiny'        => 0.02,
 		'Sort::Key'        => 1.33,
 		'strict'           => 0,
-		'Text::Xslate'     => 3.3.3,
+		'Text::Xslate'     => '3.3.3',
 		'Types::Standard'  => 1.000005,
 		'warnings'         => 0,
 	},
