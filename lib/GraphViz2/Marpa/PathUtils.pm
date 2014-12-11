@@ -897,7 +897,7 @@ sub output_fixed_length_gv
 
 	# Secondly, declare all edges.
 
-	my($edge) = ($digraph eq 'digraph') ? ' -> ' : ' -- ';
+	my($edge) = ($$prolog{digraph} eq 'digraph') ? ' -> ' : ' -- ';
 
 	for my $set (@set)
 	{
