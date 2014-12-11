@@ -510,27 +510,21 @@ sub _find_clusters_trees
 
 	@wanted{@$members} = (1) x @$members;
 
-	my($attributes);
-	my($name);
+	my($name_id);
 	my(%seen);
-	my($uid);
-	my($value);
 
 	$cluster -> walk_down
 	({
 		callback => sub
 		{
-			my($node)   = @_;
-			$name       = $node -> name;
-			$attributes = $node -> attributes;
-			$uid        = $$attributes{uid};
-			$value      = $$attributes{value};
+			my($node) = @_;
+			$name_id  = $self -> decode_node($node);
 
 			# Check for unwanted nodes.
 
-			if ( ($name eq 'node_id') && ! $wanted{$value})
+			if ( ($$name_id{id} eq 'node_id') && ! $wanted{$$name_id{name} })
 			{
-				$seen{$uid} = $node -> mother;
+				$seen{$$name_id{uid} } = $node -> mother;
 			}
 
 			return 1; # Keep walking.
@@ -540,7 +534,6 @@ sub _find_clusters_trees
 
 	# This loop is outwardly the same as the one in _find_reachable_nodes().
 
-	my($candidate_uid);
 	my(@daughters);
 	my($limit);
 	my($mother);
@@ -560,9 +553,9 @@ sub _find_clusters_trees
 
 		for my $i (0 .. $limit)
 		{
-			$candidate_uid = ${$daughters[$i] -> attributes}{uid};
+			$name_id = $self -> decode_node($daughters[$i]);
 
-			next if ($unwanted_uid != $candidate_uid);
+			next if ($unwanted_uid != $$name_id{uid});
 
 			$daughters[$i] -> unlink_from_mother;
 
@@ -570,9 +563,9 @@ sub _find_clusters_trees
 			{
 				next if ( ($offset < 0) || ($offset > $limit) );
 
-				$name = $daughters[$offset] -> name;
+				$name_id = $self -> decode_node($daughters[$offset]);
 
-				$daughters[$offset] -> unlink_from_mother if ($name eq 'edge_id');
+				$daughters[$offset] -> unlink_from_mother if ($$name_id{id} eq 'edge_id');
 			}
 		}
 	}
@@ -587,14 +580,14 @@ sub _find_clusters_trees
 sub _find_fixed_length_candidates
 {
 	my($self, $tree, $solution, $stack) = @_;
-	my($current_node) = $$solution[$#$solution];
+	my($current_name_id) = $self -> decode_node($$solution[$#$solution]);
 
 	# Add the node's parent, if it's not the root.
 	# Then add the node's children.
 
 	my(@daughters);
 	my($i);
-	my($name, @neighbours);
+	my($name_id, @neighbours);
 
 	$tree -> walk_down
 	({
@@ -602,11 +595,11 @@ sub _find_fixed_length_candidates
 		sub
 		{
 			my($node) = @_;
-			$name     = $node -> name;
+			$name_id  = $self -> decode_node($node);
 
 			# We only want neighbours of the current node.
 
-			return 1 if (${$node -> attributes}{value} ne ${$current_node -> attributes}{value}); # Keep walking.
+			return 1 if ($$name_id{name} ne $$current_name_id{name}); # Keep walking.
 
 			# Now find its neighbours. These are sisters separated by an edge.
 
@@ -709,12 +702,10 @@ sub _find_fixed_length_paths
 
 	# Phase 1: Find all copies of the start node.
 
-	my($attributes);
 	my(@daughters);
 	my($index);
-	my($name);
+	my($node_id);
 	my(@start);
-	my($uid);
 	my($value);
 
 	$tree -> walk_down
@@ -723,18 +714,15 @@ sub _find_fixed_length_paths
 		sub
 		{
 			my($node) = @_;
-			$name     = $node -> name;
+			$node_id  = $self -> decode_node($node);
 
 			# Skip the special tree nodes.
 
-			return 1 if ($name =~ /(?:graph|prolog|root)/); # Keep walking.
+			return 1 if ($$node_id{id} =~ /(?:graph|prolog|root)/); # Keep walking.
 
 			# Skip the tree nodes with names other than the start node.
 
-			$attributes = $node -> attributes;
-			$value      = $$attributes{value};
-
-			return 1 if ($value ne $self -> start_node); # Keep walking.
+			return 1 if ($$node_id{name} ne $self -> start_node); # Keep walking.
 
 			# Skip the tree nodes which are not on a path.
 
@@ -742,8 +730,6 @@ sub _find_fixed_length_paths
 			@daughters = $node -> mother -> daughters;
 
 			return 1 if ( ($index == $#daughters) || ($daughters[$index + 1] -> name ne 'edge_id') ); # Keep walking.
-
-			$uid = $$attributes{uid};
 
 			push @start, $node;
 
@@ -860,29 +846,24 @@ sub output_fixed_length_gv
 
 	my($new_id) = 0;
 
-	my($attributes);
 	my(@set);
-	my($value);
 
 	for my $set (@{$self -> fixed_path_set})
 	{
 		my(%node_set, @node_set);
 
-		for my $node (@$set)
+		for my $node_id (@$set)
 		{
-			$attributes = $node -> attributes;
-			$value      = $$attributes{value};
-
 			# Allow for paths with loops, so we don't declare the same node twice.
 			# Actually, I doubt Graphviz would care, since each declaration would be identical.
 			# Also, later, we sort by name (i.e. $new_id) to get the order of nodes in the path.
 
-			if (! defined($node_set{$value}) )
+			if (! defined($node_set{$$node_id{name}}) )
 			{
-				$node_set{$value} = {label => $value, name => ++$new_id};
+				$node_set{$$node_id{name} } = {label => $$node_id{name}, name => ++$new_id};
 			}
 
-			push @node_set, $node_set{$value};
+			push @node_set, $node_set{$$node_id{node}};
 		}
 
 		push @set, [@node_set];
@@ -894,11 +875,13 @@ sub output_fixed_length_gv
 	my($strict)  = '';
 	my($digraph) = 'graph';
 
+	my($node_id);
+
 	for my $node ( ($tree -> daughters)[0] -> daughters)
 	{
-		$value   = ${$node -> attributes}{value};
-		$strict  = 'strict ' if ($value eq 'strict');
-		$digraph = 'digraph' if ($value eq 'digraph');
+		$node_id = $self -> decode_node($node);
+		$strict  = 'strict ' if ($$node_id{name} eq 'strict');
+		$digraph = 'digraph' if ($$node_id{name} eq 'digraph');
 	}
 
 	# Now output the paths, using the nodes' original names as labels.
@@ -1020,7 +1003,7 @@ sub report_fixed_length_paths
 	{
 		$count++;
 
-		$self -> log(notice => "Path: $count. " . join(' -> ', map{${$_ -> attributes}{value} } @$candidate) );
+		$self -> log(notice => "Path: $count. " . join(' -> ', map{$$_{name} } @$candidate) );
 	}
 
 } # End of report_fixed_length_paths.
@@ -1038,6 +1021,7 @@ sub _winnow_cluster_tree
 	# Of course, there must be no nodes in nested subgraphs too.
 
 	my(@daughters);
+	my($node_id);
 	my(%seen);
 	my($uid);
 
@@ -1050,8 +1034,8 @@ sub _winnow_cluster_tree
 
 			if ($self -> _winnow_subgraph(\@daughters) )
 			{
-				$uid        = ${$node -> attributes}{uid};
-				$seen{$uid} = 1;
+				$node_id               = $self -> decode_node($node);
+				$seen{$$node_id{uid} } = 1;
 			}
 
 			return 1; # Keep walking.
@@ -1079,7 +1063,9 @@ sub _winnow_fixed_length_paths
 
 		my(%seen);
 
-		$seen{$_}++ for map{${$_ -> attributes}{value} } @$candidate;
+		@$candidate = map{$self -> decode_node($_)} @$candidate;
+
+		$seen{$$_{name} }++ for @$candidate;
 
 		# Exclude nodes depending on the allow_cycles option:
 		# o 0 - Do not allow any cycles.
@@ -1087,11 +1073,11 @@ sub _winnow_fixed_length_paths
 
 		if ($cycles == 0)
 		{
-			@$candidate = grep{$seen{${$_ -> attributes}{value} } == 1} @$candidate;
+			@$candidate = grep{$seen{$$_{name} } == 1} @$candidate;
 		}
 		elsif ($cycles == 1)
 		{
-			@$candidate = grep{$seen{${$_ -> attributes}{value}} <= 2} @$candidate;
+			@$candidate = grep{$seen{$$_{name} } <= 2} @$candidate;
 		}
 
 		push @solutions, [@$candidate] if ($#$candidate == $self -> path_length);
@@ -1111,31 +1097,30 @@ sub _winnow_subgraph
 
 	my($brace_found) = 0;
 
-	my($attributes);
-	my($node_count);
+	my($node_id_i, $node_id_j, $node_count);
 
 	for my $i (0 .. $#$daughters)
 	{
-		$attributes = $$daughters[$i] -> attributes;
+		$node_id_i = $self -> decode_node($$daughters[$i]);
 
 		# Find an open brace, {.
 
-		if ( ($$daughters[$i] -> name eq 'literal') && ($$attributes{value} eq '{') )
+		if ($$node_id_i{name} eq '{')
 		{
 			$brace_found = 1;
 			$node_count  = 0;
 
 			for (my $j = $i + 1; $j <= $#$daughters; $j++)
 			{
-				$attributes = $$daughters[$j] -> attributes;
+				$node_id_j = $self -> decode_node($$daughters[$j]);
 
 				# Find the first closing brace, }.
 
-				last if ( ($$daughters[$j] -> name eq 'literal') && ($$attributes{value} eq '}') );
+				last if ($$node_id_j{name} eq '}');
 
 				# Count the nodes between the { and }.
 
-				$node_count++ if ($$daughters[$j] -> name eq 'node_id');
+				$node_count++ if ($$node_id_j{id} eq 'node_id');
 			}
 
 			# Exit when at least 1 set of 'empty' braces was found.
