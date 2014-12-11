@@ -159,7 +159,7 @@ sub generate_demo
 			border          => 1,
 			cluster_data    => [map{[{td => mark_raw($$_[0])}, {td => mark_raw($$_[1])}]} @html4clusters],
 			default_css     => "$$config{css_url}/default.css",
-			environment     => $self -> generate_demo_environment,
+			environment     => $self -> _generate_demo_environment,
 			fancy_table_css => "$$config{css_url}/fancy.table.css",
 			fixed_data      => [map{[{td => mark_raw($_)}]} @html4fixed_length_paths],
 			version         => $VERSION,
@@ -177,7 +177,7 @@ sub generate_demo
 
 # ------------------------------------------------
 
-sub generate_demo_environment
+sub _generate_demo_environment
 {
 	my($self) = @_;
 
@@ -193,7 +193,7 @@ sub generate_demo_environment
 
 	return \@environment;
 }
- # End of generate_demo_environment.
+ # End of _generate_demo_environment.
 
 # -----------------------------------------------
 
@@ -433,10 +433,6 @@ It returns a new object of type C<GraphViz2::Marpa::PathUtils::Demo>.
 Generates html/index.html using html/*.svg files.
 
 See scripts/generate.demo.pl.
-
-=head2 generate_demo_environment()
-
-Called by generate_demo(). Just adds a footer to the output file html/index.html.
 
 =head1 Version Numbers
 
