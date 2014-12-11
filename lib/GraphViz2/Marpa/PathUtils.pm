@@ -608,6 +608,7 @@ sub _find_fixed_length_candidates
 
 			# TODO [$i + 2] could be a subgraph.
 			# And if the graph is not a digraph, we must traverse the edges backwards.
+			# And what if the start node is inside a subgraph?
 
 			if ( ( ($i + 2) <= $#daughters) && ($daughters[$i + 1] -> name eq 'edge_id') )
 			{
@@ -841,27 +842,14 @@ sub output_clusters
 sub output_fixed_length_gv
 {
 	my($self, $tree, $title) = @_;
-
-	# Was the original graph strict or not, and a digraph or not?
-	# We examine the daughters of the prolog tree node.
-
-	my($strict)  = '';
-	my($digraph) = 'graph';
-
-	my($node_id);
-
-	for my $node ( ($tree -> daughters)[0] -> daughters)
-	{
-		$node_id = $self -> decode_node($node);
-		$strict  = 'strict ' if ($$node_id{name} eq 'strict');
-		$digraph = 'digraph' if ($$node_id{name} eq 'digraph');
-	}
+	my($prolog)      = $self -> decode_tree($tree);
+	$$prolog{strict} .= ' ' if ($$prolog{strict} eq 'strict');
 
 	# Now output the paths, using the nodes' original names as labels.
 
 	my(@dot_text);
 
-	push @dot_text, "$strict$digraph fixed_length_paths", '{', qq|\tlabel = "$title" rankdir = LR|, '';
+	push @dot_text, "$$prolog{strict}$$prolog{digraph} fixed_length_paths", '{', qq|\tlabel = "$title" rankdir = LR|, '';
 
 	# We have to rename all the nodes so they can all be included
 	# in a single DOT file without dot linking them based on their names.
