@@ -1569,8 +1569,19 @@ Returns 0 for success and 1 for failure.
 This is one of the 2 methods which do all the work, and hence must be called.
 The other is L</find_clusters()>.
 
-Note: The code does not handle edges pointing to or from subgraphs. That I<will> be difficult to
-implement.
+Notes:
+
+=over 4
+
+=item o Edges pointing in to or out of subgraphs
+
+The code does not handle these cases, which I<will> be difficult to implement.
+
+=item o Edge tails or heads using ports and compasses
+
+Just specify the start node without the port+compass details.
+
+=back
 
 See the L</Synopsis> and scripts/find.fixed.length.paths.pl.
 
@@ -1635,9 +1646,18 @@ Here the [] indicate an optional parameter.
 
 Get or set the name of the node from where all paths must start.
 
+Specify the start node without the port+compass details.
+
 'start_node' is a parameter to L</new()>. See L</Constructor and Initialization> for details.
 
 =head1 FAQ
+
+=head2 How does find_fixed_length_paths() handle port+compass detail?
+
+Just specify the start node without the port+compass details, and it will work.
+
+Check L<GraphViz2::Marpa::PathUtils::Demo> line 82. The corresponding data is
+data/fixed.length.paths.in.04.gv, out/* and html/* files.
 
 =head2 I can't get this module to work with Path::Tiny objects
 
