@@ -1,4 +1,5 @@
-digraph G {
+digraph path_01
+{
 	style=bold;
 	subgraph cluster_outer {
 		Act_1 -> Act_21;

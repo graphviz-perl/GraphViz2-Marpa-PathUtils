@@ -1,4 +1,4 @@
-digraph Perl
+digraph graph_07
 {
 	graph[rankdir = "LR"]
 	node[shape = "oval"]

@@ -1,4 +1,4 @@
-digraph graph_51
+digraph graph_03
 {
 	edge[color = "blue"]
 	node[shape = "Mdiamond"]

@@ -1,4 +1,4 @@
-strict digraph path_set_01
+strict digraph graph_09
 {
 	# Node to node.
 

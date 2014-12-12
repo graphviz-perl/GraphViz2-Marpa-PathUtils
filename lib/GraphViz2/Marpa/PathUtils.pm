@@ -231,12 +231,12 @@ sub _find_cluster_reachable_nodes
 			$node{tail}   =
 			{
 				id   => $$last_node_id{id},
-				name => $$last_node_id{name},
+				name => $$last_node_id{node},
 			};
 			$node{head} =
 			{
 				id   => $$next_node_id{id},
-				name => $$next_node_id{name},
+				name => $$next_node_id{node},
 			};
 
 			# Cases to handle (see data/path.set.01.in.gv):
@@ -258,12 +258,12 @@ sub _find_cluster_reachable_nodes
 					# The reason for doing both 'a' and 'b' is that either one may appear elsewhere
 					# in the graph, but we don't know which one, if either, does.
 
-					for my $n (qw/tail head/)
+					for my $type (qw/tail head/)
 					{
-						$name            = $node{$n}{name};
+						$name            = $node{$type}{name};
 						$clusters{$name} ||= Set::Tiny -> new;
 
-						$clusters{$name} -> insert($n eq 'tail' ? $node{head}{name} : $node{tail}{name});
+						$clusters{$name} -> insert($type eq 'tail' ? $node{head}{name} : $node{tail}{name});
 					}
 				}
 				else
@@ -323,7 +323,7 @@ sub _find_cluster_reachable_subgraph_1
 
 		# Stockpile all nodes within the head subgraph.
 
-		$real_head             = $$node_id{name};
+		$real_head             = $$node_id{node};
 		$$clusters{$real_tail} ||= Set::Tiny -> new;
 
 		$$clusters{$real_tail} -> insert($real_head);
@@ -356,7 +356,7 @@ sub _find_cluster_reachable_subgraph_2
 
 		# Stockpile all nodes within the tail subgraph.
 
-		$real_tail             = $$node_id{name};
+		$real_tail             = $$node_id{node};
 		$$clusters{$real_head} ||= Set::Tiny -> new;
 
 		$$clusters{$real_head} -> insert($real_tail);
@@ -399,7 +399,7 @@ sub _find_cluster_reachable_subgraph_3
 
 			next if ($$node_id{id} ne 'node_id');
 
-			$real_head             = $$node_id{name};
+			$real_head             = $$node_id{node};
 			$$clusters{$real_head} ||= Set::Tiny -> new;
 
 			$$clusters{$real_head} -> insert($real_tail);
@@ -449,13 +449,13 @@ sub _find_cluster_standalone_nodes
 
 			# Ignore non-nodes and nodes which have been seen.
 
-			return 1 if ( ($$node_id{id} ne 'node_id') || defined $seen{$$node_id{name} }); # Keep walking.
+			return 1 if ( ($$node_id{id} ne 'node_id') || defined $seen{$$node_id{node} }); # Keep walking.
 
 			$count++;
 
 			$$subgraphs{$count} = Set::Tiny -> new;
 
-			$$subgraphs{$count} -> insert($$node_id{name});
+			$$subgraphs{$count} -> insert($$node_id{node});
 
 			return 1; # Keep walking.
 		},
@@ -522,7 +522,7 @@ sub _find_clusters_trees
 
 			# Check for unwanted nodes.
 
-			if ( ($$name_id{id} eq 'node_id') && ! $wanted{$$name_id{name} })
+			if ( ($$name_id{id} eq 'node_id') && ! $wanted{$$name_id{node} })
 			{
 				$seen{$$name_id{uid} } = $node -> mother;
 			}
@@ -599,7 +599,7 @@ sub _find_fixed_length_candidates
 
 			# We only want neighbours of the current node.
 
-			return 1 if ($$name_id{name} ne $$current_name_id{name}); # Keep walking.
+			return 1 if ($$name_id{node} ne $$current_name_id{node}); # Keep walking.
 
 			# Now find its neighbours. These are sisters separated by an edge.
 			# But beware of subgraphs.
@@ -774,16 +774,31 @@ sub _find_fixed_length_paths
 
 			# Skip the tree nodes with names other than the start node.
 
-			return 1 if ($$node_id{name} ne $self -> start_node); # Keep walking.
+			return 1 if ($$node_id{node} ne $self -> start_node); # Keep walking.
 
 			# Skip the tree nodes which are not on a path.
 
 			$index     = $node -> my_daughter_index;
 			@daughters = $node -> mother -> daughters;
 
-			return 1 if ( ($index == $#daughters) || ($daughters[$index + 1] -> name ne 'edge_id') ); # Keep walking.
-
-			push @start, $node;
+			if ($$prolog{digraph} eq 'graph')
+			{
+				if ( ($index > 0) && ($daughters[$index - 1] -> name eq 'edge_id') )
+				{
+					push @start, $node;
+				}
+				elsif ( ($index < $#daughters) && ($daughters[$index + 1] -> name eq 'edge_id') )
+				{
+					push @start, $node;
+				}
+			}
+			else
+			{
+				if ( ($index < $#daughters) && ($daughters[$index + 1] -> name eq 'edge_id') )
+				{
+					push @start, $node;
+				}
+			}
 
 			return 1; # Keep walking.
 		},
@@ -1540,6 +1555,10 @@ there is 1 tree per set returned by L</cluster_sets()>.
 
 This is one of the 2 methods which do all the work, and hence must be called.
 The other is L</find_fixed_length_paths()>.
+
+The program ignores port and compass suffixes on node names. See
+L<http://savage.net.au/Perl-modules/html/graphviz2.marpa.pathutils/clusters.in.10.html>
+for a sample.
 
 See the L</Synopsis> and scripts/find.clusters.pl.
 

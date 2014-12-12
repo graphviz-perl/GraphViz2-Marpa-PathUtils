@@ -1,4 +1,4 @@
-digraph G
+digraph path_03
 {
 	rankdir = LR
 	style   = bold;

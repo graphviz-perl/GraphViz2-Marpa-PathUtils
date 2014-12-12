@@ -79,6 +79,7 @@ sub _find_fixed_length_paths
 		'data/fixed.length.paths.in.01.gv' => 'Act_1',
 		'data/fixed.length.paths.in.02.gv' => '5',
 		'data/fixed.length.paths.in.03.gv' => 'A',
+		'data/fixed.length.paths.in.04.gv' => 'node_10_01',
 	);
 
 	my($out_file);
@@ -263,7 +264,7 @@ sub _generate_html4clusters
 			{
 				border       => 1,
 				default_css  => "$$config{css_url}/default.css",
-				environment  => $self -> generate_demo_environment,
+				environment  => $self -> _generate_demo_environment,
 				input_data   =>
 				[
 					[
@@ -354,7 +355,7 @@ sub _generate_html4fixed_length_paths
 			{
 				border       => 1,
 				default_css  => "$$config{css_url}/default.css",
-				environment  => $self -> generate_demo_environment,
+				environment  => $self -> _generate_demo_environment,
 				input_data   =>
 				[
 					[

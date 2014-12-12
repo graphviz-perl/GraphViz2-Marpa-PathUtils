@@ -1,4 +1,4 @@
-digraph G
+digraph graph_08
 {
 	graph[rankdir = "LR" nodesep = "0"]
 	node[shape = "point" label = ""]
