@@ -231,12 +231,12 @@ sub _find_cluster_reachable_nodes
 			$node{tail}   =
 			{
 				id   => $$last_node_id{id},
-				name => $$last_node_id{node},
+				name => $$last_node_id{name},
 			};
 			$node{head} =
 			{
 				id   => $$next_node_id{id},
-				name => $$next_node_id{node},
+				name => $$next_node_id{name},
 			};
 
 			# Cases to handle (see data/path.set.01.in.gv):
@@ -323,7 +323,7 @@ sub _find_cluster_reachable_subgraph_1
 
 		# Stockpile all nodes within the head subgraph.
 
-		$real_head             = $$node_id{node};
+		$real_head             = $$node_id{name};
 		$$clusters{$real_tail} ||= Set::Tiny -> new;
 
 		$$clusters{$real_tail} -> insert($real_head);
@@ -356,7 +356,7 @@ sub _find_cluster_reachable_subgraph_2
 
 		# Stockpile all nodes within the tail subgraph.
 
-		$real_tail             = $$node_id{node};
+		$real_tail             = $$node_id{name};
 		$$clusters{$real_head} ||= Set::Tiny -> new;
 
 		$$clusters{$real_head} -> insert($real_tail);
@@ -399,7 +399,7 @@ sub _find_cluster_reachable_subgraph_3
 
 			next if ($$node_id{id} ne 'node_id');
 
-			$real_head             = $$node_id{node};
+			$real_head             = $$node_id{name};
 			$$clusters{$real_head} ||= Set::Tiny -> new;
 
 			$$clusters{$real_head} -> insert($real_tail);
@@ -449,13 +449,13 @@ sub _find_cluster_standalone_nodes
 
 			# Ignore non-nodes and nodes which have been seen.
 
-			return 1 if ( ($$node_id{id} ne 'node_id') || defined $seen{$$node_id{node} }); # Keep walking.
+			return 1 if ( ($$node_id{id} ne 'node_id') || defined $seen{$$node_id{name} }); # Keep walking.
 
 			$count++;
 
 			$$subgraphs{$count} = Set::Tiny -> new;
 
-			$$subgraphs{$count} -> insert($$node_id{node});
+			$$subgraphs{$count} -> insert($$node_id{name});
 
 			return 1; # Keep walking.
 		},
@@ -522,7 +522,7 @@ sub _find_clusters_trees
 
 			# Check for unwanted nodes.
 
-			if ( ($$name_id{id} eq 'node_id') && ! $wanted{$$name_id{node} })
+			if ( ($$name_id{id} eq 'node_id') && ! $wanted{$$name_id{name} })
 			{
 				$seen{$$name_id{uid} } = $node -> mother;
 			}
@@ -599,7 +599,7 @@ sub _find_fixed_length_candidates
 
 			# We only want neighbours of the current node.
 
-			return 1 if ($$name_id{node} ne $$current_name_id{node}); # Keep walking.
+			return 1 if ($$name_id{name} ne $$current_name_id{name}); # Keep walking.
 
 			# Now find its neighbours. These are sisters separated by an edge.
 			# But beware of subgraphs.
@@ -774,7 +774,7 @@ sub _find_fixed_length_paths
 
 			# Skip the tree nodes with names other than the start node.
 
-			return 1 if ($$node_id{node} ne $self -> start_node); # Keep walking.
+			return 1 if ($$node_id{name} ne $self -> start_node); # Keep walking.
 
 			# Skip the tree nodes which are not on a path.
 
@@ -839,8 +839,8 @@ sub find_fixed_length_paths
 		'Allow cycles: ' . $self -> allow_cycles . "\\n" .
 		'Paths: ' . scalar @{$self -> fixed_path_set};
 
-	$self -> report_fixed_length_paths($title)     if ($self -> report_paths);
-	$self -> output_fixed_length_gv($tree, $title) if ($self -> output_file);
+	$self -> report_fixed_length_paths($title) if ($self -> report_paths);
+	$self -> output_fixed_length_gv($tree, $prolog, $title) if ($self -> output_file);
 
 	# Return 0 for success and 1 for failure.
 
@@ -907,8 +907,7 @@ sub output_clusters
 
 sub output_fixed_length_gv
 {
-	my($self, $tree, $title) = @_;
-	my($prolog)      = $self -> decode_tree($tree);
+	my($self, $tree, $prolog, $title) = @_;
 	$$prolog{strict} .= ' ' if ($$prolog{strict} eq 'strict');
 
 	# Now output the paths, using the nodes' original names as labels.

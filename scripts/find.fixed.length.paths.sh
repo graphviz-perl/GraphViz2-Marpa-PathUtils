@@ -17,7 +17,7 @@ perl -Ilib scripts/find.fixed.length.paths.pl \
 	-allow_cycles 0 \
 	-input_file data/fixed.length.paths.in.$FILE.gv \
 	-output_file out/fixed.length.paths.out.$FILE.gv \
-	-max info \
+	-max notice \
 	-path_length $LENGTH \
 	-report_paths 1 \
 	-start_node $NODE
