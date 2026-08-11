@@ -394,7 +394,7 @@ sub _generate_html4fixed_length_paths
 
 =head1 NAME
 
-C<GraphViz2::Marpa::PathUtils::Demo> - Provide various analyses of Graphviz dot files
+GraphViz2::Marpa::PathUtils::Demo - Provide various analyses of Graphviz dot files
 
 =head1 SYNOPSIS
 

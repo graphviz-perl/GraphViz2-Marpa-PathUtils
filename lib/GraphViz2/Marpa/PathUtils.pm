@@ -1201,7 +1201,7 @@ sub _winnow_subgraph
 
 =head1 NAME
 
-L<GraphViz2::Marpa::PathUtils> - Provide various analyses of Graphviz dot files
+GraphViz2::Marpa::PathUtils - Provide various analyses of Graphviz dot files
 
 =head1 SYNOPSIS
 
