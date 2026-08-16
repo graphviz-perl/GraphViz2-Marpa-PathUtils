@@ -106,6 +106,11 @@ my(%params) =
 		'Types::Standard'  => 1.000005,
 		'warnings'         => 0,
 	},
+	TEST_REQUIRES =>
+	{
+		'Test::Pod'		=> 1.51,
+		'Test::More'	=> 1.001002,
+	},
 	VERSION_FROM => 'lib/GraphViz2/Marpa/PathUtils.pm',
 );
 
