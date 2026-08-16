@@ -74,8 +74,8 @@ my(%params) =
 		SUFFIX   => 'gz'
 	},
 	DISTNAME  => 'GraphViz2-Marpa-PathUtils',
-	NAME      => 'GraphViz2::Marpa::PathUtils',
 	LICENSE   => 'artistic_2',
+	NAME      => 'GraphViz2::Marpa::PathUtils',
 	PL_FILES  => {},
 	PL_FILES  => {},
 	PREREQ_PM =>
