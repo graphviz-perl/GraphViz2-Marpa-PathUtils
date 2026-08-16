@@ -39,3 +39,5 @@
 
 ^MYMETA.yml$
 ^MYMETA\.json$
+
+^GraphViz2-Marpa-PathUtils-*
