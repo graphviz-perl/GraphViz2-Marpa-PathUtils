@@ -84,6 +84,7 @@ my(%params) =
 		'Config'           => 0,
 		'Config::Tiny'     => 2.20,
 		'Date::Simple'     => 3.03,
+		'ExtUtils::MakeMaker'	=> 7.70,
 		'File::Basename'   => 2.84,
 		'File::Copy'       => 2.21,
 		'File::HomeDir'    => 0.99,
