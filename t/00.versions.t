@@ -23,7 +23,7 @@ use Getopt::Long;
 use GraphViz2::Marpa;
 use GraphViz2::Marpa::Renderer::Graphviz;
 use Moo;
-use open;
+use open qw(:std :utf8);
 use parent;
 use Path::Tiny;
 use Pod::Usage;
